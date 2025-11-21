@@ -1,0 +1,108 @@
+<?xml version="1.0"?>
+<!-- env.xml - simple cuboids-only physical environment for INET
+     Space: 1000 x 1000 x 200 (meters)
+     Contains several cuboid objects (different sizes, materials, positions).
+     Works with INET PhysicalEnvironment (see INET user guide).
+-->
+<environment>
+  <!-- world bounds -->
+  <space boundaryMin="0 0 0" boundaryMax="1000 1000 200"/>
+
+  <!-- Optional: define custom materials (id or name) with EM properties.
+       These properties are used by dielectric/obstacle-loss models.
+       Attributes supported include: resistivity, relativePermittivity, relativePermeability
+       (names and exact attributes depend on INET version). -->
+
+
+            
+  <!-- Example 1: large building (cuboid) -->
+  <object name="building_A"
+          position="min 100 100 60"
+          shape="cuboid 120 160 100"
+          material="concrete"
+          fill-color="180 180 180"
+          opacity="0.95"/>
+  <object name="building_A2"
+          position="min 800 600 40"
+          shape="cuboid 120 160 100"
+          material="concrete"
+          fill-color="180 180 180"
+          opacity="0.95"/>
+
+  <!-- Example 2: medium building -->
+  <object name="building_B"
+          position="min 350 150 40"
+          shape="cuboid 80 120 105"
+          material="brick"
+          fill-color="200 140 120"
+          opacity="0.95"/>
+  <object name="building_c"
+          position="min 550 450 40"
+          shape="cuboid 80 120 105"
+          material="brick"
+          fill-color="200 140 120"
+          opacity="0.95"/>
+
+  <!-- Example 3: long thin wall (as thin cuboid) -->
+  <object name="wall_1"
+          position="min 520 0 0"
+          shape="cuboid 8 1000 80"
+          material="concrete"
+          fill-color="130 75 75"
+          opacity="1.0"/>
+
+  <!-- Example 4: low obstacles / machinery -->
+  <object name="machine_cluster"
+          position="min 700 700 80"
+          shape="cuboid 30 30 60"
+          material="concrete"
+          fill-color="100 100 100"
+          opacity="1.0"/>
+
+  <!-- Example 5: glass atrium -->
+  <object name="atrium"
+          position="min 200 600 0"
+          shape="cuboid 60 80 70"
+          material="glass"
+          fill-color="180 210 240"
+          opacity="0.45"/>
+
+  <!-- Example 6: wooden shed -->
+  <object name="shed1"
+          position="min 850 100 10"
+          shape="cuboid 20 25 30"
+          material="wood"
+          fill-color="160 120 75"
+          opacity="0.9"/>
+  <object name="shed2"
+          position="min 750 100 10"
+          shape="cuboid 20 25 30"
+          material="wood"
+          fill-color="160 120 75"
+          opacity="0.9"/>
+  <object name="shed3"
+          position="min 750 150 10"
+          shape="cuboid 20 25 30"
+          material="wood"
+          fill-color="160 120 75"
+          opacity="0.9"/>
+  <object name="shed4"
+          position="min 700 300 10"
+          shape="cuboid 20 25 30"
+          material="wood"
+          fill-color="160 120 75"
+          opacity="0.9"/>
+
+  <!-- Example 7: several small boxes to create clutter -->
+  <object name="box1" position="min 430 520 0" shape="cuboid 10 10 4" material="wood" />
+  <object name="box2" position="min 445 520 0" shape="cuboid 10 10 4" material="wood" />
+
+
+  <!-- Notes:
+       - shape="cuboid L W H" defines a cuboid with size L (x) W (y) H (z) in meters;
+       - position="min X Y Z" places the cuboid with its minimum corner at (X,Y,Z);
+       - material can be a predefined name (concrete, brick, wood, glass, forest, etc.)
+         or a custom material defined above.
+       - Visual properties: fill-color (R G B), opacity (0..1).
+  -->
+</environment>
