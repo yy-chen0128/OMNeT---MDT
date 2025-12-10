@@ -34,6 +34,8 @@
 
 #include <iomanip>
 #include "inet/common/packet/chunk/Chunk.h"
+
+#include "inet/transportlayer/udp/UdpHeader_m.h"
 namespace mysrc {
 namespace routing {
 Define_Module(MDTRouting);
@@ -75,7 +77,8 @@ void MDTRouting::initialize(int stage){
     RoutingProtocolBase::initialize(stage);
     if (stage == INITSTAGE_LOCAL){
         //first token
-        if(getContainingNode(this)->getId() == 7){//TODO
+        EV_ERROR<<"MDTRouting::initialize nodeid:"<<getContainingNode(this)->getId()<<"\n";
+        if(getContainingNode(this)->getId() == 10){//TODO
             attached = true;
             EV_INFO<<"node[7] hold the first token";
         }
@@ -205,6 +208,7 @@ void MDTRouting::socketClosed(UdpSocket *socket)
     if (operationalState == State::STOPPING_OPERATION)
         startActiveOperationExtraTimeOrFinish(par("stopOperationExtraTime"));
 }
+
 void MDTRouting::handleMessageWhenUp(cMessage *msg){
   //handle selfmessage
     EV_INFO<<"handle message\n";
@@ -214,21 +218,23 @@ void MDTRouting::handleMessageWhenUp(cMessage *msg){
             refreshRoutetuple();
             scheduleAt(simTime() + (activeRouteTimeout / 2), routeTimer);
         }
-        else if (msg->getKind() == KIND_DELAYEDSEND_NS) {
+        else if (msg->getKind() == KIND_DELAYEDSEND_NS) {//no use
             auto timer = check_and_cast<PacketHolderForNSMessage *>(msg);
             L3Address dest = timer->getNsrqDestAddr();
             L3Address src = timer->getNsrqSrcAddr();
             Packet *p = timer->removeOwnedPacket();
 
             //Packet*p = maintenanceProtocol->createNeighborSetRequestTo(entry.addr,getSelfIPAddress(),L3Address());
-            if(src == L3Address()){
+            /*if(src == L3Address()){
                 EV_ERROR<<"nsrq send to pneighbor: "<<dest<<"\n";
                 sendPacketTo(p,dest,0);
             }
             else{
                 EV_ERROR<<"new neighbor and nsrq send to the sender: "<<src<<"\n";
                 sendPacketTo(p,src,0);
-            }
+            }*/
+            EV_ERROR<<"new neighbor and nsrq send to the sender: "<<src<<"\n";
+            sendPacketTo(p,src,0);
             maintenanceProtocol->AddwaitingReplyNodes(dest,simTime());
             delete timer;
         }
@@ -266,6 +272,17 @@ void MDTRouting::processPacket(Packet *packet)
     L3Address sourceAddr;//last jump node,not origin node
     if (auto l3ind = packet->findTag<inet::L3AddressInd>())
         sourceAddr = l3ind->getSrcAddress();
+
+    //######
+    //auto &entry = neighbors[src];
+    //entry.addr = src;
+    //entry.timeout = simTime() + neighborStaleTimeout / 2;//temp
+    //entry.attachedToDT = attached;
+    //entry.dim = dim;
+    //entry.coords.clear();
+
+
+    //######
     // Pop the control chunk from the front (chunk API)
     const auto& ctrl = packet->popAtFront<MDTControlPacket>();
     if (!ctrl) {
@@ -364,6 +381,36 @@ void MDTRouting::processPacket(Packet *packet)
                 // pass a copy of the chunk to Neighbor (avoid ownership transfer of Packet)
                 if (neighbor) {
                     neighbor->processKeepAliveChunk(ka, sourceAddr);
+
+                    std::vector<NodeEntry> nodeset = ka->getNeighbors();
+                    for (const auto& nodeEntry : nodeset){
+                        L3Address nodeAddr = nodeEntry.addr;
+                        if (routingTable) {
+                            // skip adding route for self
+                            if (nodeAddr == getSelfAddress()) {
+                                // optionally log or skip
+                            } else {
+                                bool found = false;
+                                for (int i = 0; i < routingTable->getNumRoutes(); ++i) {
+                                    IRoute* rt = routingTable->getRoute(i);
+                                    if (!rt) continue;
+                                    L3Address dest = rt->getDestinationAsGeneric();
+                                    if (dest == nodeAddr) { found = true; break; }
+                                }
+                                if (!found) {
+                                    EV_INFO << "No route for " << nodeAddr << " in routing table  requesting route discovery\n";
+                                    Routetuple tuple("physics",
+                                                     getSelfAddress(),    // originator
+                                                     L3Address(),
+                                                     sourceAddr,
+                                                     nodeAddr,                   // destination
+                                                     -1, -1,
+                                                     simTime() + activeRouteTimeout);
+                                    ensureRoute(nodeAddr, sourceAddr, tuple);
+                                }
+                            }
+                        }
+                    }
                 }
                 else {
                     EV_WARN << "processPacket: no neighbor module to handle KeepAlive\n";
@@ -677,6 +724,50 @@ void MDTRouting::processCoordsDiscoverReplyChunk(const Ptr<CoordsDiscoverReply>&
         completeRouteDiscovery(target);
     }
 }
+// returns true if there exists some other node in K (not self, not addr itself)
+// whose coords are strictly closer to target addr's coords than selfcoord is.
+// If outCloserAddr != nullptr, it will be set to that closer node's address (first found).
+static bool existsCloserNeighborThanSelf(
+    const std::map<L3Address, NeighborEntry> &K,
+    const L3Address &addr,
+    const std::vector<double> &selfcoord,
+    L3Address *outCloserAddr = nullptr,
+    double *outCloserDist = nullptr)
+{
+    const double eps = 1e-9;
+
+    // lookup target node
+    auto it = K.find(addr);
+    if (it == K.end()) return false;
+    const NeighborEntry &targetNe = it->second;
+    if (targetNe.coords.empty()) return false; // no coords -> cannot determine
+
+    // distance from self to target
+    double selfDist = coordDistance(selfcoord, targetNe.coords);
+    // if selfCoord invalid (very large), bail out
+    if (selfDist >= 1e200) return false;
+
+    // scan all known nodes
+    for (const auto &kv : K) {
+        const L3Address &otherAddr = kv.first;
+        if (otherAddr == addr) continue;        // skip target itself
+        // optionally skip self address if present in K (we compare against provided selfcoord anyway)
+        // if (otherAddr == owner->getSelfAddress()) continue;
+
+        const NeighborEntry &otherNe = kv.second;
+        if (otherNe.coords.empty()) continue;   // skip nodes without coords
+
+        double d = coordDistance(otherNe.coords, targetNe.coords);
+        // found strictly smaller distance (with tiny tolerance)
+        if (d + eps < selfDist) {
+            if (outCloserAddr) *outCloserAddr = otherAddr;
+            if (outCloserDist) *outCloserDist = d;
+            return true;
+        }
+    }
+    return false;
+}
+
 void MDTRouting::sendNSRQ(const std::vector<NeighborEntry>& entrys,const L3Address& srcAddr){//srcAddr is who sent the entrys
     Enter_Method_Silent("sendNSRQ");
     if(maintenanceProtocol->getStage() == MaintenanceState::INACTIVE){
@@ -692,34 +783,47 @@ void MDTRouting::sendNSRQ(const std::vector<NeighborEntry>& entrys,const L3Addre
         if(maintenanceProtocol->findNodeinInquiredNodes(entry.addr)){
             continue;
         }
-
-        Packet*p = maintenanceProtocol->createNeighborSetRequestTo(entry.addr,getSelfIPAddress(),getSelfIPAddress());//TODO attention: choose which addr as pred?
-        //auto *timer = new PacketHolderForNSMessage("mdt-sendnsrq-jitter", KIND_DELAYEDSEND_NS);
-        //double delay = 0;//uniform(0,0.1);       //TODO
-        //timer->setOwnedPacket(p);
-        //timer->setNsrqDestAddr(entry.addr);
-        EV_ERROR<<"send to new neighbor: "<<entry.addr<<"\n";
-        maintenanceProtocol->AddwaitingReplyNodes(entry.addr,simTime());
+        if(entry.addr == getSelfIPAddress()){
+            continue;
+        }
         if(neighbor->isPhysicalNeighbor(entry.addr)){
+            Packet*p = maintenanceProtocol->createNeighborSetRequestTo(entry.addr,getSelfIPAddress(),getSelfIPAddress());//TODO attention: choose which addr as pred?
+            //auto *timer = new PacketHolderForNSMessage("mdt-sendnsrq-jitter", KIND_DELAYEDSEND_NS);
+            double delay = uniform(0,0.1);       //TODO
             //timer->setNsrqSrcAddr(L3Address());
             //scheduleAfter(delay, timer);
-            sendPacketTo(p,entry.addr,0);
+            EV_ERROR<<"send to new neighbor(Pneighbor): "<<entry.addr<<"\n";
+            maintenanceProtocol->AddwaitingReplyNodes(entry.addr,simTime() + 0.05);
+            sendPacketTo(p,entry.addr,0,delay);
         }
         else{//MDT forward
             //timer->setNsrqSrcAddr(srcAddr);
             //scheduleAfter(delay, timer);
-            if(maintenanceProtocol->getStage() == MaintenanceState::JOINSTAGE){
-                if(srcAddr == L3Address()){
-                    EV_ERROR<<"src is empty send NSRQ error\n";
-                    sendPacketTo(p,entry.addr,0);
-                }
-                else{
-                    sendPacketTo(p,srcAddr,0);
+            std::map<L3Address, NeighborEntry> K = getKnownNodes();
+            std::vector<double>selfcoord;
+            if(getSelfCoordinate(selfcoord) && simTime() > 10){//assume target node not accessible
+                EV_ERROR<<"assume target node not accessible\n";
+                if (existsCloserNeighborThanSelf(K, entry.addr, selfcoord) == false){
+                    continue;
                 }
             }
-            else{
-                sendPacketTo(p,entry.addr,0);
+            Packet*p = maintenanceProtocol->createNeighborSetRequestTo(entry.addr,getSelfIPAddress(),getSelfIPAddress());//TODO attention: choose which addr as pred?
+            //auto *timer = new PacketHolderForNSMessage("mdt-sendnsrq-jitter", KIND_DELAYEDSEND_NS);
+            double delay = uniform(0,0.1);       //TODO
+            //timer->setOwnedPacket(p);
+            //timer->setNsrqDestAddr(entry.addr);
+            //timer->setNsrqSrcAddr(srcAddr);
+
+            EV_ERROR<<"send to new neighbor: "<<entry.addr<<"\n";
+            maintenanceProtocol->AddwaitingReplyNodes(entry.addr,simTime() + 0.05);
+
+            if(!srcAddr.isUnspecified()){
+                Routetuple tuple("physics",getSelfAddress(),L3Address(),srcAddr,entry.addr,-1,-1,simTime() + activeRouteTimeout);
+                ensureRoute(entry.addr, srcAddr, tuple);
             }
+
+            sendPacketTo(p,entry.addr,0,delay);
+
         }
         maintenanceProtocol->AddinquiredNodes(entry.addr);
     }
@@ -790,6 +894,164 @@ INetfilter::IHook::Result MDTRouting::ensureRouteForDatagram(Packet *datagram,in
     if(lowerName.find("mdt") != std::string::npos){
         is_mdt = true;
     }
+
+    bool directAccept = false;
+    if(is_mdt){//ctrl packets
+        Ptr<inet::Ipv4Header> ipv4HeaderPtr = nullptr;
+        Ptr<inet::UdpHeader> udpHeaderPtr = nullptr;
+        Ptr<MDTControlPacket> ctrlPtr = nullptr;
+        EV_INFO << "Before modification: " << datagram->str() << "\n";
+
+        // NOTE: popAtFront
+        if (datagram->peekAtFront<inet::Ipv4Header>()) {
+            ipv4HeaderPtr = datagram->removeAtFront<inet::Ipv4Header>(); // remove ip header
+            EV_ERROR <<"ensureRouteForDatagram: get ipv4HeaderPtr\n";
+        }
+        EV_INFO << "datagram: " << datagram->str() << " totalPayload=" << datagram->getTotalLength() << "\n";
+        B udplen;
+        if (datagram->peekAtFront<inet::UdpHeader>()) {
+            udpHeaderPtr = datagram->removeAtFront<inet::UdpHeader>(); // remove udp header
+            udplen = udpHeaderPtr->getTotalLengthField();
+            EV_ERROR <<"ensureRouteForDatagram: get udpHeaderPtr\n";
+        }
+        EV_INFO << "datagram: " << datagram->str() << " totalPayload=" << datagram->getTotalLength() << "\n";
+
+
+        if (ipv4HeaderPtr) {
+            EV_INFO << "IPv4: ver=" << ipv4HeaderPtr->getVersion()
+                    << " ihl=" << ipv4HeaderPtr->getHeaderLength()
+                    << " totLen=" << ipv4HeaderPtr->getTotalLengthField()
+                    << " hdrCrc=" << ipv4HeaderPtr->getCrc() << "\n";
+        }
+        if (udpHeaderPtr) {
+            EV_INFO << "UDP: len=" << udpHeaderPtr->getTotalLengthField()
+                    << " crc=" << udpHeaderPtr->getCrc() << "\n";
+        }
+
+
+        // Now the front should be your control packet (or maybe encapsulated further)
+        if (datagram->peekAtFront<MDTControlPacket>()) {
+            EV_ERROR <<"ensureRouteForDatagram: get MDTControlPacket\n";
+            //auto inner = seq->popAtFront<MDTControlPacket>(); // may return Ptr<const MDTControlPacket>
+            //auto modifiableCtrl = CHK(dynamicPtrCast<MDTControlPacket>(mdtctrl->dupShared()));
+            // pop out the control chunk
+            auto ctrlChunk = datagram->removeAtFront<MDTControlPacket>(); // Ptr<const MDTControlPacket> or Ptr<...>
+            EV_INFO << "datagram: " << datagram->str() << " totalPayload=" << datagram->getTotalLength() << "\n";
+            // create a modifiable independent copy
+            auto modifiableCtrl = CHK(dynamicPtrCast<MDTControlPacket>(ctrlChunk->dupShared()));
+            // perform modifications on modifiableCtrl
+            //modifiableCtrl->setSomeField(newValue); // your modification
+            auto packetType = static_cast<MDTControlPacketType>(modifiableCtrl->getPacketType());
+            switch (packetType) {
+                case MDTControlPacketType::JRQ: {
+                    auto jrq = dynamicPtrCast<JoinRequest>(modifiableCtrl);
+                    EV_ERROR <<"ensureRouteForDatagram: get JRQ\n";
+                    if (jrq) {
+                        if(jrq->getDestAddr() != jrq->getSourceAddr() && jrq->getSourceAddr() == getSelfIPAddress()){
+                            //jrq->setDestAddr(jrq->getSourceAddr());no need
+                            //return ACCEPT;//send from source node and skip route select
+                            directAccept = true;
+                        }
+                        else if(jrq->getDestAddr() == jrq->getSourceAddr()){
+                            if(state == 1){//forward
+                                joinProtocol->processJoinRequestForwardChunk(jrq);
+                            }
+                        }
+                    }
+                    break;
+                }
+                case MDTControlPacketType::JRP: {
+                    auto jrp = dynamicPtrCast<JoinReply>(modifiableCtrl);
+                    if (jrp) {
+                        if(jrp->getSourceAddr() == getSelfIPAddress()){//send begin
+                            //return ACCEPT;
+                            directAccept = true;
+                        }
+                        else{
+                            joinProtocol->processJoinReplyForwardChunk(jrp);
+                            //return ACCEPT;//route is ready
+                            directAccept = true;
+                        }
+                    }
+                    break;
+                }
+                case MDTControlPacketType::NSRQ: {
+                    auto nsrq = dynamicPtrCast<NeighborSetRequest>(modifiableCtrl);
+                    if (nsrq) {
+                        if(nsrq->getSourceAddr() == getSelfIPAddress()){//send begin and route is ready
+                            //return ACCEPT;
+                            directAccept = true;
+                        }
+                        else{
+                            maintenanceProtocol->processNeighborSetRequestForwardChunk(nsrq);
+                        }
+                    }
+                    break;
+                }
+                case MDTControlPacketType::NSRP: {
+                    auto nsrp = dynamicPtrCast<NeighborSetReply>(modifiableCtrl);
+                    if (nsrp) {
+                        if(nsrp->getSourceAddr() == getSelfIPAddress()){//send begin and route is ready
+                            //return ACCEPT;
+                            directAccept = true;
+                        }
+                        else{
+                            maintenanceProtocol->processNeighborSetReplyForwardChunk(nsrp);
+                        }
+                    }
+                    break;
+                }
+                case MDTControlPacketType::NSN: {//no use
+                    auto nsn = dynamicPtrCast<NeighborSetNotification>(modifiableCtrl);
+                    if (nsn){
+                        //maintenanceProtocol->processNeighborSetNotificationForwardChunk(nsn);
+                    }
+                    break;
+                }
+                default:
+                    EV_ERROR << "ERROR MDTControlPacketType for forward\n";
+                    break;
+            }
+
+            // place the modified control packet back
+            EV_ERROR << "place the modified control packet back\n";
+            datagram->insertAtFront(modifiableCtrl);
+            EV_INFO << "datagram: " << datagram->str() << " totalPayload=" << datagram->getTotalLength() << "\n";
+        }
+        else {
+            EV_ERROR <<"ensureRouteForDatagram:error findAtFront<MDTControlPacket>() fail\n";
+            if (udpHeaderPtr) datagram->insertAtFront(udpHeaderPtr);
+            if (ipv4HeaderPtr) datagram->insertAtFront(ipv4HeaderPtr);
+            return ACCEPT;
+        }
+
+        // insert headers back
+        //const B payloadLenB = datagram->getTotalLength();
+        const B payloadLenB = datagram->getDataLength();
+        if (udpHeaderPtr) {
+            EV_ERROR << "insert headers back:udp\n";
+            const B udpHeaderLenB = B(8);
+            const B totalUdpLenB = udpHeaderLenB + payloadLenB;
+            if(totalUdpLenB != udplen){
+                EV_ERROR <<"udp len error: "<<totalUdpLenB<<"not equal to: "<<udplen<<"\n";
+            }
+            udpHeaderPtr->setTotalLengthField(totalUdpLenB);
+            //udpHeaderPtr->setCrc(0);
+            datagram->insertAtFront(udpHeaderPtr);
+        }
+        EV_INFO << "datagram: " << datagram->str() << " totalPayload=" << datagram->getTotalLength() << "\n";
+        if (ipv4HeaderPtr) {
+            EV_ERROR << "insert headers back:ip\n";
+            const B ipHdrLenB = ipv4HeaderPtr->getHeaderLength();
+            const B totalIpLenB = ipHdrLenB + datagram->getTotalLength();
+            ipv4HeaderPtr->setTotalLengthField(totalIpLenB);
+            ipv4HeaderPtr->setCrc(0);
+            ipv4HeaderPtr->updateCrc();
+            datagram->insertAtFront(ipv4HeaderPtr);
+        }
+        EV_INFO << "After modification: " << datagram->str() << " totalPayload=" << datagram->getTotalLength() << "\n";
+
+    }
     /*auto ctrl = datagram->peekAtFront<MDTControlPacket>();
     if (ctrl) {
         return INetfilter::IHook::ACCEPT;
@@ -849,6 +1111,22 @@ INetfilter::IHook::Result MDTRouting::ensureRouteForDatagram(Packet *datagram,in
 
         EV_ERROR <<"packet name: "<< datagram->getName();
         EV_ERROR << " ensureRouteForDatagram: added MdtRelayTag to packet\n";
+    }
+
+    if(directAccept){//for mdt control packet
+        if (relayChunk){
+            EV_ERROR << "back name:"<< datagram << "\n";
+            auto ipv4Hdr = datagram->removeAtFront<Ipv4Header>();
+            datagram->insertAtBack(relayChunk);
+            ipv4Hdr->setTotalLengthField(ipv4Hdr->getChunkLength() +
+                                         datagram->getDataLength());   // relayChunk
+            ipv4Hdr->setCrc(0);
+            ipv4Hdr->updateCrc();
+            datagram->insertAtFront(ipv4Hdr);
+
+            EV_ERROR<<"addnewchunk,datagram = "<<datagram<<"\n";
+        }
+        return ACCEPT;
     }
 
     simtime_t time = simTime();
@@ -978,6 +1256,19 @@ INetfilter::IHook::Result MDTRouting::ensureRouteForDatagram(Packet *datagram,in
                 EV_ERROR<<"find new relay as short cut: "<<relaydest<<"\n";
                 relayChunk->setRelayAddr(relaydest);
             }
+            if (relayChunk){
+                EV_ERROR << "back name:"<< datagram << "\n";
+                auto ipv4Hdr = datagram->removeAtFront<Ipv4Header>();
+                datagram->insertAtBack(relayChunk);
+                ipv4Hdr->setTotalLengthField(ipv4Hdr->getChunkLength() +
+                                             datagram->getDataLength());   // relayChunk
+                ipv4Hdr->setCrc(0);
+                ipv4Hdr->updateCrc();
+                datagram->insertAtFront(ipv4Hdr);
+                EV_ERROR<<"addnewchunk,datagram = "<<datagram;
+            }
+            return INetfilter::IHook::ACCEPT;
+
             if(forwardProtocol->findnexthop(relaydest, nxthop)){//greedy
 
             }
@@ -1366,6 +1657,7 @@ void MDTRouting::deleteexpiredneighbors(std::vector<L3Address> nodes){
     L3Address self = getSelfIPAddress();
 
     auto P = getPNeighborNodes();
+    std::map<L3Address, NeighborEntry> DT = getDTNeighbors();
     if (routingTable) {// add nodes to expired set if it is NextHop in routetable
         for (int i = 0; i < routingTable->getNumRoutes(); ++i) {
             IRoute* rt = routingTable->getRoute(i);
@@ -1411,7 +1703,6 @@ void MDTRouting::deleteexpiredneighbors(std::vector<L3Address> nodes){
     }
 
     for(auto node :nodes){
-        L3Address nxthop = L3Address();
         L3Address dest = node;
         std::vector<double> destCoord;
         if(getKnownNodeCoordinate(dest,destCoord)){
@@ -1438,9 +1729,20 @@ void MDTRouting::deleteexpiredneighbors(std::vector<L3Address> nodes){
                         nxthop = relaythop;
                 }
                 if(!nxthop.isUnspecified() && nxthop != self && nxthop != node && P.find(nxthop) != P.end()){
+                    std::vector<NeighborEntry> entrys;
                     for(auto destaddr : nodeToDeleteSet[node]){
-                        Routetuple tuple("physics",getSelfAddress(),L3Address(),nxthop,destaddr,-1,-1,simTime() + activeRouteTimeout);
-                        ensureRoute(destaddr,nxthop,tuple);
+                        auto itDT = DT.find(destaddr);
+                        if (itDT != DT.end() && P.find(destaddr) == P.end()){
+                            entrys.push_back(itDT->second);
+                        }
+                        else{
+                            Routetuple tuple("physics",getSelfAddress(),L3Address(),nxthop,destaddr,-1,-1,simTime() + activeRouteTimeout);
+                            ensureRoute(destaddr,nxthop,tuple);
+                        }
+                    }
+                    if(!entrys.empty()){
+                        EV_ERROR<<"MDTRouting::deleteexpiredneighbors: repair mdt link\n";
+                        sendNSRQ(entrys,nxthop);
                     }
                 }
                 else{
@@ -1634,14 +1936,14 @@ void MDTRouting::updateRoutetuple(const L3Address& sourceAddr,const L3Address& p
     Routetuple tuple("physics",sourceAddr,predAddr,succAddr,destAddr,-1,-1,simTime() + activeRouteTimeout);
     ensureRoute(destAddr,succAddr,tuple);
 }
-bool MDTRouting::isDTNeighborOfTarget(const std::vector<double>& targetCoord, const L3Address& addr){
+/*bool MDTRouting::isDTNeighborOfTarget(const std::vector<double>& targetCoord, const L3Address& addr){
     return neighbor->isDTNeighborOfTarget(targetCoord,addr);
-}
-std::vector<NeighborEntry> MDTRouting::computeDTNeighborsForCoord(const std::vector<double>& targetCoord, const L3Address& addr){
+}*/
+/*std::vector<NeighborEntry> MDTRouting::computeDTNeighborsForCoord(const std::vector<double>& targetCoord, const L3Address& addr){
     return neighbor->computeDTNeighborsForCoord(targetCoord,addr);
-}
-void MDTRouting::updateDTNeighbors(){
-    neighbor->updateDTNeighbors(true);
+}*/
+void MDTRouting::updateDTNeighbors(std::vector<NeighborEntry>& newNeighborsOut){
+    neighbor->updateDTNeighbors(newNeighborsOut,true);
 }
 bool MDTRouting::addOrUpdateKnownNode(const std::vector<NeighborEntry>& entrys){
     if(neighbor){

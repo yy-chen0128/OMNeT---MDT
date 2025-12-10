@@ -130,13 +130,10 @@ void Neighbor::initialize(int stage)
 
 
         // create DT manager using references to this->members
-        dtManager = std::make_unique<NeighborDT>(knownNodeCoords,
-                                                 dt,
-                                                 vhToAddrs,
-                                                 addrToVh,
-                                                 pendingRebuildAddrs,
-                                                 dtNeighbors,
-                                                 minSimplexNodes);
+
+
+        CGAL_Manager = std::make_unique<DtManager>(DtManager::UpdateMode::FULL
+                                                   );
     }
 }
 
@@ -197,11 +194,16 @@ void Neighbor::handleMessage(cMessage *msg)
     }
     else if(msg == dtTimer){
         EV_INFO << "Neighbor::handleMessage - dtTimer triggered, recomputing DT neighbors\n";
-        updateDTNeighbors();
-        if(debug){
-            printDT();
-            printDTNeighbors();
-            printKnownCoords();
+        if(owner->getNodeattachstate() == true){
+            EV_ERROR << "dtTimer trigger updateDTNeighbors\n";
+            std::vector<NeighborEntry> newNeighborsOut;
+            updateDTNeighbors(newNeighborsOut);
+
+            if(debug){
+                printDT();
+                printDTNeighbors();
+                printKnownCoords();
+            }
         }
         scheduleAt(simTime() + dtInterval, dtTimer);
     }
@@ -404,6 +406,7 @@ void Neighbor::processKeepAliveChunk(const Ptr<KeepAlive>& ka, const L3Address& 
         Routetuple tuple("physics",src,L3Address(),L3Address(),owner->getSelfAddress(),-1,-1,simTime() + owner->activeRouteTimeout);
         owner->ensureRoute(src, src, tuple);
     }
+
     // route table
     //Routetuple tuple("physics",src,L3Address(),L3Address(),owner->getSelfAddress(),-1,-1,simTime() + owner->activeRouteTimeout);
 
@@ -827,7 +830,7 @@ bool Neighbor::addOrUpdateKnownNode(const std::vector<NeighborEntry>& entrys)
 
     return changed;
 }
-bool Neighbor::addOrUpdateDTNeighbors(const std::vector<NeighborEntry>& entrys){
+bool Neighbor::addOrUpdateDTNeighbors(const std::vector<NeighborEntry>& entrys){//do not use
     //inet::L3Address selfAddr = owner->getSelfAddress();
     simtime_t now = simTime();
     bool changed = false; // track whether we should return true
@@ -911,7 +914,17 @@ bool Neighbor::addOrUpdateDTNeighbors(const std::vector<NeighborEntry>& entrys){
     }*/
     return changed;
 }
-
+std::map<L3Address, NeighborEntry> Neighbor::getDTNeighbors() const{
+    /*std::vector<L3Address> lst = CGAL_Manager->getDTNeighbors(owner->getSelfAddress());
+    dtNeighbors.clear();
+    for (const auto& addr : lst)
+    {
+        auto it = knownNodeCoords.find(addr);
+        if (it != knownNodeCoords.end())
+            dtNeighbors.emplace(it->first, it->second);
+    }*/
+    return dtNeighbors;
+}
 bool Neighbor::getDTNeighborCoords(const L3Address& addr, std::vector<double>& outCoords) const
 {
     auto it = dtNeighbors.find(addr);
@@ -927,120 +940,13 @@ bool Neighbor::getKnownNodeCoords(const L3Address& addr, std::vector<double>& ou
     return true;
 }
 
-Point3 Neighbor::makePoint(const std::vector<double>& c) {
-    return Point3(c.size()>0?c[0]:0.0,
-                  c.size()>1?c[1]:0.0,
-                  c.size()>2?c[2]:0.0);
-}
 
-void Neighbor::insertNodeToDT(const inet::L3Address& addr, const Point3& p) {
-    dtManager->insertNodeToDT(addr,p);
-}
-
-//
-// Remove an address from DT:
-// - Remove addr -> vh mapping
-// - Remove addr from vhToAddrs[vh]
-// - If that vh no longer has any addresses, remove vh from DT and erase mapping
-//
-void Neighbor::removeNodeFromDT(const inet::L3Address& addr) {
-    dtManager->removeNodeFromDT(addr,pendingRebuildThreshold);
-}
-// --- 2) rebuild function: full, safe dt rebuild from knownNodeCoords ---
-void Neighbor::rebuildDTFromKnownNodes() {
-    // When you want to process pending rebuilds but obey minRebuildInterval and simTime(),
-    // call dtManager->rebuildDTFromKnownNodes with a predicate to only include non-expired & attached nodes:
-    auto includePred = [this](const NeighborEntry &ne) -> bool {
-        // include only attachedToDT and not expired
-        if (!ne.attachedToDT) return false;
-        if (ne.timeout != SIMTIME_ZERO && ne.timeout <= simTime()) return false;
-        return true;
-    };
-    dtManager->rebuildDTFromKnownNodes(includePred);
-}
-
-//
-// Rebuild the DT neighbor cache for self:
-// - enumerate incident cells around self vertex (3D safe using incident_cells circulator)
-// - collect unique neighbor vertex handles, expand them to addresses (vhToAddrs)
-// - fill dtNeighbors with knownNodeCoords entries only for attachedToDT and not expired
-//
-void Neighbor::rebuildDTNeighborCache() {
-    inet::L3Address selfAddr = owner->getSelfAddress();
-    auto includePred = [this](const NeighborEntry &ne) -> bool {
-        // include only attachedToDT and not expired
-        if (!ne.attachedToDT) return false;
-        if (ne.timeout != SIMTIME_ZERO && ne.timeout <= simTime()) return false;
-        return true;
-    };
-    dtManager->rebuildDTNeighborCache(selfAddr, includePred);
-}
-
-//
-// Full initial construction of DT from knownNodeCoords (used at first run).
-//
-void Neighbor::computeDTNeighbors_CGAL() {
-    // ensure dtManager exists
-    if (!dtManager) createDTManager();
-
-    // Ensure self coordinate is present (store into knownNodeCoords if missing)
-    inet::L3Address self = owner->getSelfAddress();
-    if (knownNodeCoords.find(self) == knownNodeCoords.end()) {
-        std::vector<double> c;
-        if (owner->getSelfCoordinate(c)) {
-            NeighborEntry &me = knownNodeCoords[self];
-            me.coords = c;
-            me.addr = self;
-            me.dim = (int)c.size();
-            me.attachedToDT = true;
-            me.timeout = SIMTIME_ZERO; // local self has no timeout (was bug: simTime())
-            me.type = "self";
-            EV_ERROR << "computeDTNeighbors_CGAL: stored self coords and marked attachedToDT\n";
-        } else {
-            EV_WARN << "computeDTNeighbors_CGAL: cannot obtain self coordinate\n";
-        }
-    } else {
-        // ensure flags are correct if self already present
-        auto &me = knownNodeCoords[self];
-        me.attachedToDT = true;
-        me.addr = self;
-        me.timeout = SIMTIME_ZERO;
-    }
-
-    // create include predicate: attachedToDT and not expired (or self)
-    auto includePred = [this, self](const NeighborEntry &ne) -> bool {
-        if (!ne.attachedToDT) return false;
-        if (ne.timeout != SIMTIME_ZERO && ne.timeout <= simTime()) return false;
-        return true;
-    };
-
-    // delegate full rebuild to dtManager (this will repopulate dt and addrToVh from knownNodeCoords)
-    dtManager->rebuildDTFromKnownNodes(includePred);
-
-    // After rebuild, ensure self is mapped in addrToVh (defensive)
-    if (addrToVh.find(self) == addrToVh.end()) {
-        EV_ERROR << "computeDTNeighbors_CGAL: self not present in addrToVh after rebuild -> inserting self directly\n";
-        auto it = knownNodeCoords.find(self);
-        if (it != knownNodeCoords.end()) {
-            Point3 p = makePoint(it->second.coords);
-            dtManager->insertNodeToDT(self, p);
-        } else {
-            EV_ERROR << "computeDTNeighbors_CGAL: self coords not found in knownNodeCoords when trying direct insert\n";
-        }
-    }
-
-    // rebuild neighbor cache around self; dtManager expects self present in addrToVh
-    dtManager->rebuildDTNeighborCache(self, includePred);
-
-    isInitialized = true;
-    EV_INFO << "computeDTNeighbors_CGAL: initial dt built, vertices=" << addrToVh.size() << "\n";
-}
 //
 // Incremental update (called periodically or on disturbance).
 // If disturbance==true, reset timer (cancelAndDelete previous).
 //
 // --- 3) updateDTNeighbors: call rebuild handler at start; avoid immediate dt.remove ---
-void Neighbor::updateDTNeighbors(bool disturbance) {
+void Neighbor::updateDTNeighbors(std::vector<NeighborEntry>& newNeighborsOut,bool disturbance) {
     // reset timer as you had
     Enter_Method("updateDTNeighbors");
     if (disturbance) {
@@ -1052,124 +958,42 @@ void Neighbor::updateDTNeighbors(bool disturbance) {
         scheduleAt(simTime() + dtInterval, dtTimer);
         EV_ERROR<<"update dt owning to disturbance\n";
     }
-
-    // Ensure dtManager exists
-    if (!dtManager) createDTManager();
-
-    EV_ERROR<<"handle pending rebuilds (deferred cleanups)\n";
-    if (!pendingRebuildAddrs.empty()) {
-        // Option A: attempt rebuild immediately (preferred)
-        if (simTime() - lastRebuildTime >= minRebuildInterval) {
-            // rebuild via dtManager with predicate
-            auto includePred = [this](const NeighborEntry &ne) -> bool {
-                if (!ne.attachedToDT) return false;
-                if (ne.timeout != SIMTIME_ZERO && ne.timeout <= simTime()) return false;
-                return true;
-            };
-            dtManager->rebuildDTFromKnownNodes(includePred);
-            EV_ERROR<<"rebuild neighbor cache for self\n";
-            dtManager->rebuildDTNeighborCache(owner->getSelfAddress(), includePred);
-            pendingRebuildAddrs.clear();
-            lastRebuildTime = simTime();
-            ++rebuildCount;
-            EV_ERROR << "updateDTNeighbors: performed deferred rebuild\n";
-        } else {
-            EV_DETAIL << "updateDTNeighbors: pending rebuild deferred (min interval)\n";
+    if (!CGAL_Manager) createCGALDTManager();
+    if (CGAL_Manager) {
+        std::vector<L3Address> newneighbor;
+        CGAL_Manager->updateFromMap(knownNodeCoords,
+                owner->getSelfAddress(),
+                newneighbor);
+        EV_ERROR << "CGAL update dt and new neighbors: ";
+        for (const auto& addr : newneighbor)
+        {
+            auto it = knownNodeCoords.find(addr);
+            if (it != knownNodeCoords.end())
+                newNeighborsOut.push_back(it->second);
         }
-    }
+        for(auto ne:newneighbor){
+            EV_ERROR << ne <<" ";
+        }
+        EV_ERROR <<"\n";
 
-    if (!isInitialized) {
-        EV_ERROR <<"not isInitialized compute dt directly\n";
-        computeDTNeighbors_CGAL();
+        std::vector<L3Address> lst = CGAL_Manager->getDTNeighbors(owner->getSelfAddress());
+        dtNeighbors.clear();
+        for (const auto& addr : lst)
+        {
+            auto it = knownNodeCoords.find(addr);
+            if (it != knownNodeCoords.end())
+                dtNeighbors.emplace(it->first, it->second);
+        }
+
         return;
     }
 
-    // collect expired addresses (we won't call dt.remove for these)
-    std::vector<inet::L3Address> expired;
-    for (auto &kv : knownNodeCoords) {
-        if (kv.second.timeout != SIMTIME_ZERO && kv.second.timeout + 10 <= simTime())//TODO
-            expired.push_back(kv.first);
-        if(kv.second.addr == owner->getSelfAddress()){
-            kv.second.timeout = simTime() + 10;
-        }
-    }
-
-    // For expired addresses: only remove from addrToVh/vhToAddrs and mark for rebuild
-    for (const auto &a : expired) {
-        // use the safe removeNodeFromDT above (doesn't call dt.remove)
-        removeNodeFromDT(a);
-    }
-
-    // create include predicate once
-    auto includePred = [this](const NeighborEntry &ne) -> bool {
-        if (!ne.attachedToDT) return false;
-        if (ne.timeout != SIMTIME_ZERO && ne.timeout <= simTime()) return false;
-        return true;
-    };
-
-    EV_ERROR <<"update/insert remaining nodes\n";
-    for (auto &kv : knownNodeCoords) {
-        const inet::L3Address &addr = kv.first;
-        NeighborEntry &ne = kv.second;
-        if (ne.timeout != SIMTIME_ZERO && ne.timeout <= simTime()) continue;
-        if (!ne.attachedToDT) continue;
-
-        Point3 p = makePoint(ne.coords);
-
-        // use dtManager's addr->vh map
-        auto &addrToVhRef = dtManager->addrToVhRef();
-        if (addrToVhRef.find(addr) != addrToVhRef.end()) {
-            Vertex_handle vh = addrToVhRef[addr];
-            // if supported, try dt.move; if fails, defer to rebuild
-    #if CGAL_VERSION_NR >= 1050500000
-            try {
-                if (vh->point() != p) dtManager->dtRef().move(vh, p);
-            } catch (...) {
-                EV_ERROR << "updateDTNeighbors: dt.move failed for " << addr << ", deferring to rebuild\n";
-                pendingRebuildAddrs.insert(addr);
-            }
-    #else
-            if (vh->point() != p) pendingRebuildAddrs.insert(addr);
-    #endif
-        } else {
-            // new node -> insert via dtManager
-            dtManager->insertNodeToDT(addr, p);
-        }
-    }
-
-    EV_ERROR <<"finally rebuild neighbor cache for self\n";
-    dtManager->rebuildDTNeighborCache(owner->getSelfAddress(), includePred);
-
-    // if pending set big enough and min interval passed, rebuild now
-    if (!pendingRebuildAddrs.empty() && (int)pendingRebuildAddrs.size() >= pendingRebuildThreshold) {
-        if (simTime() - lastRebuildTime >= minRebuildInterval) {
-            EV_WARN << "updateDTNeighbors: pending size reached -> immediate rebuild\n";
-            // use dtManager rebuild
-            dtManager->rebuildDTFromKnownNodes(includePred);
-            dtManager->rebuildDTNeighborCache(owner->getSelfAddress(), includePred);
-            pendingRebuildAddrs.clear();
-            lastRebuildTime = simTime();
-            ++rebuildCount;
-        }
-    }
-
-    std::vector<L3Address> dtUniqueKeys;
-    for (const auto& dtPair : dtNeighbors) {
-        const L3Address& key = dtPair.first;
-        if (neighbors.find(key) == neighbors.end()) {
-            dtUniqueKeys.push_back(key);
-        }
-    }
-    if(!dtUniqueKeys.empty()){
-        EV_ERROR<<"find new dt neighbor and route discover\n";
-        owner->findroutefornewdt(dtUniqueKeys);
-    }
 
 }
 // isDTNeighborOfTarget: ensure target is added to local DT and determine whether self is a DT-neighbor of target.
 // Return true if: (a) self is in the DT neighbor set of target (same simplex), OR (b) there are no other valid neighbors
 // that satisfy attached & not-expired (i.e., effectively only self and target exist).
-bool Neighbor::isDTNeighborOfTarget(const std::vector<double>& targetCoord, const L3Address& addr)
+/*bool Neighbor::isDTNeighborOfTarget(const std::vector<double>& targetCoord, const L3Address& addr)
 {
     inet::L3Address selfAddr = owner->getSelfAddress();
     auto includePred = [this](const NeighborEntry &ne) -> bool {
@@ -1200,62 +1024,38 @@ bool Neighbor::isDTNeighborOfTarget(const std::vector<double>& targetCoord, cons
         }
     }
     return dtManager->isDTNeighborOfTarget(targetCoord,addr,selfAddr,includePred);
-}
+}*/
 
-std::vector<NeighborEntry> Neighbor::computeDTNeighborsForCoord(const std::vector<double>& targetCoord, const L3Address& addr)
-{
-    auto includePred = [this](const NeighborEntry &ne) -> bool {
-        // include only attachedToDT and not expired
-        if (!ne.attachedToDT) return false;
-        if (ne.timeout != SIMTIME_ZERO && ne.timeout <= simTime()) return false;
-        return true;
-    };
-    const L3Address selfAddr = owner->getSelfAddress();
-    if (addrToVh.find(selfAddr) == addrToVh.end()) {
-        auto kself = knownNodeCoords.find(selfAddr);
-        if (kself == knownNodeCoords.end()) {
-            std::vector<double> sc;
-            if (owner->getSelfCoordinate(sc)) {
-                NeighborEntry ne;
-                ne.addr = selfAddr;
-                ne.coords = sc;
-                ne.dim = (int)sc.size();
-                ne.attachedToDT = true;
-                ne.timeout = SIMTIME_ZERO;
-                knownNodeCoords[selfAddr] = ne;
-                dtManager->insertNodeToDT(selfAddr, dtManager->makePoint(sc));
-            } else {
-                EV_ERROR<<"can not get self coords\n";
-            }
-        } else {
-            knownNodeCoords[selfAddr].attachedToDT = true;
-            dtManager->insertNodeToDT(selfAddr, dtManager->makePoint(kself->second.coords));
-        }
-    }
-    return dtManager->computeDTNeighborsForCoord(targetCoord,addr,selfAddr,includePred);
 
-}
 
-void Neighbor::computeMinimalNeighborSubset_CGAL_3D() {
-    const L3Address selfAddr = owner->getSelfAddress();
-    auto includePred = [this](const NeighborEntry &ne) -> bool {
-        // include only attachedToDT and not expired
-        if (!ne.attachedToDT) return false;
-        if (ne.timeout != SIMTIME_ZERO && ne.timeout <= simTime()) return false;
-        return true;
-    };
-    dtManager->computeMinimalNeighborSubset_CGAL_3D(selfAddr, includePred);
-}
+
 std::map<L3Address, NeighborEntry> Neighbor::getMinSimplexNodes() {
-    this->computeMinimalNeighborSubset_CGAL_3D();
+    if (CGAL_Manager) {
+        std::vector<L3Address> MinSimplexNodes  = CGAL_Manager->getMinSimplexNodes(owner->getSelfAddress());
+        minSimplexNodes.clear();
+        EV_ERROR << "CGAL getMinSimplexNodes: ";
+        for (const auto& addr : MinSimplexNodes)
+        {
+            auto it = knownNodeCoords.find(addr);
+            if (it != knownNodeCoords.end()){
+                minSimplexNodes.emplace(it->first, it->second);
+            }
+        }
+        for(auto ne:MinSimplexNodes){
+            EV_ERROR << ne <<" ";
+        }
+        EV_ERROR <<"\n";
+
+        return minSimplexNodes;
+    }
+
     return minSimplexNodes;
 }
 void Neighbor::printDT() const
 {
     EV_INFO << "=====  DT content (@ " << simTime() << ")  =====\n";
-    EV_INFO << "DT vertices=" << dt.number_of_vertices()
-            << " cells=" << dt.number_of_finite_cells() << "\n";
-    for (const auto& kv : addrToVh) {
+    EV_INFO << "DT vertices=? TODO\n";
+    /*for (const auto& kv : addrToVh) {
         const L3Address& addr = kv.first;
         Vertex_handle vh      = kv.second;
         if (dt.is_infinite(vh)) continue;
@@ -1265,7 +1065,7 @@ void Neighbor::printDT() const
         EV_INFO << "  addr=" << addr
                 << " pos=(" << p.x() << "," << p.y() << "," << p.z()
                 << ") attached=" << att << "\n";
-    }
+    }*/
     EV_INFO << "=====  DT end  =====\n";
 }
 

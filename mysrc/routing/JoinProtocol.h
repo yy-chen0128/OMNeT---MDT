@@ -36,13 +36,15 @@ public:
     virtual ~JoinProtocol(){}
 
     Packet *createJoinRequestTo(const L3Address& dest,const L3Address& src,const L3Address& pred,const std::vector<double>& coords = std::vector<double>());
-    bool isNearestDTNode(const std::vector<double>& dest,int dim);//TODO this method is no use
+    bool isNearestDTNode(const std::vector<double>& dest,int dim,L3Address& nearest);//TODO
 
     void processJoinRequestChunk(const Ptr<JoinRequest>& joinRequestChunk);
 
     Packet *createJoinReplyTo(const L3Address& dest,const L3Address& src,const L3Address& pred,const std::vector<NeighborEntry>& entrys);
     void processJoinReplyChunk(const Ptr<JoinReply>& joinReplyChunk);
 
+    void processJoinRequestForwardChunk(Ptr<JoinRequest>& joinRequestChunk);
+    void processJoinReplyForwardChunk(Ptr<JoinReply>& joinReplyChunk);
 };
 
 }

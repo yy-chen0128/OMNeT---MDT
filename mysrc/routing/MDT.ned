@@ -14,8 +14,8 @@ module MDT like IApp
         //@display("i=block/network2");
         @display("i=block/routing;is=s");
 
-        double MaintenanceInterval @unit(s) = default(5s);
-        double NSRPTimeout @unit(s) = default(5s);
+        double MaintenanceInterval @unit(s) = default(3.5s);
+        double NSRPTimeout @unit(s) = default(2.5s);
 
         int coordinateDimension = default(3);
         double joinTimeout @unit(s) = default(5s);
@@ -27,12 +27,12 @@ module MDT like IApp
         string interface = default("wlan0");
 
         double keepAliveInterval @unit(s) = default(1s);
-        double KANInterval @unit(s) = default(0.2s);
-        double weaklinkKANInterval @unit(s) = default(0.15s);
-        double neighborStaleTimeout @unit(s) = default(0.5s);
+        double KANInterval @unit(s) = default(0.4s);
+        double weaklinkKANInterval @unit(s) = default(0.25s);
+        double neighborStaleTimeout @unit(s) = default(0.7s);
         double knownNodeStaleTimeout @unit(s) = default(15s);
         double tupleTimeout @unit(s) = default(10s);
-        double dtInterval @unit(s) = default(2s);
+        double dtInterval @unit(s) = default(3s);
         double initInterval @unit(s) = default(5s);
 
     gates:

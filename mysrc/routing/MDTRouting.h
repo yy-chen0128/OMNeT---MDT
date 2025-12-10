@@ -261,13 +261,13 @@ class INET_API MDTRouting : public RoutingProtocolBase, public NetfilterBase::Ho
     void sendNSRQ(const std::vector<NeighborEntry>& entrys,const L3Address& srcAddr);
 
     //neighbor
-    bool isDTNeighborOfTarget(const std::vector<double>& targetCoord, const L3Address& addr);
-    std::vector<NeighborEntry> computeDTNeighborsForCoord(const std::vector<double>& targetCoord,const L3Address& addr);
+    //bool isDTNeighborOfTarget(const std::vector<double>& targetCoord, const L3Address& addr);
+    //std::vector<NeighborEntry> computeDTNeighborsForCoord(const std::vector<double>& targetCoord,const L3Address& addr);
 
 
     bool addOrUpdateKnownNode(const std::vector<NeighborEntry>& entrys);
     bool addOrUpdateDTNeighbors(const std::vector<NeighborEntry>& entrys);
-    void updateDTNeighbors();
+    void updateDTNeighbors(std::vector<NeighborEntry>& newNeighborsOut);
 
     //Maintenance
     void changeMaintenanceStage(int x);

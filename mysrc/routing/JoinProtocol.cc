@@ -8,6 +8,7 @@
 
 #include "MDTRouting.h"
 #include "inet/networklayer/common/L3AddressTag_m.h"
+#include "MDTControlPackets_m.h"
 
 #include <cmath>
 namespace mysrc {
@@ -67,7 +68,7 @@ Packet *JoinProtocol::createJoinRequestTo(const L3Address& dest,const L3Address&
 
     return new Packet("mdt-joinrequest", jr);
 }
-bool JoinProtocol::isNearestDTNode(const std::vector<double>& dest,int dim){
+bool JoinProtocol::isNearestDTNode(const std::vector<double>& dest,int dim,L3Address &nearest){
     std::map<L3Address, NeighborEntry> knownnodes = core->getKnownNodes();
     std::vector<double> coord;
     core->getSelfCoordinate(coord);
@@ -100,6 +101,7 @@ bool JoinProtocol::isNearestDTNode(const std::vector<double>& dest,int dim){
             minNode = addr;
         }
     }
+    nearest = minNode;
     return (minNode == core->getSelfAddress());
 }
 void JoinProtocol::processJoinRequestChunk(const Ptr<JoinRequest>& jrq){
@@ -118,14 +120,27 @@ void JoinProtocol::processJoinRequestChunk(const Ptr<JoinRequest>& jrq){
     if(jrq->getDestAddr() != jrq->getSourceAddr() && jrq->getDestAddr() == core->getSelfIPAddress()){
         //send to the node who sent the ka message with attached value equaling to true
         EV_INFO<<"the node who sent the ka message with attached value equaling to true:"<<core->getSelfIPAddress()<<"receive jrq message\n";
-        std::map<L3Address, NeighborEntry> dts = core->getDTNeighbors();
-        for(const auto& [key, value] : dts){
-            EV_INFO<<"dtneighbors:"<<key<<"\n";
-        }
-        if(core->isDTNeighborOfTarget(destcoords,jrq->getSourceAddr())){//shortcut
-            EV_ERROR<<"shortcut 01\n";
-            std::vector<NeighborEntry> entrys = core->computeDTNeighborsForCoord(destcoords,jrq->getSourceAddr());
+        //std::map<L3Address, NeighborEntry> dts = core->getDTNeighbors();
+        //for(const auto& [key, value] : dts){
+        //    EV_INFO<<"dtneighbors:"<<key<<"\n";
+        //}
+        //if(core->isDTNeighborOfTarget(destcoords,jrq->getSourceAddr())){//shortcut
+        L3Address nearest = L3Address();
+        if(isNearestDTNode(destcoords,dim,nearest)){
+            //std::vector<NeighborEntry> entrys = core->computeDTNeighborsForCoord(destcoords,jrq->getSourceAddr());
+            std::vector<NeighborEntry> entrys;
+            const auto dtMap = core->getDTNeighbors();
+            entrys.reserve(dtMap.size());
+            for (const auto& kv : dtMap)
+                entrys.push_back(kv.second);
+            //std::vector<NeighborEntry> entrys = core->getDTNeighbors()
             Packet* p = createJoinReplyTo(jrq->getSourceAddr(),core->getSelfIPAddress(),L3Address(),entrys);
+
+            EV_ERROR<<"shortcut 01 createJoinReplyTo:"<<jrq->getSourceAddr()<<"entrys: ";
+            for(auto en:entrys){
+                EV_ERROR<<en.addr<<" ";
+            }
+            EV_ERROR<<"\n";
 
             Routetuple rt("physics",core->getSelfAddress(),L3Address(),jrq->getSourceAddr(),jrq->getSourceAddr(),-1,-1,simTime() + core->activeRouteTimeout);
             core->ensureRoute(jrq->getSourceAddr(),jrq->getSourceAddr(),rt);
@@ -135,7 +150,7 @@ void JoinProtocol::processJoinRequestChunk(const Ptr<JoinRequest>& jrq){
         }
         else{
             EV_ERROR<<"the node who sent the ka message with attached value equaling to true forward the message to a more near node\n";
-            std::vector<NeighborEntry> entrys = core->computeDTNeighborsForCoord(destcoords,jrq->getSourceAddr());
+            /*std::vector<NeighborEntry> entrys = core->computeDTNeighborsForCoord(destcoords,jrq->getSourceAddr());
             //which is the nearer node?
             std::vector<double> selfcoords;
             core->getSelfCoordinate(selfcoords);
@@ -162,23 +177,38 @@ void JoinProtocol::processJoinRequestChunk(const Ptr<JoinRequest>& jrq){
             }
             else{
                 EV_ERROR<<"processJoinRequestChunk:process jrq fail,con not find next hop\n";
-            }
+            }*/
             Packet* p = createJoinRequestTo(jrq->getSourceAddr(),jrq->getSourceAddr(),core->getSelfAddress(),destcoords);
 
             Routetuple rt("physics",core->getSelfAddress(),L3Address(),jrq->getSourceAddr(),jrq->getSourceAddr(),-1,-1,simTime() + core->activeRouteTimeout);
             core->ensureRoute(jrq->getSourceAddr(),jrq->getSourceAddr(),rt);
-
-            core->sendPacketTo(p,jrq->getSourceAddr(),0);
+            if(!nearest.isUnspecified() && nearest != core->getSelfAddress()){
+                core->sendPacketTo(p,nearest,0);
+            }
+            else{
+                EV_ERROR<<"JoinProtocol::processJoinRequestChunk:no nearest node for jrq\n";
+            }
         }
         return;
     }
-    else if(jrq->getDestAddr() == jrq->getSourceAddr()){
-        if(core->isDTNeighborOfTarget(destcoords,jrq->getSourceAddr())){
+    else if(jrq->getDestAddr() == jrq->getSourceAddr()){//no use
+        if(/*isNearestDTNode(destcoords,dim)*/true){
             //send reply
             EV_ERROR<<"send join reply to "<<jrq->getSourceAddr()<<"\n";
             EV_ERROR<<"update route pred = "<<jrq->getPredAddr()<<"src = "<<jrq->getSourceAddr()<<"\n";
-            std::vector<NeighborEntry> entrys = core->computeDTNeighborsForCoord(destcoords,jrq->getSourceAddr());
+            //std::vector<NeighborEntry> entrys = core->computeDTNeighborsForCoord(destcoords,jrq->getSourceAddr());
+            std::vector<NeighborEntry> entrys;
+            const auto dtMap = core->getDTNeighbors();
+            entrys.reserve(dtMap.size());
+            for (const auto& kv : dtMap)
+                entrys.push_back(kv.second);
             Packet* p = createJoinReplyTo(jrq->getSourceAddr(),core->getSelfIPAddress(),L3Address(),entrys);
+
+            EV_ERROR<<"shortcut 01 createJoinReplyTo:"<<jrq->getSourceAddr()<<"entrys: ";
+            for(auto en:entrys){
+                EV_ERROR<<en.addr<<" ";
+            }
+            EV_ERROR<<"\n";
 
             Routetuple rt("physics",core->getSelfAddress(),L3Address(),jrq->getPredAddr(),jrq->getSourceAddr(),-1,-1,simTime() + core->activeRouteTimeout);
             core->ensureRoute(jrq->getSourceAddr(),jrq->getPredAddr(),rt);
@@ -204,6 +234,21 @@ void JoinProtocol::processJoinRequestChunk(const Ptr<JoinRequest>& jrq){
     }
 
 }
+void JoinProtocol::processJoinRequestForwardChunk(Ptr<JoinRequest>& jrq){
+    Enter_Method("processJoinRequestForwardChunk");
+    if (!jrq) {
+        EV_ERROR << "processJoinRequestForwardChunk: null chunk\n";
+        return;
+    }
+    //update route
+    EV_ERROR<<"continue forward and route table update "<<jrq->getSourceAddr()<<"\n";
+    EV_ERROR<<"update route pred = "<<jrq->getPredAddr()<<"src = "<<jrq->getSourceAddr()<<"\n";
+    Routetuple rt("physics",core->getSelfAddress(),L3Address(),jrq->getPredAddr(),jrq->getSourceAddr(),-1,-1,simTime() + core->activeRouteTimeout);
+    core->ensureRoute(jrq->getSourceAddr(),jrq->getPredAddr(),rt);
+
+    jrq->setPredAddr(core->getSelfAddress());
+}
+//
 Packet *JoinProtocol::createJoinReplyTo(const L3Address& dest,const L3Address& src,const L3Address& pred,const std::vector<NeighborEntry>& entrys){
     auto jr = makeShared<JoinReply>();
 
@@ -271,12 +316,16 @@ void JoinProtocol::processJoinReplyChunk(const Ptr<JoinReply>& jrp){
         for(auto key:entrys){
             EV_ERROR<<"entrys nodes: "<<key.addr<<key.attachedToDT<<"\n";
         }
-        core->updateDTNeighbors();
+        std::vector<NeighborEntry> newneighbors;
+        core->updateDTNeighbors(newneighbors);//get new dt neighbors
+        for(auto key:newneighbors){
+            EV_ERROR<<"newneighbors: "<<key.addr<<"attached: "<<key.attachedToDT<<"\n";
+        }
         //begin Neighbor-Set Request
-        core->sendNSRQ(entrys,jrp->getSourceAddr());
+        core->sendNSRQ(newneighbors,jrp->getSourceAddr());
         //change MaintenanceProtocol stage in MDTRouting
     }
-    else if(core->getNodeattachstate()){//forward node
+    /*else if(core->getNodeattachstate()){//forward node
         std::vector<NeighborEntry> entrys = jrp->getNeighbors();
         EV_ERROR<<"receive join reply and forward reply\n";
         Packet* p = createJoinReplyTo(jrp->getDestAddr(),jrp->getSourceAddr(),core->getSelfAddress(),entrys);
@@ -298,9 +347,40 @@ void JoinProtocol::processJoinReplyChunk(const Ptr<JoinReply>& jrp){
 
             core->sendPacketTo(p,jrp->getDestAddr(),0);
         }
+    }*///no use
+}
+void JoinProtocol::processJoinReplyForwardChunk(Ptr<JoinReply>& jrp){
+    Enter_Method("processJoinReplyForwardChunk");
+    if (!jrp) {
+        EV_ERROR << "processJoinReplyForwardChunk null chunk\n";
+        return;
+    }
+    EV_ERROR<<"receive join reply and forward\n";
+
+    if(core->getNodeattachstate()){
+        jrp->setPredAddr(core->getSelfAddress());
+
+        IRoute *rt = core->findBestMatchingRoute(jrp->getDestAddr());
+        if(rt == nullptr){
+            EV_ERROR<<"this node has no route to the new node";
+        }
+        else{
+            MDTData *routingData = check_and_cast<MDTData *>(rt->getProtocolData());
+            Routetuple tuple = routingData ->getroutetuple();
+
+            Routetuple tp("physics",jrp->getSourceAddr(),jrp->getPredAddr(),tuple.succ,jrp->getDestAddr(),-1,-1,simTime() + core->activeRouteTimeout);
+            EV_ERROR<<"Routetuple:src = "<<jrp->getSourceAddr()<<"pred = "<<jrp->getPredAddr()<<"succ = "<<tuple.succ<<"dest = "<<jrp->getDestAddr()<<"\n";
+
+            Routetuple tp_reverse("physics",jrp->getDestAddr(),tuple.succ,jrp->getPredAddr(),jrp->getSourceAddr(),-1,-1,simTime() + core->activeRouteTimeout);
+            EV_ERROR<<"Routetuple_reverse:"<<jrp->getDestAddr()<<"pred = "<<tuple.succ<<"succ = "<<jrp->getPredAddr()<<"dest = "<<jrp->getSourceAddr()<<"\n";
+
+            core->ensureRoute(jrp->getDestAddr(),tuple.succ,tp);
+            core->ensureRoute(jrp->getSourceAddr(),jrp->getPredAddr(),tp_reverse);
+
+            //core->sendPacketTo(p,jrp->getDestAddr(),0);
+        }
     }
 }
-
 
 
 

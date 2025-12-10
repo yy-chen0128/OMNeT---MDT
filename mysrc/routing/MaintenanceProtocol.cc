@@ -190,7 +190,7 @@ void MaintenanceProtocol::beginCycleMaintain(){
     std::map<L3Address, NeighborEntry> DT = core->getDTNeighbors();
     std::map<L3Address, NeighborEntry> N = core->getPNeighborNodes();
 
-    std::set<L3Address> existing;
+    /*std::set<L3Address> existing;
     for (const auto& kv : N)
         existing.insert(kv.first);
 
@@ -198,10 +198,10 @@ void MaintenanceProtocol::beginCycleMaintain(){
         std::remove_if(entrys.begin(), entrys.end(),
                        [&](const NeighborEntry& e)
                        { return existing.count(e.addr); }),
-        entrys.end());
+        entrys.end());*/
 
     for (const auto& kv : DT) {//get MDT neighbors
-        if (N.find(kv.first) == N.end()) {
+        if (N.find(kv.first) == N.end() && minSet.find(kv.first) == minSet.end()) {
             entrys.push_back(kv.second);
         }
     }
@@ -301,16 +301,25 @@ void MaintenanceProtocol::processNeighborSetRequestChunk(const Ptr<NeighborSetRe
     }
     if(nsrq->getDestAddr() == core->getSelfAddress()){
         EV_ERROR<<"NSRQ to target node:"<<core->getSelfAddress()<<"\n";
-        std::vector<NeighborEntry> entrys = core->computeDTNeighborsForCoord(destcoords,nsrq->getSourceAddr());
-        Packet* p = createNeighborSetReplyTo(nsrq->getSourceAddr(),core->getSelfIPAddress(),L3Address(),entrys);
+        //std::vector<NeighborEntry> entrys = core->computeDTNeighborsForCoord(destcoords,nsrq->getSourceAddr());
+
+        std::vector<NeighborEntry> entrys;
+        const auto dtMap = core->getDTNeighbors();
+        entrys.reserve(dtMap.size());
+        for (const auto& kv : dtMap)
+            entrys.push_back(kv.second);
+
+        Packet* p = createNeighborSetReplyTo(nsrq->getSourceAddr(),core->getSelfIPAddress(),core->getSelfIPAddress(),entrys);
 
         Routetuple rt("physics",core->getSelfAddress(),L3Address(),nsrq->getPredAddr(),nsrq->getSourceAddr(),-1,-1,simTime() + core->activeRouteTimeout);
-        if(core->ensureRoute(nsrq->getSourceAddr(),nsrq->getPredAddr(),rt) == nullptr){//TODO:maybe the similar logic in join protocol can be improved
+        if(core->ensureRoute(nsrq->getSourceAddr(),nsrq->getPredAddr(),rt) == nullptr){
             EV_ERROR<<"processNeighborSetRequestChunk:Pred is not pneighbor!\n";
+            EV_ERROR<<"pred = "<<nsrq->getPredAddr()<<"\n";
         }
 
         core->sendPacketTo(p,nsrq->getSourceAddr(),0);
     }
+    //no use
     else{//forward
         EV_ERROR<<"NSRQ to forward node:"<<nsrq->getDestAddr()<<"\n";
         Packet* p = createNeighborSetRequestTo(nsrq->getDestAddr(),nsrq->getSourceAddr(),core->getSelfAddress(),destcoords);
@@ -318,10 +327,31 @@ void MaintenanceProtocol::processNeighborSetRequestChunk(const Ptr<NeighborSetRe
         Routetuple rt("physics",core->getSelfAddress(),L3Address(),nsrq->getPredAddr(),nsrq->getSourceAddr(),-1,-1,simTime() + core->activeRouteTimeout);
         if(core->ensureRoute(nsrq->getSourceAddr(),nsrq->getPredAddr(),rt) == nullptr){
             EV_ERROR<<"processNeighborSetRequestChunk forward:Pred is not pneighbor!\n";
+            EV_ERROR<<"pred = "<<nsrq->getPredAddr()<<"\n";
         }
 
         core->sendPacketTo(p,nsrq->getDestAddr(),0);
     }
+}
+
+void MaintenanceProtocol::processNeighborSetRequestForwardChunk(Ptr<NeighborSetRequest>& nsrq){
+    Enter_Method("processNeighborSetRequestForwardChunk");
+    if (!nsrq) {
+        EV_ERROR << "processNeighborSetRequestForwardChunk null chunk\n";
+        return;
+    }
+
+    EV_ERROR<<"NSRQ to forward node dest is "<<nsrq->getDestAddr()<<"\n";
+    nsrq->setPredAddr(core->getSelfAddress());
+    //Packet* p = createNeighborSetRequestTo(nsrq->getDestAddr(),nsrq->getSourceAddr(),core->getSelfAddress(),destcoords);
+
+    Routetuple rt("physics",core->getSelfAddress(),L3Address(),nsrq->getPredAddr(),nsrq->getSourceAddr(),-1,-1,simTime() + core->activeRouteTimeout);
+    if(core->ensureRoute(nsrq->getSourceAddr(),nsrq->getPredAddr(),rt) == nullptr){
+        EV_ERROR<<"processNeighborSetRequestChunk forward:Pred is not pneighbor!\n";
+        EV_ERROR<<"pred = "<<nsrq->getPredAddr()<<"\n";
+    }
+
+    //core->sendPacketTo(p,nsrq->getDestAddr(),0);
 }
 
 Packet *MaintenanceProtocol::createNeighborSetReplyTo(const L3Address& dest,const L3Address& src,const L3Address& pred,const std::vector<NeighborEntry>& entrys){
@@ -372,16 +402,19 @@ void MaintenanceProtocol::processNeighborSetReplyChunk(const Ptr<NeighborSetRepl
         //update neighbor table
         std::vector<NeighborEntry> entrys = nsrp->getNeighbors();
         core->addOrUpdateKnownNode(entrys);
+        std::vector<NeighborEntry> newneighbor;
+        core->updateDTNeighbors(newneighbor);
         //update set
         waitingReplyNodes.erase(nsrp->getSourceAddr());
         //remove the node in inquiredNodes
-        entrys.erase(
+        /*entrys.erase(
             std::remove_if(entrys.begin(), entrys.end(),
                            [this](const NeighborEntry& e) {
                                return this->inquiredNodes.count(e.addr);
                            }),
-            entrys.end());
-        if(entrys.empty()){//no new neighbor
+            entrys.end());*/
+
+        if(newneighbor.empty()){//no new neighbor
             if(waitingReplyNodes.empty()){                                      //change stage
                 EV_ERROR<<"no new neighbor and change stage to CYCLE_MAINTAIN\n";
                 stage = MaintenanceState::CYCLE_MAINTAIN;
@@ -389,7 +422,7 @@ void MaintenanceProtocol::processNeighborSetReplyChunk(const Ptr<NeighborSetRepl
             }
         }
         else { // update (we will insert C1 logic when in maintenance search stage)
-            core->addOrUpdateDTNeighbors(entrys); // keep DT neighbor updates as before
+            //core->addOrUpdateDTNeighbors(entrys); // keep DT neighbor updates as before
 
             // decide whether we are in maintenance-search stage or join/init stage
             // replace MaintenanceState::MAINTENANCE_SEARCH with your actual enum value
@@ -397,8 +430,8 @@ void MaintenanceProtocol::processNeighborSetReplyChunk(const Ptr<NeighborSetRepl
             if (stage == MaintenanceState::CYCLE_MAINTAIN_PROCESS) {
                 // only send NSRQ to those new nodes that satisfy C1
                 std::vector<NeighborEntry> toRequest;
-                toRequest.reserve(entrys.size());
-                for (const NeighborEntry &ne : entrys) {
+                toRequest.reserve(newneighbor.size());
+                for (const NeighborEntry &ne : newneighbor) {
                     const L3Address &cand = ne.addr;
                     // skip if already inquired in this maintenance round
                     if (inquiredNodes.count(cand)) continue;
@@ -433,8 +466,8 @@ void MaintenanceProtocol::processNeighborSetReplyChunk(const Ptr<NeighborSetRepl
             } else {
                 // non-maintenance stage (e.g., join/initialization): behave as before
                 EV_ERROR<<"in join stage find new neighbor"<<"\n";
-                core->addOrUpdateDTNeighbors(entrys);
-                core->sendNSRQ(entrys, nsrp->getSourceAddr());
+                //core->addOrUpdateDTNeighbors(entrys);
+                core->sendNSRQ(newneighbor, nsrp->getSourceAddr());
             }
         }
         //else{//update
@@ -443,7 +476,7 @@ void MaintenanceProtocol::processNeighborSetReplyChunk(const Ptr<NeighborSetRepl
             //core->sendNSRQ(entrys,nsrp->getSourceAddr());
         //}
     }
-    else if(core->getNodeattachstate()){//forward node
+    /*else if(core->getNodeattachstate()){//forward node
         std::vector<NeighborEntry> entrys = nsrp->getNeighbors();
         Packet* p = createNeighborSetReplyTo(nsrp->getDestAddr(),nsrp->getSourceAddr(),core->getSelfAddress(),entrys);
         EV_ERROR<<"forward NSRP\n";
@@ -469,6 +502,47 @@ void MaintenanceProtocol::processNeighborSetReplyChunk(const Ptr<NeighborSetRepl
             //core->ensureRoute(nsrp->getSourceAddr(),nsrp->getPredAddr(),tp_reverse);
 
             core->sendPacketTo(p,nsrp->getDestAddr(),0);
+        }
+    }*/
+}
+void MaintenanceProtocol::processNeighborSetReplyForwardChunk(Ptr<NeighborSetReply>& nsrp){
+    Enter_Method("processNeighborSetReplyForwardChunk");
+    if (!nsrp) {
+        EV_ERROR << "processNeighborSetReplyForwardChunk null chunk\n";
+        return;
+    }
+
+    if(core->getNodeattachstate()){//forward node
+        EV_ERROR<<"forward NSRP\n";
+        nsrp->setPredAddr(core->getSelfAddress());
+
+        //std::vector<NeighborEntry> entrys = nsrp->getNeighbors();
+        //Packet* p = createNeighborSetReplyTo(nsrp->getDestAddr(),nsrp->getSourceAddr(),core->getSelfAddress(),entrys);
+
+        IRoute *rt = core->findBestMatchingRoute(nsrp->getDestAddr());
+        if(rt == nullptr){
+            EV_INFO<<"this node has no route to the new node";
+        }
+        else{
+            MDTData *routingData = check_and_cast<MDTData *>(rt->getProtocolData());
+            Routetuple tuple = routingData ->getroutetuple();
+
+            Routetuple tp("physics",nsrp->getSourceAddr(),nsrp->getPredAddr(),tuple.succ,nsrp->getDestAddr(),-1,-1,simTime() + core->activeRouteTimeout);
+            EV_ERROR<<"Routetuple:src = "<<nsrp->getSourceAddr()<<"pred = "<<nsrp->getPredAddr()<<"succ = "<<tuple.succ<<"dest = "<<nsrp->getDestAddr()<<"\n";
+
+            Routetuple tp_reverse("physics",nsrp->getDestAddr(),tuple.succ,nsrp->getPredAddr(),nsrp->getSourceAddr(),-1,-1,simTime() + core->activeRouteTimeout);
+            EV_ERROR<<"Routetuple_reverse:"<<nsrp->getDestAddr()<<"pred = "<<tuple.succ<<"succ = "<<nsrp->getPredAddr()<<"dest = "<<nsrp->getSourceAddr()<<"\n";
+
+            if(core->ensureRoute(nsrp->getDestAddr(),tuple.succ,tp) == nullptr){
+                EV_ERROR<<"processNeighborSetReplyChunk:tuple.succ is not pneighbor!\n";
+            }
+            if(core->ensureRoute(nsrp->getSourceAddr(),nsrp->getPredAddr(),tp_reverse) == nullptr){
+                EV_ERROR<<"processNeighborSetReplyChunk:Pred is not pneighbor!\n";
+            }
+            //core->ensureRoute(nsrp->getDestAddr(),tuple.succ,tp);
+            //core->ensureRoute(nsrp->getSourceAddr(),nsrp->getPredAddr(),tp_reverse);
+
+            //core->sendPacketTo(p,nsrp->getDestAddr(),0);
         }
     }
 }
@@ -580,7 +654,7 @@ bool MaintenanceProtocol::satisfiesC1_CGAL(const L3Address &vAddr,
             return false;
         }
 
-        std::vector<Delaunay3::Cell_handle> incidentCells;
+        std::vector<Cell_handle> incidentCells;
         try {
             dt.incident_cells(selfVh, std::back_inserter(incidentCells));
         } catch (const std::exception &ex) {

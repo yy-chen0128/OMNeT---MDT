@@ -36,6 +36,7 @@ enum class MaintenanceState{
 typedef CGAL::Exact_predicates_inexact_constructions_kernel K;
 typedef K::Point_3 Point3;
 typedef CGAL::Delaunay_triangulation_3<K> Delaunay3;
+using Cell_handle = Delaunay3::Cell_handle;
 // prepare 2D triangulation
 typedef CGAL::Delaunay_triangulation_2<K> Delaunay2;
 typedef K::Point_2 Point2;
@@ -99,6 +100,9 @@ public:
         return false;
     }
 
+    void processNeighborSetRequestForwardChunk(Ptr<NeighborSetRequest>& neighborSetRequestChunk);
+    void processNeighborSetReplyForwardChunk(Ptr<NeighborSetReply>& neighborSetReplyChunk);
+    void processNeighborSetNotificationForwardChunk(Ptr<NeighborSetNotification>& neighborSetNotificationChunk);
 };
 
 }

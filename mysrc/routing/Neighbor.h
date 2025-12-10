@@ -22,8 +22,10 @@
 #include "MDTControlPackets_m.h"
 
 #include"NeighborEntry.h"
-#include "NeighborDT.h"
+
 #include "KeepAlive.h"
+
+#include "DtManager.h"
 
 //rpc
 #include"../RPC/log2vis.h"
@@ -70,12 +72,12 @@ class INET_API Neighbor : public cSimpleModule
     simtime_t knownNodeStaleTimeout = 15; // default: 15s
     simtime_t tupleTimeout = 10;          // default: 20s
 
-    std::unique_ptr<NeighborDT> dtManager;
+
+
+    std::unique_ptr<DtManager> CGAL_Manager;
 
     //dt
-    Delaunay3 dt;
-    std::map<Delaunay3::Vertex_handle, std::set<inet::L3Address>> vhToAddrs;
-    std::map<inet::L3Address, Delaunay3::Vertex_handle> addrToVh;
+
     bool isInitialized = false;
     //safe remove node
     /*std::set<inet::L3Address> pendingRemovals;
@@ -83,19 +85,7 @@ class INET_API Neighbor : public cSimpleModule
     const int removeFailuresThreshold = 3;
     const int pendingRemovalsThreshold = 5;*/
 
-    std::set<inet::L3Address> pendingRebuildAddrs; // addresses that triggered removal/move but deferred
-    int rebuildCount = 0;
-    int rebuildThreshold = 1; // optional: rebuild every time by default; tune for perf
-    int pendingRebuildThreshold = 4; // if pending > this, trigger immediate rebuild
-    simtime_t lastRebuildTime = SIMTIME_ZERO;
-    simtime_t minRebuildInterval = 0.5; // seconds; don't rebuild more often than this
 
-    void insertNodeToDT(const inet::L3Address& addr, const Point3& p);
-    void removeNodeFromDT(const inet::L3Address& addr);
-    //void handlePendingRemovalsAndMaybeRebuild();
-    void rebuildDTNeighborCache();
-    void rebuildDTFromKnownNodes();
-    Point3 makePoint(const std::vector<double>& c);
 
   protected:
     virtual void initialize(int stage) override;
@@ -106,19 +96,15 @@ class INET_API Neighbor : public cSimpleModule
     Neighbor() {}
     virtual ~Neighbor();
 
-    // Create dtManager from this object's containers (call in initialize() or tests)
-    void createDTManager() {
-        dtManager = std::make_unique<NeighborDT>(knownNodeCoords,
-                                                 dt,
-                                                 vhToAddrs,
-                                                 addrToVh,
-                                                 pendingRebuildAddrs,
-                                                 dtNeighbors,
-                                                 minSimplexNodes);
+
+
+    void createCGALDTManager() {
+        CGAL_Manager = std::make_unique<DtManager>(DtManager::UpdateMode::FULL
+                                                   );
+        EV_INFO << "createDTManager(): DtManager (CGAL_Manager) created\n";
     }
 
-    // Accessor for tests / other code
-    NeighborDT* getDTManager() { return dtManager.get(); }
+    DtManager* getCGALDTManager() { return CGAL_Manager.get(); }
 
     //debug
     bool debug = false;
@@ -151,11 +137,7 @@ class INET_API Neighbor : public cSimpleModule
 
     // compute DT neighbors (Gabriel graph approximation)
 
-    void computeDTNeighbors_CGAL();
-    void updateDTNeighbors(bool disturbance = false);
-    //bool isDTNeighborOfTarget(const std::vector<double>& targetCoord, int dim);
-    bool isDTNeighborOfTarget(const std::vector<double>& targetCoord,const L3Address& addr);
-    void computeMinimalNeighborSubset_CGAL_3D();
+    void updateDTNeighbors(std::vector<NeighborEntry>& newNeighborsOut,bool disturbance = false);
 
     std::map<L3Address, NeighborEntry> getMinSimplexNodes();
 
@@ -164,7 +146,7 @@ class INET_API Neighbor : public cSimpleModule
     std::map<L3Address, NeighborEntry> getPNeighborNodes() const{return neighbors;}
     // query DT neighbors
     //std::vector<L3Address> getDTNeighbors() const;
-    std::map<L3Address, NeighborEntry> getDTNeighbors() const{return dtNeighbors;}
+    std::map<L3Address, NeighborEntry> getDTNeighbors() const;
 
     // query known nodes list
     std::map<L3Address, NeighborEntry> getKnownNodes() const{return knownNodeCoords;}
@@ -173,6 +155,8 @@ class INET_API Neighbor : public cSimpleModule
     // get coords for a known node
     bool getKnownNodeCoords(const L3Address& addr, std::vector<double>& outCoords) const;
 
+    //add pneighbor temporarily for MaintenanceProtocol
+    //void addNeighortemp();
 
 
 

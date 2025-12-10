@@ -7,6 +7,7 @@ import inet.visualizer.common.IntegratedVisualizer;
 import inet.environment.common.PhysicalEnvironment;
 import inet.node.aodv.AodvRouter;
 import mysrc.RPC.OmnetRpcLogger;
+import mysrc.datacollect.GlobalPrrController;
 
 network DynamicAdHocNetwork
 {
@@ -48,7 +49,10 @@ network DynamicAdHocNetwork
                 rpcPort = default(9002);
                 rpcPollInterval = default(0.1s);
         }
-
+        globalController: GlobalPrrController {
+                parameters:
+                    mode = default("fast"); // or "physical"
+        }
         node[numNodes]: Node {
             parameters:
                 //@display("p= , m,50;is=s");
