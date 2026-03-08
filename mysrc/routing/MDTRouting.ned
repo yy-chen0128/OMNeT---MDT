@@ -16,6 +16,10 @@ simple MDTRouting{
         string interface;
 
         double activeRouteTimeout @unit(s);
+
+        @signal[ctrlPacketsSent](type=inet::Packet);
+        @statistic[ctrlPacketsSent](title="ctrl Packets Sent"; source=ctrlPacketsSent; record=count,"sum(packetBytes)","vector(packetBytes)"; interpolationmode=none);
+
     gates:
         input socketIn;
         output socketOut;

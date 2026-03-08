@@ -13,25 +13,14 @@
 // along with this program.  If not, see http://www.gnu.org/licenses/.
 //
 
-package ned;
+package mysrc.mobility;
 
+import inet.mobility.single.RandomWaypointMobility;
 
-import inet.node.inet.AdhocHost;
-import inet.routing.aodv.Aodv;
-
-module aodvNode extends AdhocHost
-{
+simple ObstacleAvoidanceRandomWaypointMobility extends RandomWaypointMobility {
     parameters:
-        @display("i=block/routing");
-        //*.networkLayer.routing.typename = "MDTRouting";
-        *.routing.typename = "Aodv";
-        //*.routingApp.typename = "MDTRouting";
-     submodules:
-        routing: Aodv {
-           parameters:
-                @display("p=825,226");
-       }
-    connections:
-        routing.socketOut --> at.in++;
-        routing.socketIn <-- at.out++;
+        @display("i=block/arrow");
+        int maxRetries = default(5); //no use
+
+    @class(ObstacleAvoidanceRandomWaypointMobility);
 }

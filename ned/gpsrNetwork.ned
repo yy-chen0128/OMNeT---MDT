@@ -14,16 +14,13 @@
 //
 
 package ned;
-
-
 import inet.networklayer.configurator.ipv4.Ipv4NetworkConfigurator;
 import inet.physicallayer.wireless.ieee80211.packetlevel.Ieee80211ScalarRadioMedium;
 import inet.visualizer.common.IntegratedVisualizer;
 import inet.environment.common.PhysicalEnvironment;
-import inet.node.aodv.AodvRouter;
-import inet.common.geometry.common.OsgGeographicCoordinateSystem;
 
-network AodvDynamicAdHocNetwork
+
+network GpsrNetwork
 {
     parameters:
         int numNodes = default(25);
@@ -57,11 +54,8 @@ network AodvDynamicAdHocNetwork
                 @display("p=50,100");
         }
 
-		//coordinateSystemModule: OsgGeographicCoordinateSystem{
-		//    parameters:
-        //        @display("p=150,100");
-		//}
-        node[numNodes]: aodvNode {
+
+        node[numNodes]: gpsrNode {
             parameters:
                 //@display("p= , m,50;is=s");
         }

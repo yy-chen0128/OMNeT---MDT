@@ -15,23 +15,20 @@
 
 package ned;
 
-
 import inet.node.inet.AdhocHost;
-import inet.routing.aodv.Aodv;
+import inet.routing.gpsr.Gpsr;
 
-module aodvNode extends AdhocHost
+module gpsrNode extends AdhocHost
 {
     parameters:
         @display("i=block/routing");
-        //*.networkLayer.routing.typename = "MDTRouting";
-        *.routing.typename = "Aodv";
-        //*.routingApp.typename = "MDTRouting";
+        *.routing.typename = "Gpsr";
      submodules:
-        routing: Aodv {
+        routing: Gpsr {
            parameters:
                 @display("p=825,226");
        }
     connections:
-        routing.socketOut --> at.in++;
-        routing.socketIn <-- at.out++;
+        routing.ipOut --> at.in++;
+        routing.ipIn <-- at.out++;
 }

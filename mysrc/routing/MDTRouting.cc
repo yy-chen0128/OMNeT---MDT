@@ -637,8 +637,11 @@ void MDTRouting::sendPacketTo(Packet *packet, const L3Address& destAddr, int des
 
     //socket.sendTo(packet, destAddr, port);
     if (delay == 0) {
-            socket.sendTo(packet, destAddr, port);
-            EV_INFO << "sendPacketTo: sent immediately\n";
+        if (packet) {
+            emit(ctrlPacketsSentSignal, packet);
+        }
+        socket.sendTo(packet, destAddr, port);
+        EV_INFO << "sendPacketTo: sent immediately\n";
     } else {
         auto *timer = new PacketHolderMessage("mdt-delay-send", KIND_DELAYEDSEND);
         timer->setOwnedPacket(packet);

@@ -15,23 +15,22 @@
 
 package ned;
 
-
 import inet.node.inet.AdhocHost;
-import inet.routing.aodv.Aodv;
+import inet.routing.dymo.Dymo;
 
-module aodvNode extends AdhocHost
+module dymoNode extends AdhocHost
 {
     parameters:
         @display("i=block/routing");
-        //*.networkLayer.routing.typename = "MDTRouting";
-        *.routing.typename = "Aodv";
-        //*.routingApp.typename = "MDTRouting";
+        *.routing.typename = "Dymo";
      submodules:
-        routing: Aodv {
+        routing: Dymo {
            parameters:
                 @display("p=825,226");
        }
     connections:
-        routing.socketOut --> at.in++;
-        routing.socketIn <-- at.out++;
+        routing.ipOut --> tn.in++;
+        routing.ipIn <-- tn.out++;
 }
+
+

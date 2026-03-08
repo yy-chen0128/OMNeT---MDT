@@ -637,6 +637,8 @@ void Neighbor::sendKeepAliveTo(const L3Address& dest)
 
 
     EV_INFO << "Neighbor::sendKeepAliveTo sending KeepAlive to " << dest << " at " << simTime() << "\n";
+
+    owner->emitpacketsignal(p);
     owner->sendPacketTo(p, dest, 0);
 }
 void Neighbor::sendKeepAliveNotificationTo(){
@@ -670,6 +672,7 @@ void Neighbor::sendKeepAliveNotificationTo(){
 
     Packet *p = new Packet("mdt-keepaliveNotification", ka);
     L3Address broadcastAddr = L3Address(inet::Ipv4Address::ALLONES_ADDRESS);
+    owner->emitpacketsignal(p);
     owner->sendPacketTo(p, broadcastAddr, 0);
 }
 void Neighbor::refreshEntrys()

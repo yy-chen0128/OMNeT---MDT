@@ -285,6 +285,13 @@ class INET_API MDTRouting : public RoutingProtocolBase, public NetfilterBase::Ho
     void processCoordsDiscoverRequestChunk(const Ptr<CoordsDiscoverRequest>& cd);
     void sendCoordsDiscoverReply(const L3Address& destAddr,const L3Address& targetAddr,const NeighborEntry& entry);
     void processCoordsDiscoverReplyChunk(const Ptr<CoordsDiscoverReply>& cd);
+
+    //data
+    void emitpacketsignal(Packet* p){
+        if (p) {
+            emit(ctrlPacketsSentSignal, p);
+        }
+    }
 };
 
 } // namespace aodv

@@ -15,23 +15,22 @@
 
 package ned;
 
-
 import inet.node.inet.AdhocHost;
-import inet.routing.aodv.Aodv;
+import mysrc.olsr.OLSR;
 
-module aodvNode extends AdhocHost
+module olsrNode extends AdhocHost
 {
     parameters:
         @display("i=block/routing");
-        //*.networkLayer.routing.typename = "MDTRouting";
-        *.routing.typename = "Aodv";
-        //*.routingApp.typename = "MDTRouting";
+        *.routing.typename = "OLSR";
+        *.multicastForwarding = true;
      submodules:
-        routing: Aodv {
+        routing: OLSR {
            parameters:
                 @display("p=825,226");
        }
     connections:
         routing.socketOut --> at.in++;
         routing.socketIn <-- at.out++;
+        //**.app[0].joinLocalMulticastGroups = true
 }
