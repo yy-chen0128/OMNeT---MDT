@@ -1,3 +1,33 @@
+## 更新说明
+### OLSR协议移植
+在mysrc/olsr中，目前的调试只限于打印核心数据结构信息（如mpr计算等），以及实际场景下的性能（收包率）看起来正常，但是还不能完全排查潜在的漏洞，实现方式参考[ns-3](https://gitlab.com/nsnam/ns-3-dev)以及rfc标准，后续要实现olsr_v2可以参考的项目是[OONF](https://github.com/OLSR/OONF)。在omnetpp.ini中网络配置[Config Test_for_OLSR]为OLSR测试用
+### 数据采集
+在ned文件中有类似：
+```
+	@signal[ctrlPacketsSent](type=inet::Packet);
+	@statistic[ctrlPacketsSent](title="ctrl Packets Sent"; source=ctrlPacketsSent; record=count,"sum(packetBytes)","vector(packetBytes)"; interpolationmode=none);
+```
+这样的声明，然后在c++代码中，要发送控制包的时候：
+```c++
+	if (packet) {
+		emit(ctrlPacketsSentSignal, packet);
+	}
+```
+框架就可以自动记录控制包开销。具体细节参见omnet++/inet文档，olsr协议的数据收集暂未实现。
+### 场景地图
+两个一个是城市一个是山区，分别选的是纽约和云南某处山地，在omnet可视化中可以看到：
+<img width="1272" height="747" alt="city01" src="https://github.com/user-attachments/assets/78749357-b6a6-4c87-9a1c-646d433e8021" />
+
+<img width="1620" height="824" alt="mountain01" src="https://github.com/user-attachments/assets/832bd4ac-202a-42c2-9661-64d4beebef7a" />
+
+<img width="1246" height="507" alt="mountain02" src="https://github.com/user-attachments/assets/3e3dec1e-5625-4405-8b65-25f3ddbd8c30" />
+
+在[Config Test_for_Map]中配置为：
+```
+**.physicalEnvironment.config = xmldoc("mountain02.xml")
+**.physicalEnvironment.config = xmldoc("city03.xml")
+```
+
 ## 关于框架的解释
 Omnet++特有几种文件，ned，ini，msg，分别是接入仿真的模块，整个仿真的参数设置，数据包定义（msg文件会被自动处理为.h和.cc文件），以及代码除了本身的路由逻辑，还有部分debugger的逻辑（把日志发出来然后自动处理），分布在RPC文件夹和routing文件夹的部分文件中。和路由本身相关的肯定还是都在routing文件夹中，其中大量使用了框架接口，所有框架代码都在inet-4.5.4/src/inet中。
 ## 代码核心架构
