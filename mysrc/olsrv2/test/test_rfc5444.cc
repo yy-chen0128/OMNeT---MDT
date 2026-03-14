@@ -9,7 +9,7 @@
 #include <string_view>
 #include <vector>
 
-#include "rfc5444/rfc5444.h"
+#include "../include/rfc5444/rfc5444.h"
 
 using mysrc::olsrv2::rfc5444::IcvCrypt7182;
 using mysrc::olsrv2::rfc5444::IcvHash7182;

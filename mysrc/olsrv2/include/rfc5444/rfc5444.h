@@ -1,4 +1,5 @@
-#pragma once
+#ifndef MYSRC_OLSRV2_RFC5444_H
+#define MYSRC_OLSRV2_RFC5444_H
 
 #include <cstddef>
 #include <cstdint>
@@ -422,3 +423,5 @@ uint32_t rfc7181_metric_decode(rfc7181_metric_field *encoded);
 int rfc5444_seqno_difference(uint16_t seqno1, uint16_t seqno2);
 
 } // namespace mysrc::olsrv2::rfc5444
+
+#endif // MYSRC_OLSRV2_RFC5444_H
