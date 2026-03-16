@@ -81,6 +81,7 @@ class Nhdp
     inet::Packet* generateHello(double now);
 
     std::set<inet::Ipv4Address> calculateMprSet() const;
+    bool shouldForwardFrom(const inet::Ipv4Address& neighbor_originator, double now) const;
 
     // Access to DB
     const NhdpDb& getDb() const { return db_; }

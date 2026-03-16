@@ -127,6 +127,9 @@ void Olsrv2Core::processTcAndRecompute(const inet::Olsrv2TcGroup* tc, double now
 
 inet::Packet* Olsrv2Core::generateTc(const NhdpDb& nhdpDb, double now)
 {
+    if (nhdpDb.getMprSelectors().empty())
+        return nullptr;
+
     std::vector<MainAddress> advertised_neighbors;
 
     for (const auto& link : nhdpDb.getLinks()) {

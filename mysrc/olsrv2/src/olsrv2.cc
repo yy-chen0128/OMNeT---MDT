@@ -7,6 +7,7 @@
 #include <map>
 #include <queue>
 #include <set>
+#include <cstring>
 
 #include "inet/common/ModuleAccess.h"
 #include "inet/common/packet/Packet.h"
@@ -98,6 +99,8 @@ void OLSRv2::initialize(int stage)
     if (stage == inet::INITSTAGE_LOCAL) {
         helloInterval_ = par("helloInterval");
         tcInterval_ = par("tcInterval");
+        startJitter_ = par("startJitter");
+        udpPort_ = par("udpPort");
         
         helloTimer_ = new inet::cMessage("helloTimer");
         tcTimer_ = new inet::cMessage("tcTimer");
@@ -111,16 +114,38 @@ void OLSRv2::initialize(int stage)
         netfilter_->registerHook(0, this);
 
         socket_.setOutputGate(gate("socketOut"));
-        socket_.bind(698);
         socket_.setCallback(this);
+        socket_.bind(inet::L3Address(), udpPort_);
+        socket_.setBroadcast(true);
+
+        const char *mcast = par("multicastGroup").stringValue();
+        if (!mcast || std::strlen(mcast) == 0)
+            mcast = "224.0.0.109";
+        multicastGroup_ = inet::L3AddressResolver().resolve(mcast);
+
+        const char *ifname = par("interface").stringValue();
+        if (ifname && std::strlen(ifname) > 0) {
+            auto *ie = interfaceTable_->findInterfaceByName(ifname);
+            if (ie)
+                multicastIfId_ = ie->getInterfaceId();
+        }
+        if (multicastIfId_ < 0 && interfaceTable_->getNumInterfaces() > 0) {
+            auto *ie = interfaceTable_->getInterface(0);
+            if (ie)
+                multicastIfId_ = ie->getInterfaceId();
+        }
+        if (multicastIfId_ >= 0)
+            socket_.joinMulticastGroup(multicastGroup_, multicastIfId_);
 
         // Initialize Core Logic
         inet::Ipv4Address myIp = routingTable_->getRouterId();
         core_ = std::make_unique<Olsrv2Core>(myIp);
         nhdp_.setOriginator(inet::L3Address(myIp));
 
-        scheduleAfter(helloInterval_, helloTimer_);
-        scheduleAfter(tcInterval_, tcTimer_);
+        const double hello_jitter_s = (startJitter_ > 0.0) ? uniform(0.0, startJitter_) : 0.0;
+        const double tc_jitter_s = (startJitter_ > 0.0) ? uniform(0.0, startJitter_) : 0.0;
+        scheduleAfter(helloInterval_ + hello_jitter_s, helloTimer_);
+        scheduleAfter(tcInterval_ + tc_jitter_s, tcTimer_);
     }
 }
 
@@ -153,7 +178,7 @@ void OLSRv2::sendHello()
 {
     double now = simTime().dbl();
     auto pkt = nhdp_.generateHello(now);
-    socket_.sendTo(pkt, inet::L3Address(inet::Ipv4Address::ALLONES_ADDRESS), 698);
+    socket_.sendTo(pkt, multicastGroup_, udpPort_);
 }
 
 void OLSRv2::sendTc()
@@ -161,7 +186,8 @@ void OLSRv2::sendTc()
     double now = simTime().dbl();
     if (core_) {
         auto pkt = core_->generateTc(nhdp_.getDb(), now);
-        socket_.sendTo(pkt, inet::L3Address(inet::Ipv4Address::ALLONES_ADDRESS), 698);
+        if (pkt)
+            socket_.sendTo(pkt, multicastGroup_, udpPort_);
     }
 }
 
@@ -193,6 +219,7 @@ void OLSRv2::processOlsrPacket(inet::Packet *packet)
 
     if (auto hello = inet::dynamicPtrCast<const inet::Olsrv2HelloPacket>(chunk)) {
         nhdp_.processHello(hello.get(), source, simTime().dbl());
+        printProtocolState("RX_HELLO");
     } else if (auto tc = inet::dynamicPtrCast<const inet::Olsrv2TcGroup>(chunk)) {
         if (core_) {
             core_->processTcAndRecompute(tc.get(), simTime().dbl());
@@ -227,6 +254,81 @@ void OLSRv2::updateRoutingTable()
         route->setMetric(r.metric);
         rt->addRoute(route);
     }
+
+    printProtocolState("UPDATE_ROUTING_TABLE");
+}
+
+void OLSRv2::printProtocolState(const char *tag) const
+{
+    EV_INFO << "\n\n================ OLSRV2 DEBUG ================\n";
+    EV_INFO << "Tag=" << (tag ? tag : "") << " Time=" << simTime() << omnetpp::endl;
+
+    printNhdpState();
+
+    if (core_) {
+        core_->state().printOlsrv2State();
+    }
+
+    printIpv4RoutingTable();
+    EV_INFO << "==============================================\n\n";
+}
+
+void OLSRv2::printNhdpState() const
+{
+    EV_INFO << "\n=== NHDP DB ===\n";
+
+    const auto links = nhdp_.getDb().getLinks();
+    for (const auto& l : links) {
+        const char *status = "UNKNOWN";
+        switch (l.status) {
+            case NhdpLinkStatus::Pending: status = "PENDING"; break;
+            case NhdpLinkStatus::Lost: status = "LOST"; break;
+            case NhdpLinkStatus::Symmetric: status = "SYMMETRIC"; break;
+            case NhdpLinkStatus::Heard: status = "HEARD"; break;
+        }
+
+        EV_INFO << "LinkId=" << l.id
+                << " Status=" << status
+                << " NeighIface=" << l.neighbor_iface_addr
+                << " NeighOriginator=" << l.neighbor_originator
+                << " TwoHopCount=" << l.twohop_addresses.size()
+                << omnetpp::endl;
+    }
+    EV_INFO << "LinkCount=" << links.size() << "\n";
+
+    const auto mpr = nhdp_.calculateMprSet();
+    EV_INFO << "\n=== MPR SET (from NHDP) ===\n";
+    for (const auto& a : mpr) {
+        EV_INFO << "MPR=" << a << omnetpp::endl;
+    }
+    EV_INFO << "MPR count=" << mpr.size() << "\n";
+}
+
+void OLSRv2::printIpv4RoutingTable() const
+{
+    EV_INFO << "\n=== IPV4 ROUTING TABLE ===\n";
+
+    auto *rt = dynamic_cast<inet::Ipv4RoutingTable *>(routingTable_);
+    if (!rt) {
+        EV_INFO << "RoutingTable cast failed\n";
+        return;
+    }
+
+    for (int i = 0; i < rt->getNumRoutes(); ++i) {
+        const auto *r = rt->getRoute(i);
+        if (!r)
+            continue;
+
+        const auto *ie = r->getInterface();
+        EV_INFO << "Dest=" << r->getDestination()
+                << " Netmask=" << r->getNetmask()
+                << " Gateway=" << r->getGateway()
+                << " Iface=" << (ie ? ie->getInterfaceName() : "")
+                << " Metric=" << r->getMetric()
+                << " SrcType=" << static_cast<int>(r->getSourceType())
+                << omnetpp::endl;
+    }
+    EV_INFO << "RouteCount=" << rt->getNumRoutes() << "\n";
 }
 
 } // namespace mysrc::olsrv2

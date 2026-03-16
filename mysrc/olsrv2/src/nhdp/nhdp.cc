@@ -84,10 +84,18 @@ void Nhdp::processHello(const inet::Olsrv2HelloPacket *hello, const inet::L3Addr
     
     link.twohop_addresses.clear();
 
+    const NhdpTimeMs expire_ms = static_cast<NhdpTimeMs>((now + hello->getHTime().dbl() * 3.0) * 1000);
+    bool have_selector_info = false;
+    bool selected_as_mpr = false;
+
     for (size_t i = 0; i < hello->getNeighAddrsArraySize(); ++i) {
         inet::L3Address neighAddr = hello->getNeighAddrs(i);
         if (neighAddr == myOriginator) {
             symmetric = true; 
+            if (i < hello->getNeighStatusArraySize()) {
+                have_selector_info = true;
+                selected_as_mpr = (hello->getNeighStatus(i) != 0);
+            }
         } else {
             // Add to 2-hop neighbors
             link.twohop_addresses.insert(neighAddr.toIpv4());
@@ -96,7 +104,7 @@ void Nhdp::processHello(const inet::Olsrv2HelloPacket *hello, const inet::L3Addr
             NhdpTwoHop th;
             th.twohop_addr = neighAddr.toIpv4();
             th.link_id = link.id;
-            th.expire_ms = static_cast<NhdpTimeMs>((now + hello->getHTime().dbl() * 3.0) * 1000);
+            th.expire_ms = expire_ms;
             db_.addOrUpdateTwoHop(th);
         }
     }
@@ -104,9 +112,17 @@ void Nhdp::processHello(const inet::Olsrv2HelloPacket *hello, const inet::L3Addr
     link.status = symmetric ? NhdpLinkStatus::Symmetric : NhdpLinkStatus::Heard;
     
     // Time is in ms
-    link.expire_ms = static_cast<NhdpTimeMs>((now + hello->getHTime().dbl() * 3.0) * 1000);
+    link.expire_ms = expire_ms;
     
     db_.addOrUpdateLink(link);
+
+    if (have_selector_info && symmetric) {
+        if (selected_as_mpr) {
+            db_.addOrUpdateMprSelector(neigh.originator, expire_ms);
+        } else {
+            db_.removeMprSelector(neigh.originator);
+        }
+    }
 }
 
 std::set<inet::Ipv4Address> Nhdp::calculateMprSet() const
@@ -185,6 +201,12 @@ std::set<inet::Ipv4Address> Nhdp::calculateMprSet() const
     }
     
     return mprSet;
+}
+
+bool Nhdp::shouldForwardFrom(const inet::Ipv4Address& neighbor_originator, double now) const
+{
+    const NhdpTimeMs now_ms = static_cast<NhdpTimeMs>(now * 1000);
+    return db_.isMprSelector(neighbor_originator, now_ms);
 }
 
 inet::Packet* Nhdp::generateHello(double now)
