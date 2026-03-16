@@ -1,5 +1,5 @@
 //
-// Generated file, do not edit! Created by opp_msgtool 6.2 from mysrc/olsr/OlsrControlPackets.msg.
+// Generated file, do not edit! Created by opp_msgtool 6.2 from mysrc/olsrv2/message/OLSRv2Packet.msg.
 //
 
 // Disable warnings about unused variables, empty switch stmts, etc:
@@ -28,7 +28,7 @@
 #include <sstream>
 #include <memory>
 #include <type_traits>
-#include "OlsrControlPackets_m.h"
+#include "OLSRv2Packet_m.h"
 
 namespace omnetpp {
 
@@ -152,24 +152,24 @@ void doParsimUnpacking(omnetpp::cCommBuffer *, T& t)
 
 namespace inet {
 
-Register_Enum(inet::OlsrPktType, (inet::OlsrPktType::Hello, inet::OlsrPktType::Tc));
+Register_Enum(inet::Olsrv2PktType, (inet::Olsrv2PktType::Olsrv2Hello, inet::Olsrv2PktType::Olsrv2Tc));
 
-Register_Class(OlsrControlPacket)
+Register_Class(Olsrv2ControlPacket)
 
-OlsrControlPacket::OlsrControlPacket() : ::inet::FieldsChunk()
+Olsrv2ControlPacket::Olsrv2ControlPacket() : ::inet::FieldsChunk()
 {
 }
 
-OlsrControlPacket::OlsrControlPacket(const OlsrControlPacket& other) : ::inet::FieldsChunk(other)
+Olsrv2ControlPacket::Olsrv2ControlPacket(const Olsrv2ControlPacket& other) : ::inet::FieldsChunk(other)
 {
     copy(other);
 }
 
-OlsrControlPacket::~OlsrControlPacket()
+Olsrv2ControlPacket::~Olsrv2ControlPacket()
 {
 }
 
-OlsrControlPacket& OlsrControlPacket::operator=(const OlsrControlPacket& other)
+Olsrv2ControlPacket& Olsrv2ControlPacket::operator=(const Olsrv2ControlPacket& other)
 {
     if (this == &other) return *this;
     ::inet::FieldsChunk::operator=(other);
@@ -177,35 +177,35 @@ OlsrControlPacket& OlsrControlPacket::operator=(const OlsrControlPacket& other)
     return *this;
 }
 
-void OlsrControlPacket::copy(const OlsrControlPacket& other)
+void Olsrv2ControlPacket::copy(const Olsrv2ControlPacket& other)
 {
     this->packetType = other.packetType;
 }
 
-void OlsrControlPacket::parsimPack(omnetpp::cCommBuffer *b) const
+void Olsrv2ControlPacket::parsimPack(omnetpp::cCommBuffer *b) const
 {
     ::inet::FieldsChunk::parsimPack(b);
     doParsimPacking(b,this->packetType);
 }
 
-void OlsrControlPacket::parsimUnpack(omnetpp::cCommBuffer *b)
+void Olsrv2ControlPacket::parsimUnpack(omnetpp::cCommBuffer *b)
 {
     ::inet::FieldsChunk::parsimUnpack(b);
     doParsimUnpacking(b,this->packetType);
 }
 
-OlsrPktType OlsrControlPacket::getPacketType() const
+Olsrv2PktType Olsrv2ControlPacket::getPacketType() const
 {
     return this->packetType;
 }
 
-void OlsrControlPacket::setPacketType(OlsrPktType packetType)
+void Olsrv2ControlPacket::setPacketType(Olsrv2PktType packetType)
 {
     handleChange();
     this->packetType = packetType;
 }
 
-class OlsrControlPacketDescriptor : public omnetpp::cClassDescriptor
+class Olsrv2ControlPacketDescriptor : public omnetpp::cClassDescriptor
 {
   private:
     mutable const char **propertyNames;
@@ -213,8 +213,8 @@ class OlsrControlPacketDescriptor : public omnetpp::cClassDescriptor
         FIELD_packetType,
     };
   public:
-    OlsrControlPacketDescriptor();
-    virtual ~OlsrControlPacketDescriptor();
+    Olsrv2ControlPacketDescriptor();
+    virtual ~Olsrv2ControlPacketDescriptor();
 
     virtual bool doesSupport(omnetpp::cObject *obj) const override;
     virtual const char **getPropertyNames() const override;
@@ -240,24 +240,24 @@ class OlsrControlPacketDescriptor : public omnetpp::cClassDescriptor
     virtual void setFieldStructValuePointer(omnetpp::any_ptr object, int field, int i, omnetpp::any_ptr ptr) const override;
 };
 
-Register_ClassDescriptor(OlsrControlPacketDescriptor)
+Register_ClassDescriptor(Olsrv2ControlPacketDescriptor)
 
-OlsrControlPacketDescriptor::OlsrControlPacketDescriptor() : omnetpp::cClassDescriptor(omnetpp::opp_typename(typeid(inet::OlsrControlPacket)), "inet::FieldsChunk")
+Olsrv2ControlPacketDescriptor::Olsrv2ControlPacketDescriptor() : omnetpp::cClassDescriptor(omnetpp::opp_typename(typeid(inet::Olsrv2ControlPacket)), "inet::FieldsChunk")
 {
     propertyNames = nullptr;
 }
 
-OlsrControlPacketDescriptor::~OlsrControlPacketDescriptor()
+Olsrv2ControlPacketDescriptor::~Olsrv2ControlPacketDescriptor()
 {
     delete[] propertyNames;
 }
 
-bool OlsrControlPacketDescriptor::doesSupport(omnetpp::cObject *obj) const
+bool Olsrv2ControlPacketDescriptor::doesSupport(omnetpp::cObject *obj) const
 {
-    return dynamic_cast<OlsrControlPacket *>(obj)!=nullptr;
+    return dynamic_cast<Olsrv2ControlPacket *>(obj)!=nullptr;
 }
 
-const char **OlsrControlPacketDescriptor::getPropertyNames() const
+const char **Olsrv2ControlPacketDescriptor::getPropertyNames() const
 {
     if (!propertyNames) {
         static const char *names[] = {  nullptr };
@@ -268,19 +268,19 @@ const char **OlsrControlPacketDescriptor::getPropertyNames() const
     return propertyNames;
 }
 
-const char *OlsrControlPacketDescriptor::getProperty(const char *propertyName) const
+const char *Olsrv2ControlPacketDescriptor::getProperty(const char *propertyName) const
 {
     omnetpp::cClassDescriptor *base = getBaseClassDescriptor();
     return base ? base->getProperty(propertyName) : nullptr;
 }
 
-int OlsrControlPacketDescriptor::getFieldCount() const
+int Olsrv2ControlPacketDescriptor::getFieldCount() const
 {
     omnetpp::cClassDescriptor *base = getBaseClassDescriptor();
     return base ? 1+base->getFieldCount() : 1;
 }
 
-unsigned int OlsrControlPacketDescriptor::getFieldTypeFlags(int field) const
+unsigned int Olsrv2ControlPacketDescriptor::getFieldTypeFlags(int field) const
 {
     omnetpp::cClassDescriptor *base = getBaseClassDescriptor();
     if (base) {
@@ -294,7 +294,7 @@ unsigned int OlsrControlPacketDescriptor::getFieldTypeFlags(int field) const
     return (field >= 0 && field < 1) ? fieldTypeFlags[field] : 0;
 }
 
-const char *OlsrControlPacketDescriptor::getFieldName(int field) const
+const char *Olsrv2ControlPacketDescriptor::getFieldName(int field) const
 {
     omnetpp::cClassDescriptor *base = getBaseClassDescriptor();
     if (base) {
@@ -308,7 +308,7 @@ const char *OlsrControlPacketDescriptor::getFieldName(int field) const
     return (field >= 0 && field < 1) ? fieldNames[field] : nullptr;
 }
 
-int OlsrControlPacketDescriptor::findField(const char *fieldName) const
+int Olsrv2ControlPacketDescriptor::findField(const char *fieldName) const
 {
     omnetpp::cClassDescriptor *base = getBaseClassDescriptor();
     int baseIndex = base ? base->getFieldCount() : 0;
@@ -316,7 +316,7 @@ int OlsrControlPacketDescriptor::findField(const char *fieldName) const
     return base ? base->findField(fieldName) : -1;
 }
 
-const char *OlsrControlPacketDescriptor::getFieldTypeString(int field) const
+const char *Olsrv2ControlPacketDescriptor::getFieldTypeString(int field) const
 {
     omnetpp::cClassDescriptor *base = getBaseClassDescriptor();
     if (base) {
@@ -325,12 +325,12 @@ const char *OlsrControlPacketDescriptor::getFieldTypeString(int field) const
         field -= base->getFieldCount();
     }
     static const char *fieldTypeStrings[] = {
-        "inet::OlsrPktType",    // FIELD_packetType
+        "inet::Olsrv2PktType",    // FIELD_packetType
     };
     return (field >= 0 && field < 1) ? fieldTypeStrings[field] : nullptr;
 }
 
-const char **OlsrControlPacketDescriptor::getFieldPropertyNames(int field) const
+const char **Olsrv2ControlPacketDescriptor::getFieldPropertyNames(int field) const
 {
     omnetpp::cClassDescriptor *base = getBaseClassDescriptor();
     if (base) {
@@ -347,7 +347,7 @@ const char **OlsrControlPacketDescriptor::getFieldPropertyNames(int field) const
     }
 }
 
-const char *OlsrControlPacketDescriptor::getFieldProperty(int field, const char *propertyName) const
+const char *Olsrv2ControlPacketDescriptor::getFieldProperty(int field, const char *propertyName) const
 {
     omnetpp::cClassDescriptor *base = getBaseClassDescriptor();
     if (base) {
@@ -357,13 +357,13 @@ const char *OlsrControlPacketDescriptor::getFieldProperty(int field, const char 
     }
     switch (field) {
         case FIELD_packetType:
-            if (!strcmp(propertyName, "enum")) return "inet::OlsrPktType";
+            if (!strcmp(propertyName, "enum")) return "inet::Olsrv2PktType";
             return nullptr;
         default: return nullptr;
     }
 }
 
-int OlsrControlPacketDescriptor::getFieldArraySize(omnetpp::any_ptr object, int field) const
+int Olsrv2ControlPacketDescriptor::getFieldArraySize(omnetpp::any_ptr object, int field) const
 {
     omnetpp::cClassDescriptor *base = getBaseClassDescriptor();
     if (base) {
@@ -371,13 +371,13 @@ int OlsrControlPacketDescriptor::getFieldArraySize(omnetpp::any_ptr object, int 
             return base->getFieldArraySize(object, field);
         field -= base->getFieldCount();
     }
-    OlsrControlPacket *pp = omnetpp::fromAnyPtr<OlsrControlPacket>(object); (void)pp;
+    Olsrv2ControlPacket *pp = omnetpp::fromAnyPtr<Olsrv2ControlPacket>(object); (void)pp;
     switch (field) {
         default: return 0;
     }
 }
 
-void OlsrControlPacketDescriptor::setFieldArraySize(omnetpp::any_ptr object, int field, int size) const
+void Olsrv2ControlPacketDescriptor::setFieldArraySize(omnetpp::any_ptr object, int field, int size) const
 {
     omnetpp::cClassDescriptor *base = getBaseClassDescriptor();
     if (base) {
@@ -387,13 +387,13 @@ void OlsrControlPacketDescriptor::setFieldArraySize(omnetpp::any_ptr object, int
         }
         field -= base->getFieldCount();
     }
-    OlsrControlPacket *pp = omnetpp::fromAnyPtr<OlsrControlPacket>(object); (void)pp;
+    Olsrv2ControlPacket *pp = omnetpp::fromAnyPtr<Olsrv2ControlPacket>(object); (void)pp;
     switch (field) {
-        default: throw omnetpp::cRuntimeError("Cannot set array size of field %d of class 'OlsrControlPacket'", field);
+        default: throw omnetpp::cRuntimeError("Cannot set array size of field %d of class 'Olsrv2ControlPacket'", field);
     }
 }
 
-const char *OlsrControlPacketDescriptor::getFieldDynamicTypeString(omnetpp::any_ptr object, int field, int i) const
+const char *Olsrv2ControlPacketDescriptor::getFieldDynamicTypeString(omnetpp::any_ptr object, int field, int i) const
 {
     omnetpp::cClassDescriptor *base = getBaseClassDescriptor();
     if (base) {
@@ -401,13 +401,13 @@ const char *OlsrControlPacketDescriptor::getFieldDynamicTypeString(omnetpp::any_
             return base->getFieldDynamicTypeString(object,field,i);
         field -= base->getFieldCount();
     }
-    OlsrControlPacket *pp = omnetpp::fromAnyPtr<OlsrControlPacket>(object); (void)pp;
+    Olsrv2ControlPacket *pp = omnetpp::fromAnyPtr<Olsrv2ControlPacket>(object); (void)pp;
     switch (field) {
         default: return nullptr;
     }
 }
 
-std::string OlsrControlPacketDescriptor::getFieldValueAsString(omnetpp::any_ptr object, int field, int i) const
+std::string Olsrv2ControlPacketDescriptor::getFieldValueAsString(omnetpp::any_ptr object, int field, int i) const
 {
     omnetpp::cClassDescriptor *base = getBaseClassDescriptor();
     if (base) {
@@ -415,14 +415,14 @@ std::string OlsrControlPacketDescriptor::getFieldValueAsString(omnetpp::any_ptr 
             return base->getFieldValueAsString(object,field,i);
         field -= base->getFieldCount();
     }
-    OlsrControlPacket *pp = omnetpp::fromAnyPtr<OlsrControlPacket>(object); (void)pp;
+    Olsrv2ControlPacket *pp = omnetpp::fromAnyPtr<Olsrv2ControlPacket>(object); (void)pp;
     switch (field) {
-        case FIELD_packetType: return enum2string(pp->getPacketType(), "inet::OlsrPktType");
+        case FIELD_packetType: return enum2string(pp->getPacketType(), "inet::Olsrv2PktType");
         default: return "";
     }
 }
 
-void OlsrControlPacketDescriptor::setFieldValueAsString(omnetpp::any_ptr object, int field, int i, const char *value) const
+void Olsrv2ControlPacketDescriptor::setFieldValueAsString(omnetpp::any_ptr object, int field, int i, const char *value) const
 {
     omnetpp::cClassDescriptor *base = getBaseClassDescriptor();
     if (base) {
@@ -432,13 +432,13 @@ void OlsrControlPacketDescriptor::setFieldValueAsString(omnetpp::any_ptr object,
         }
         field -= base->getFieldCount();
     }
-    OlsrControlPacket *pp = omnetpp::fromAnyPtr<OlsrControlPacket>(object); (void)pp;
+    Olsrv2ControlPacket *pp = omnetpp::fromAnyPtr<Olsrv2ControlPacket>(object); (void)pp;
     switch (field) {
-        default: throw omnetpp::cRuntimeError("Cannot set field %d of class 'OlsrControlPacket'", field);
+        default: throw omnetpp::cRuntimeError("Cannot set field %d of class 'Olsrv2ControlPacket'", field);
     }
 }
 
-omnetpp::cValue OlsrControlPacketDescriptor::getFieldValue(omnetpp::any_ptr object, int field, int i) const
+omnetpp::cValue Olsrv2ControlPacketDescriptor::getFieldValue(omnetpp::any_ptr object, int field, int i) const
 {
     omnetpp::cClassDescriptor *base = getBaseClassDescriptor();
     if (base) {
@@ -446,14 +446,14 @@ omnetpp::cValue OlsrControlPacketDescriptor::getFieldValue(omnetpp::any_ptr obje
             return base->getFieldValue(object,field,i);
         field -= base->getFieldCount();
     }
-    OlsrControlPacket *pp = omnetpp::fromAnyPtr<OlsrControlPacket>(object); (void)pp;
+    Olsrv2ControlPacket *pp = omnetpp::fromAnyPtr<Olsrv2ControlPacket>(object); (void)pp;
     switch (field) {
         case FIELD_packetType: return static_cast<int>(pp->getPacketType());
-        default: throw omnetpp::cRuntimeError("Cannot return field %d of class 'OlsrControlPacket' as cValue -- field index out of range?", field);
+        default: throw omnetpp::cRuntimeError("Cannot return field %d of class 'Olsrv2ControlPacket' as cValue -- field index out of range?", field);
     }
 }
 
-void OlsrControlPacketDescriptor::setFieldValue(omnetpp::any_ptr object, int field, int i, const omnetpp::cValue& value) const
+void Olsrv2ControlPacketDescriptor::setFieldValue(omnetpp::any_ptr object, int field, int i, const omnetpp::cValue& value) const
 {
     omnetpp::cClassDescriptor *base = getBaseClassDescriptor();
     if (base) {
@@ -463,13 +463,13 @@ void OlsrControlPacketDescriptor::setFieldValue(omnetpp::any_ptr object, int fie
         }
         field -= base->getFieldCount();
     }
-    OlsrControlPacket *pp = omnetpp::fromAnyPtr<OlsrControlPacket>(object); (void)pp;
+    Olsrv2ControlPacket *pp = omnetpp::fromAnyPtr<Olsrv2ControlPacket>(object); (void)pp;
     switch (field) {
-        default: throw omnetpp::cRuntimeError("Cannot set field %d of class 'OlsrControlPacket'", field);
+        default: throw omnetpp::cRuntimeError("Cannot set field %d of class 'Olsrv2ControlPacket'", field);
     }
 }
 
-const char *OlsrControlPacketDescriptor::getFieldStructName(int field) const
+const char *Olsrv2ControlPacketDescriptor::getFieldStructName(int field) const
 {
     omnetpp::cClassDescriptor *base = getBaseClassDescriptor();
     if (base) {
@@ -482,7 +482,7 @@ const char *OlsrControlPacketDescriptor::getFieldStructName(int field) const
     };
 }
 
-omnetpp::any_ptr OlsrControlPacketDescriptor::getFieldStructValuePointer(omnetpp::any_ptr object, int field, int i) const
+omnetpp::any_ptr Olsrv2ControlPacketDescriptor::getFieldStructValuePointer(omnetpp::any_ptr object, int field, int i) const
 {
     omnetpp::cClassDescriptor *base = getBaseClassDescriptor();
     if (base) {
@@ -490,13 +490,13 @@ omnetpp::any_ptr OlsrControlPacketDescriptor::getFieldStructValuePointer(omnetpp
             return base->getFieldStructValuePointer(object, field, i);
         field -= base->getFieldCount();
     }
-    OlsrControlPacket *pp = omnetpp::fromAnyPtr<OlsrControlPacket>(object); (void)pp;
+    Olsrv2ControlPacket *pp = omnetpp::fromAnyPtr<Olsrv2ControlPacket>(object); (void)pp;
     switch (field) {
         default: return omnetpp::any_ptr(nullptr);
     }
 }
 
-void OlsrControlPacketDescriptor::setFieldStructValuePointer(omnetpp::any_ptr object, int field, int i, omnetpp::any_ptr ptr) const
+void Olsrv2ControlPacketDescriptor::setFieldStructValuePointer(omnetpp::any_ptr object, int field, int i, omnetpp::any_ptr ptr) const
 {
     omnetpp::cClassDescriptor *base = getBaseClassDescriptor();
     if (base) {
@@ -506,365 +506,452 @@ void OlsrControlPacketDescriptor::setFieldStructValuePointer(omnetpp::any_ptr ob
         }
         field -= base->getFieldCount();
     }
-    OlsrControlPacket *pp = omnetpp::fromAnyPtr<OlsrControlPacket>(object); (void)pp;
+    Olsrv2ControlPacket *pp = omnetpp::fromAnyPtr<Olsrv2ControlPacket>(object); (void)pp;
     switch (field) {
-        default: throw omnetpp::cRuntimeError("Cannot set field %d of class 'OlsrControlPacket'", field);
+        default: throw omnetpp::cRuntimeError("Cannot set field %d of class 'Olsrv2ControlPacket'", field);
     }
 }
 
-Register_Class(OlsrHello)
+Register_Class(Olsrv2HelloPacket)
 
-OlsrHello::OlsrHello() : ::inet::OlsrControlPacket()
+Olsrv2HelloPacket::Olsrv2HelloPacket() : ::inet::Olsrv2ControlPacket()
 {
 }
 
-OlsrHello::OlsrHello(const OlsrHello& other) : ::inet::OlsrControlPacket(other)
+Olsrv2HelloPacket::Olsrv2HelloPacket(const Olsrv2HelloPacket& other) : ::inet::Olsrv2ControlPacket(other)
 {
     copy(other);
 }
 
-OlsrHello::~OlsrHello()
+Olsrv2HelloPacket::~Olsrv2HelloPacket()
 {
-    delete [] this->linkCodes;
-    delete [] this->linkCounts;
-    delete [] this->nbIfaceAddrs;
+    delete [] this->linkStatus;
+    delete [] this->neighStatus;
+    delete [] this->addrCounts;
+    delete [] this->neighAddrs;
 }
 
-OlsrHello& OlsrHello::operator=(const OlsrHello& other)
+Olsrv2HelloPacket& Olsrv2HelloPacket::operator=(const Olsrv2HelloPacket& other)
 {
     if (this == &other) return *this;
-    ::inet::OlsrControlPacket::operator=(other);
+    ::inet::Olsrv2ControlPacket::operator=(other);
     copy(other);
     return *this;
 }
 
-void OlsrHello::copy(const OlsrHello& other)
+void Olsrv2HelloPacket::copy(const Olsrv2HelloPacket& other)
 {
     this->originator = other.originator;
     this->hTime = other.hTime;
     this->willingness = other.willingness;
     this->msgSeq = other.msgSeq;
-    delete [] this->linkCodes;
-    this->linkCodes = (other.linkCodes_arraysize==0) ? nullptr : new uint8_t[other.linkCodes_arraysize];
-    linkCodes_arraysize = other.linkCodes_arraysize;
-    for (size_t i = 0; i < linkCodes_arraysize; i++) {
-        this->linkCodes[i] = other.linkCodes[i];
+    delete [] this->linkStatus;
+    this->linkStatus = (other.linkStatus_arraysize==0) ? nullptr : new uint8_t[other.linkStatus_arraysize];
+    linkStatus_arraysize = other.linkStatus_arraysize;
+    for (size_t i = 0; i < linkStatus_arraysize; i++) {
+        this->linkStatus[i] = other.linkStatus[i];
     }
-    delete [] this->linkCounts;
-    this->linkCounts = (other.linkCounts_arraysize==0) ? nullptr : new int[other.linkCounts_arraysize];
-    linkCounts_arraysize = other.linkCounts_arraysize;
-    for (size_t i = 0; i < linkCounts_arraysize; i++) {
-        this->linkCounts[i] = other.linkCounts[i];
+    delete [] this->neighStatus;
+    this->neighStatus = (other.neighStatus_arraysize==0) ? nullptr : new uint8_t[other.neighStatus_arraysize];
+    neighStatus_arraysize = other.neighStatus_arraysize;
+    for (size_t i = 0; i < neighStatus_arraysize; i++) {
+        this->neighStatus[i] = other.neighStatus[i];
     }
-    delete [] this->nbIfaceAddrs;
-    this->nbIfaceAddrs = (other.nbIfaceAddrs_arraysize==0) ? nullptr : new L3Address[other.nbIfaceAddrs_arraysize];
-    nbIfaceAddrs_arraysize = other.nbIfaceAddrs_arraysize;
-    for (size_t i = 0; i < nbIfaceAddrs_arraysize; i++) {
-        this->nbIfaceAddrs[i] = other.nbIfaceAddrs[i];
+    delete [] this->addrCounts;
+    this->addrCounts = (other.addrCounts_arraysize==0) ? nullptr : new int[other.addrCounts_arraysize];
+    addrCounts_arraysize = other.addrCounts_arraysize;
+    for (size_t i = 0; i < addrCounts_arraysize; i++) {
+        this->addrCounts[i] = other.addrCounts[i];
+    }
+    delete [] this->neighAddrs;
+    this->neighAddrs = (other.neighAddrs_arraysize==0) ? nullptr : new L3Address[other.neighAddrs_arraysize];
+    neighAddrs_arraysize = other.neighAddrs_arraysize;
+    for (size_t i = 0; i < neighAddrs_arraysize; i++) {
+        this->neighAddrs[i] = other.neighAddrs[i];
     }
 }
 
-void OlsrHello::parsimPack(omnetpp::cCommBuffer *b) const
+void Olsrv2HelloPacket::parsimPack(omnetpp::cCommBuffer *b) const
 {
-    ::inet::OlsrControlPacket::parsimPack(b);
+    ::inet::Olsrv2ControlPacket::parsimPack(b);
     doParsimPacking(b,this->originator);
     doParsimPacking(b,this->hTime);
     doParsimPacking(b,this->willingness);
     doParsimPacking(b,this->msgSeq);
-    b->pack(linkCodes_arraysize);
-    doParsimArrayPacking(b,this->linkCodes,linkCodes_arraysize);
-    b->pack(linkCounts_arraysize);
-    doParsimArrayPacking(b,this->linkCounts,linkCounts_arraysize);
-    b->pack(nbIfaceAddrs_arraysize);
-    doParsimArrayPacking(b,this->nbIfaceAddrs,nbIfaceAddrs_arraysize);
+    b->pack(linkStatus_arraysize);
+    doParsimArrayPacking(b,this->linkStatus,linkStatus_arraysize);
+    b->pack(neighStatus_arraysize);
+    doParsimArrayPacking(b,this->neighStatus,neighStatus_arraysize);
+    b->pack(addrCounts_arraysize);
+    doParsimArrayPacking(b,this->addrCounts,addrCounts_arraysize);
+    b->pack(neighAddrs_arraysize);
+    doParsimArrayPacking(b,this->neighAddrs,neighAddrs_arraysize);
 }
 
-void OlsrHello::parsimUnpack(omnetpp::cCommBuffer *b)
+void Olsrv2HelloPacket::parsimUnpack(omnetpp::cCommBuffer *b)
 {
-    ::inet::OlsrControlPacket::parsimUnpack(b);
+    ::inet::Olsrv2ControlPacket::parsimUnpack(b);
     doParsimUnpacking(b,this->originator);
     doParsimUnpacking(b,this->hTime);
     doParsimUnpacking(b,this->willingness);
     doParsimUnpacking(b,this->msgSeq);
-    delete [] this->linkCodes;
-    b->unpack(linkCodes_arraysize);
-    if (linkCodes_arraysize == 0) {
-        this->linkCodes = nullptr;
+    delete [] this->linkStatus;
+    b->unpack(linkStatus_arraysize);
+    if (linkStatus_arraysize == 0) {
+        this->linkStatus = nullptr;
     } else {
-        this->linkCodes = new uint8_t[linkCodes_arraysize];
-        doParsimArrayUnpacking(b,this->linkCodes,linkCodes_arraysize);
+        this->linkStatus = new uint8_t[linkStatus_arraysize];
+        doParsimArrayUnpacking(b,this->linkStatus,linkStatus_arraysize);
     }
-    delete [] this->linkCounts;
-    b->unpack(linkCounts_arraysize);
-    if (linkCounts_arraysize == 0) {
-        this->linkCounts = nullptr;
+    delete [] this->neighStatus;
+    b->unpack(neighStatus_arraysize);
+    if (neighStatus_arraysize == 0) {
+        this->neighStatus = nullptr;
     } else {
-        this->linkCounts = new int[linkCounts_arraysize];
-        doParsimArrayUnpacking(b,this->linkCounts,linkCounts_arraysize);
+        this->neighStatus = new uint8_t[neighStatus_arraysize];
+        doParsimArrayUnpacking(b,this->neighStatus,neighStatus_arraysize);
     }
-    delete [] this->nbIfaceAddrs;
-    b->unpack(nbIfaceAddrs_arraysize);
-    if (nbIfaceAddrs_arraysize == 0) {
-        this->nbIfaceAddrs = nullptr;
+    delete [] this->addrCounts;
+    b->unpack(addrCounts_arraysize);
+    if (addrCounts_arraysize == 0) {
+        this->addrCounts = nullptr;
     } else {
-        this->nbIfaceAddrs = new L3Address[nbIfaceAddrs_arraysize];
-        doParsimArrayUnpacking(b,this->nbIfaceAddrs,nbIfaceAddrs_arraysize);
+        this->addrCounts = new int[addrCounts_arraysize];
+        doParsimArrayUnpacking(b,this->addrCounts,addrCounts_arraysize);
+    }
+    delete [] this->neighAddrs;
+    b->unpack(neighAddrs_arraysize);
+    if (neighAddrs_arraysize == 0) {
+        this->neighAddrs = nullptr;
+    } else {
+        this->neighAddrs = new L3Address[neighAddrs_arraysize];
+        doParsimArrayUnpacking(b,this->neighAddrs,neighAddrs_arraysize);
     }
 }
 
-const L3Address& OlsrHello::getOriginator() const
+const L3Address& Olsrv2HelloPacket::getOriginator() const
 {
     return this->originator;
 }
 
-void OlsrHello::setOriginator(const L3Address& originator)
+void Olsrv2HelloPacket::setOriginator(const L3Address& originator)
 {
     handleChange();
     this->originator = originator;
 }
 
-::omnetpp::simtime_t OlsrHello::getHTime() const
+::omnetpp::simtime_t Olsrv2HelloPacket::getHTime() const
 {
     return this->hTime;
 }
 
-void OlsrHello::setHTime(::omnetpp::simtime_t hTime)
+void Olsrv2HelloPacket::setHTime(::omnetpp::simtime_t hTime)
 {
     handleChange();
     this->hTime = hTime;
 }
 
-uint8_t OlsrHello::getWillingness() const
+uint8_t Olsrv2HelloPacket::getWillingness() const
 {
     return this->willingness;
 }
 
-void OlsrHello::setWillingness(uint8_t willingness)
+void Olsrv2HelloPacket::setWillingness(uint8_t willingness)
 {
     handleChange();
     this->willingness = willingness;
 }
 
-uint16_t OlsrHello::getMsgSeq() const
+uint16_t Olsrv2HelloPacket::getMsgSeq() const
 {
     return this->msgSeq;
 }
 
-void OlsrHello::setMsgSeq(uint16_t msgSeq)
+void Olsrv2HelloPacket::setMsgSeq(uint16_t msgSeq)
 {
     handleChange();
     this->msgSeq = msgSeq;
 }
 
-size_t OlsrHello::getLinkCodesArraySize() const
+size_t Olsrv2HelloPacket::getLinkStatusArraySize() const
 {
-    return linkCodes_arraysize;
+    return linkStatus_arraysize;
 }
 
-uint8_t OlsrHello::getLinkCodes(size_t k) const
+uint8_t Olsrv2HelloPacket::getLinkStatus(size_t k) const
 {
-    if (k >= linkCodes_arraysize) throw omnetpp::cRuntimeError("Array of size %lu indexed by %lu", (unsigned long)linkCodes_arraysize, (unsigned long)k);
-    return this->linkCodes[k];
+    if (k >= linkStatus_arraysize) throw omnetpp::cRuntimeError("Array of size %lu indexed by %lu", (unsigned long)linkStatus_arraysize, (unsigned long)k);
+    return this->linkStatus[k];
 }
 
-void OlsrHello::setLinkCodesArraySize(size_t newSize)
+void Olsrv2HelloPacket::setLinkStatusArraySize(size_t newSize)
 {
     handleChange();
-    uint8_t *linkCodes2 = (newSize==0) ? nullptr : new uint8_t[newSize];
-    size_t minSize = linkCodes_arraysize < newSize ? linkCodes_arraysize : newSize;
+    uint8_t *linkStatus2 = (newSize==0) ? nullptr : new uint8_t[newSize];
+    size_t minSize = linkStatus_arraysize < newSize ? linkStatus_arraysize : newSize;
     for (size_t i = 0; i < minSize; i++)
-        linkCodes2[i] = this->linkCodes[i];
+        linkStatus2[i] = this->linkStatus[i];
     for (size_t i = minSize; i < newSize; i++)
-        linkCodes2[i] = 0;
-    delete [] this->linkCodes;
-    this->linkCodes = linkCodes2;
-    linkCodes_arraysize = newSize;
+        linkStatus2[i] = 0;
+    delete [] this->linkStatus;
+    this->linkStatus = linkStatus2;
+    linkStatus_arraysize = newSize;
 }
 
-void OlsrHello::setLinkCodes(size_t k, uint8_t linkCodes)
+void Olsrv2HelloPacket::setLinkStatus(size_t k, uint8_t linkStatus)
 {
-    if (k >= linkCodes_arraysize) throw omnetpp::cRuntimeError("Array of size %lu indexed by %lu", (unsigned long)linkCodes_arraysize, (unsigned long)k);
+    if (k >= linkStatus_arraysize) throw omnetpp::cRuntimeError("Array of size %lu indexed by %lu", (unsigned long)linkStatus_arraysize, (unsigned long)k);
     handleChange();
-    this->linkCodes[k] = linkCodes;
+    this->linkStatus[k] = linkStatus;
 }
 
-void OlsrHello::insertLinkCodes(size_t k, uint8_t linkCodes)
+void Olsrv2HelloPacket::insertLinkStatus(size_t k, uint8_t linkStatus)
 {
-    if (k > linkCodes_arraysize) throw omnetpp::cRuntimeError("Array of size %lu indexed by %lu", (unsigned long)linkCodes_arraysize, (unsigned long)k);
+    if (k > linkStatus_arraysize) throw omnetpp::cRuntimeError("Array of size %lu indexed by %lu", (unsigned long)linkStatus_arraysize, (unsigned long)k);
     handleChange();
-    size_t newSize = linkCodes_arraysize + 1;
-    uint8_t *linkCodes2 = new uint8_t[newSize];
+    size_t newSize = linkStatus_arraysize + 1;
+    uint8_t *linkStatus2 = new uint8_t[newSize];
     size_t i;
     for (i = 0; i < k; i++)
-        linkCodes2[i] = this->linkCodes[i];
-    linkCodes2[k] = linkCodes;
+        linkStatus2[i] = this->linkStatus[i];
+    linkStatus2[k] = linkStatus;
     for (i = k + 1; i < newSize; i++)
-        linkCodes2[i] = this->linkCodes[i-1];
-    delete [] this->linkCodes;
-    this->linkCodes = linkCodes2;
-    linkCodes_arraysize = newSize;
+        linkStatus2[i] = this->linkStatus[i-1];
+    delete [] this->linkStatus;
+    this->linkStatus = linkStatus2;
+    linkStatus_arraysize = newSize;
 }
 
-void OlsrHello::appendLinkCodes(uint8_t linkCodes)
+void Olsrv2HelloPacket::appendLinkStatus(uint8_t linkStatus)
 {
-    insertLinkCodes(linkCodes_arraysize, linkCodes);
+    insertLinkStatus(linkStatus_arraysize, linkStatus);
 }
 
-void OlsrHello::eraseLinkCodes(size_t k)
+void Olsrv2HelloPacket::eraseLinkStatus(size_t k)
 {
-    if (k >= linkCodes_arraysize) throw omnetpp::cRuntimeError("Array of size %lu indexed by %lu", (unsigned long)linkCodes_arraysize, (unsigned long)k);
+    if (k >= linkStatus_arraysize) throw omnetpp::cRuntimeError("Array of size %lu indexed by %lu", (unsigned long)linkStatus_arraysize, (unsigned long)k);
     handleChange();
-    size_t newSize = linkCodes_arraysize - 1;
-    uint8_t *linkCodes2 = (newSize == 0) ? nullptr : new uint8_t[newSize];
+    size_t newSize = linkStatus_arraysize - 1;
+    uint8_t *linkStatus2 = (newSize == 0) ? nullptr : new uint8_t[newSize];
     size_t i;
     for (i = 0; i < k; i++)
-        linkCodes2[i] = this->linkCodes[i];
+        linkStatus2[i] = this->linkStatus[i];
     for (i = k; i < newSize; i++)
-        linkCodes2[i] = this->linkCodes[i+1];
-    delete [] this->linkCodes;
-    this->linkCodes = linkCodes2;
-    linkCodes_arraysize = newSize;
+        linkStatus2[i] = this->linkStatus[i+1];
+    delete [] this->linkStatus;
+    this->linkStatus = linkStatus2;
+    linkStatus_arraysize = newSize;
 }
 
-size_t OlsrHello::getLinkCountsArraySize() const
+size_t Olsrv2HelloPacket::getNeighStatusArraySize() const
 {
-    return linkCounts_arraysize;
+    return neighStatus_arraysize;
 }
 
-int OlsrHello::getLinkCounts(size_t k) const
+uint8_t Olsrv2HelloPacket::getNeighStatus(size_t k) const
 {
-    if (k >= linkCounts_arraysize) throw omnetpp::cRuntimeError("Array of size %lu indexed by %lu", (unsigned long)linkCounts_arraysize, (unsigned long)k);
-    return this->linkCounts[k];
+    if (k >= neighStatus_arraysize) throw omnetpp::cRuntimeError("Array of size %lu indexed by %lu", (unsigned long)neighStatus_arraysize, (unsigned long)k);
+    return this->neighStatus[k];
 }
 
-void OlsrHello::setLinkCountsArraySize(size_t newSize)
+void Olsrv2HelloPacket::setNeighStatusArraySize(size_t newSize)
 {
     handleChange();
-    int *linkCounts2 = (newSize==0) ? nullptr : new int[newSize];
-    size_t minSize = linkCounts_arraysize < newSize ? linkCounts_arraysize : newSize;
+    uint8_t *neighStatus2 = (newSize==0) ? nullptr : new uint8_t[newSize];
+    size_t minSize = neighStatus_arraysize < newSize ? neighStatus_arraysize : newSize;
     for (size_t i = 0; i < minSize; i++)
-        linkCounts2[i] = this->linkCounts[i];
+        neighStatus2[i] = this->neighStatus[i];
     for (size_t i = minSize; i < newSize; i++)
-        linkCounts2[i] = 0;
-    delete [] this->linkCounts;
-    this->linkCounts = linkCounts2;
-    linkCounts_arraysize = newSize;
+        neighStatus2[i] = 0;
+    delete [] this->neighStatus;
+    this->neighStatus = neighStatus2;
+    neighStatus_arraysize = newSize;
 }
 
-void OlsrHello::setLinkCounts(size_t k, int linkCounts)
+void Olsrv2HelloPacket::setNeighStatus(size_t k, uint8_t neighStatus)
 {
-    if (k >= linkCounts_arraysize) throw omnetpp::cRuntimeError("Array of size %lu indexed by %lu", (unsigned long)linkCounts_arraysize, (unsigned long)k);
+    if (k >= neighStatus_arraysize) throw omnetpp::cRuntimeError("Array of size %lu indexed by %lu", (unsigned long)neighStatus_arraysize, (unsigned long)k);
     handleChange();
-    this->linkCounts[k] = linkCounts;
+    this->neighStatus[k] = neighStatus;
 }
 
-void OlsrHello::insertLinkCounts(size_t k, int linkCounts)
+void Olsrv2HelloPacket::insertNeighStatus(size_t k, uint8_t neighStatus)
 {
-    if (k > linkCounts_arraysize) throw omnetpp::cRuntimeError("Array of size %lu indexed by %lu", (unsigned long)linkCounts_arraysize, (unsigned long)k);
+    if (k > neighStatus_arraysize) throw omnetpp::cRuntimeError("Array of size %lu indexed by %lu", (unsigned long)neighStatus_arraysize, (unsigned long)k);
     handleChange();
-    size_t newSize = linkCounts_arraysize + 1;
-    int *linkCounts2 = new int[newSize];
+    size_t newSize = neighStatus_arraysize + 1;
+    uint8_t *neighStatus2 = new uint8_t[newSize];
     size_t i;
     for (i = 0; i < k; i++)
-        linkCounts2[i] = this->linkCounts[i];
-    linkCounts2[k] = linkCounts;
+        neighStatus2[i] = this->neighStatus[i];
+    neighStatus2[k] = neighStatus;
     for (i = k + 1; i < newSize; i++)
-        linkCounts2[i] = this->linkCounts[i-1];
-    delete [] this->linkCounts;
-    this->linkCounts = linkCounts2;
-    linkCounts_arraysize = newSize;
+        neighStatus2[i] = this->neighStatus[i-1];
+    delete [] this->neighStatus;
+    this->neighStatus = neighStatus2;
+    neighStatus_arraysize = newSize;
 }
 
-void OlsrHello::appendLinkCounts(int linkCounts)
+void Olsrv2HelloPacket::appendNeighStatus(uint8_t neighStatus)
 {
-    insertLinkCounts(linkCounts_arraysize, linkCounts);
+    insertNeighStatus(neighStatus_arraysize, neighStatus);
 }
 
-void OlsrHello::eraseLinkCounts(size_t k)
+void Olsrv2HelloPacket::eraseNeighStatus(size_t k)
 {
-    if (k >= linkCounts_arraysize) throw omnetpp::cRuntimeError("Array of size %lu indexed by %lu", (unsigned long)linkCounts_arraysize, (unsigned long)k);
+    if (k >= neighStatus_arraysize) throw omnetpp::cRuntimeError("Array of size %lu indexed by %lu", (unsigned long)neighStatus_arraysize, (unsigned long)k);
     handleChange();
-    size_t newSize = linkCounts_arraysize - 1;
-    int *linkCounts2 = (newSize == 0) ? nullptr : new int[newSize];
+    size_t newSize = neighStatus_arraysize - 1;
+    uint8_t *neighStatus2 = (newSize == 0) ? nullptr : new uint8_t[newSize];
     size_t i;
     for (i = 0; i < k; i++)
-        linkCounts2[i] = this->linkCounts[i];
+        neighStatus2[i] = this->neighStatus[i];
     for (i = k; i < newSize; i++)
-        linkCounts2[i] = this->linkCounts[i+1];
-    delete [] this->linkCounts;
-    this->linkCounts = linkCounts2;
-    linkCounts_arraysize = newSize;
+        neighStatus2[i] = this->neighStatus[i+1];
+    delete [] this->neighStatus;
+    this->neighStatus = neighStatus2;
+    neighStatus_arraysize = newSize;
 }
 
-size_t OlsrHello::getNbIfaceAddrsArraySize() const
+size_t Olsrv2HelloPacket::getAddrCountsArraySize() const
 {
-    return nbIfaceAddrs_arraysize;
+    return addrCounts_arraysize;
 }
 
-const L3Address& OlsrHello::getNbIfaceAddrs(size_t k) const
+int Olsrv2HelloPacket::getAddrCounts(size_t k) const
 {
-    if (k >= nbIfaceAddrs_arraysize) throw omnetpp::cRuntimeError("Array of size %lu indexed by %lu", (unsigned long)nbIfaceAddrs_arraysize, (unsigned long)k);
-    return this->nbIfaceAddrs[k];
+    if (k >= addrCounts_arraysize) throw omnetpp::cRuntimeError("Array of size %lu indexed by %lu", (unsigned long)addrCounts_arraysize, (unsigned long)k);
+    return this->addrCounts[k];
 }
 
-void OlsrHello::setNbIfaceAddrsArraySize(size_t newSize)
+void Olsrv2HelloPacket::setAddrCountsArraySize(size_t newSize)
 {
     handleChange();
-    L3Address *nbIfaceAddrs2 = (newSize==0) ? nullptr : new L3Address[newSize];
-    size_t minSize = nbIfaceAddrs_arraysize < newSize ? nbIfaceAddrs_arraysize : newSize;
+    int *addrCounts2 = (newSize==0) ? nullptr : new int[newSize];
+    size_t minSize = addrCounts_arraysize < newSize ? addrCounts_arraysize : newSize;
     for (size_t i = 0; i < minSize; i++)
-        nbIfaceAddrs2[i] = this->nbIfaceAddrs[i];
-    delete [] this->nbIfaceAddrs;
-    this->nbIfaceAddrs = nbIfaceAddrs2;
-    nbIfaceAddrs_arraysize = newSize;
+        addrCounts2[i] = this->addrCounts[i];
+    for (size_t i = minSize; i < newSize; i++)
+        addrCounts2[i] = 0;
+    delete [] this->addrCounts;
+    this->addrCounts = addrCounts2;
+    addrCounts_arraysize = newSize;
 }
 
-void OlsrHello::setNbIfaceAddrs(size_t k, const L3Address& nbIfaceAddrs)
+void Olsrv2HelloPacket::setAddrCounts(size_t k, int addrCounts)
 {
-    if (k >= nbIfaceAddrs_arraysize) throw omnetpp::cRuntimeError("Array of size %lu indexed by %lu", (unsigned long)nbIfaceAddrs_arraysize, (unsigned long)k);
+    if (k >= addrCounts_arraysize) throw omnetpp::cRuntimeError("Array of size %lu indexed by %lu", (unsigned long)addrCounts_arraysize, (unsigned long)k);
     handleChange();
-    this->nbIfaceAddrs[k] = nbIfaceAddrs;
+    this->addrCounts[k] = addrCounts;
 }
 
-void OlsrHello::insertNbIfaceAddrs(size_t k, const L3Address& nbIfaceAddrs)
+void Olsrv2HelloPacket::insertAddrCounts(size_t k, int addrCounts)
 {
-    if (k > nbIfaceAddrs_arraysize) throw omnetpp::cRuntimeError("Array of size %lu indexed by %lu", (unsigned long)nbIfaceAddrs_arraysize, (unsigned long)k);
+    if (k > addrCounts_arraysize) throw omnetpp::cRuntimeError("Array of size %lu indexed by %lu", (unsigned long)addrCounts_arraysize, (unsigned long)k);
     handleChange();
-    size_t newSize = nbIfaceAddrs_arraysize + 1;
-    L3Address *nbIfaceAddrs2 = new L3Address[newSize];
+    size_t newSize = addrCounts_arraysize + 1;
+    int *addrCounts2 = new int[newSize];
     size_t i;
     for (i = 0; i < k; i++)
-        nbIfaceAddrs2[i] = this->nbIfaceAddrs[i];
-    nbIfaceAddrs2[k] = nbIfaceAddrs;
+        addrCounts2[i] = this->addrCounts[i];
+    addrCounts2[k] = addrCounts;
     for (i = k + 1; i < newSize; i++)
-        nbIfaceAddrs2[i] = this->nbIfaceAddrs[i-1];
-    delete [] this->nbIfaceAddrs;
-    this->nbIfaceAddrs = nbIfaceAddrs2;
-    nbIfaceAddrs_arraysize = newSize;
+        addrCounts2[i] = this->addrCounts[i-1];
+    delete [] this->addrCounts;
+    this->addrCounts = addrCounts2;
+    addrCounts_arraysize = newSize;
 }
 
-void OlsrHello::appendNbIfaceAddrs(const L3Address& nbIfaceAddrs)
+void Olsrv2HelloPacket::appendAddrCounts(int addrCounts)
 {
-    insertNbIfaceAddrs(nbIfaceAddrs_arraysize, nbIfaceAddrs);
+    insertAddrCounts(addrCounts_arraysize, addrCounts);
 }
 
-void OlsrHello::eraseNbIfaceAddrs(size_t k)
+void Olsrv2HelloPacket::eraseAddrCounts(size_t k)
 {
-    if (k >= nbIfaceAddrs_arraysize) throw omnetpp::cRuntimeError("Array of size %lu indexed by %lu", (unsigned long)nbIfaceAddrs_arraysize, (unsigned long)k);
+    if (k >= addrCounts_arraysize) throw omnetpp::cRuntimeError("Array of size %lu indexed by %lu", (unsigned long)addrCounts_arraysize, (unsigned long)k);
     handleChange();
-    size_t newSize = nbIfaceAddrs_arraysize - 1;
-    L3Address *nbIfaceAddrs2 = (newSize == 0) ? nullptr : new L3Address[newSize];
+    size_t newSize = addrCounts_arraysize - 1;
+    int *addrCounts2 = (newSize == 0) ? nullptr : new int[newSize];
     size_t i;
     for (i = 0; i < k; i++)
-        nbIfaceAddrs2[i] = this->nbIfaceAddrs[i];
+        addrCounts2[i] = this->addrCounts[i];
     for (i = k; i < newSize; i++)
-        nbIfaceAddrs2[i] = this->nbIfaceAddrs[i+1];
-    delete [] this->nbIfaceAddrs;
-    this->nbIfaceAddrs = nbIfaceAddrs2;
-    nbIfaceAddrs_arraysize = newSize;
+        addrCounts2[i] = this->addrCounts[i+1];
+    delete [] this->addrCounts;
+    this->addrCounts = addrCounts2;
+    addrCounts_arraysize = newSize;
 }
 
-class OlsrHelloDescriptor : public omnetpp::cClassDescriptor
+size_t Olsrv2HelloPacket::getNeighAddrsArraySize() const
+{
+    return neighAddrs_arraysize;
+}
+
+const L3Address& Olsrv2HelloPacket::getNeighAddrs(size_t k) const
+{
+    if (k >= neighAddrs_arraysize) throw omnetpp::cRuntimeError("Array of size %lu indexed by %lu", (unsigned long)neighAddrs_arraysize, (unsigned long)k);
+    return this->neighAddrs[k];
+}
+
+void Olsrv2HelloPacket::setNeighAddrsArraySize(size_t newSize)
+{
+    handleChange();
+    L3Address *neighAddrs2 = (newSize==0) ? nullptr : new L3Address[newSize];
+    size_t minSize = neighAddrs_arraysize < newSize ? neighAddrs_arraysize : newSize;
+    for (size_t i = 0; i < minSize; i++)
+        neighAddrs2[i] = this->neighAddrs[i];
+    delete [] this->neighAddrs;
+    this->neighAddrs = neighAddrs2;
+    neighAddrs_arraysize = newSize;
+}
+
+void Olsrv2HelloPacket::setNeighAddrs(size_t k, const L3Address& neighAddrs)
+{
+    if (k >= neighAddrs_arraysize) throw omnetpp::cRuntimeError("Array of size %lu indexed by %lu", (unsigned long)neighAddrs_arraysize, (unsigned long)k);
+    handleChange();
+    this->neighAddrs[k] = neighAddrs;
+}
+
+void Olsrv2HelloPacket::insertNeighAddrs(size_t k, const L3Address& neighAddrs)
+{
+    if (k > neighAddrs_arraysize) throw omnetpp::cRuntimeError("Array of size %lu indexed by %lu", (unsigned long)neighAddrs_arraysize, (unsigned long)k);
+    handleChange();
+    size_t newSize = neighAddrs_arraysize + 1;
+    L3Address *neighAddrs2 = new L3Address[newSize];
+    size_t i;
+    for (i = 0; i < k; i++)
+        neighAddrs2[i] = this->neighAddrs[i];
+    neighAddrs2[k] = neighAddrs;
+    for (i = k + 1; i < newSize; i++)
+        neighAddrs2[i] = this->neighAddrs[i-1];
+    delete [] this->neighAddrs;
+    this->neighAddrs = neighAddrs2;
+    neighAddrs_arraysize = newSize;
+}
+
+void Olsrv2HelloPacket::appendNeighAddrs(const L3Address& neighAddrs)
+{
+    insertNeighAddrs(neighAddrs_arraysize, neighAddrs);
+}
+
+void Olsrv2HelloPacket::eraseNeighAddrs(size_t k)
+{
+    if (k >= neighAddrs_arraysize) throw omnetpp::cRuntimeError("Array of size %lu indexed by %lu", (unsigned long)neighAddrs_arraysize, (unsigned long)k);
+    handleChange();
+    size_t newSize = neighAddrs_arraysize - 1;
+    L3Address *neighAddrs2 = (newSize == 0) ? nullptr : new L3Address[newSize];
+    size_t i;
+    for (i = 0; i < k; i++)
+        neighAddrs2[i] = this->neighAddrs[i];
+    for (i = k; i < newSize; i++)
+        neighAddrs2[i] = this->neighAddrs[i+1];
+    delete [] this->neighAddrs;
+    this->neighAddrs = neighAddrs2;
+    neighAddrs_arraysize = newSize;
+}
+
+class Olsrv2HelloPacketDescriptor : public omnetpp::cClassDescriptor
 {
   private:
     mutable const char **propertyNames;
@@ -873,13 +960,14 @@ class OlsrHelloDescriptor : public omnetpp::cClassDescriptor
         FIELD_hTime,
         FIELD_willingness,
         FIELD_msgSeq,
-        FIELD_linkCodes,
-        FIELD_linkCounts,
-        FIELD_nbIfaceAddrs,
+        FIELD_linkStatus,
+        FIELD_neighStatus,
+        FIELD_addrCounts,
+        FIELD_neighAddrs,
     };
   public:
-    OlsrHelloDescriptor();
-    virtual ~OlsrHelloDescriptor();
+    Olsrv2HelloPacketDescriptor();
+    virtual ~Olsrv2HelloPacketDescriptor();
 
     virtual bool doesSupport(omnetpp::cObject *obj) const override;
     virtual const char **getPropertyNames() const override;
@@ -905,24 +993,24 @@ class OlsrHelloDescriptor : public omnetpp::cClassDescriptor
     virtual void setFieldStructValuePointer(omnetpp::any_ptr object, int field, int i, omnetpp::any_ptr ptr) const override;
 };
 
-Register_ClassDescriptor(OlsrHelloDescriptor)
+Register_ClassDescriptor(Olsrv2HelloPacketDescriptor)
 
-OlsrHelloDescriptor::OlsrHelloDescriptor() : omnetpp::cClassDescriptor(omnetpp::opp_typename(typeid(inet::OlsrHello)), "inet::OlsrControlPacket")
+Olsrv2HelloPacketDescriptor::Olsrv2HelloPacketDescriptor() : omnetpp::cClassDescriptor(omnetpp::opp_typename(typeid(inet::Olsrv2HelloPacket)), "inet::Olsrv2ControlPacket")
 {
     propertyNames = nullptr;
 }
 
-OlsrHelloDescriptor::~OlsrHelloDescriptor()
+Olsrv2HelloPacketDescriptor::~Olsrv2HelloPacketDescriptor()
 {
     delete[] propertyNames;
 }
 
-bool OlsrHelloDescriptor::doesSupport(omnetpp::cObject *obj) const
+bool Olsrv2HelloPacketDescriptor::doesSupport(omnetpp::cObject *obj) const
 {
-    return dynamic_cast<OlsrHello *>(obj)!=nullptr;
+    return dynamic_cast<Olsrv2HelloPacket *>(obj)!=nullptr;
 }
 
-const char **OlsrHelloDescriptor::getPropertyNames() const
+const char **Olsrv2HelloPacketDescriptor::getPropertyNames() const
 {
     if (!propertyNames) {
         static const char *names[] = {  nullptr };
@@ -933,19 +1021,19 @@ const char **OlsrHelloDescriptor::getPropertyNames() const
     return propertyNames;
 }
 
-const char *OlsrHelloDescriptor::getProperty(const char *propertyName) const
+const char *Olsrv2HelloPacketDescriptor::getProperty(const char *propertyName) const
 {
     omnetpp::cClassDescriptor *base = getBaseClassDescriptor();
     return base ? base->getProperty(propertyName) : nullptr;
 }
 
-int OlsrHelloDescriptor::getFieldCount() const
+int Olsrv2HelloPacketDescriptor::getFieldCount() const
 {
     omnetpp::cClassDescriptor *base = getBaseClassDescriptor();
-    return base ? 7+base->getFieldCount() : 7;
+    return base ? 8+base->getFieldCount() : 8;
 }
 
-unsigned int OlsrHelloDescriptor::getFieldTypeFlags(int field) const
+unsigned int Olsrv2HelloPacketDescriptor::getFieldTypeFlags(int field) const
 {
     omnetpp::cClassDescriptor *base = getBaseClassDescriptor();
     if (base) {
@@ -958,14 +1046,15 @@ unsigned int OlsrHelloDescriptor::getFieldTypeFlags(int field) const
         FD_ISEDITABLE,    // FIELD_hTime
         FD_ISEDITABLE,    // FIELD_willingness
         FD_ISEDITABLE,    // FIELD_msgSeq
-        FD_ISARRAY | FD_ISEDITABLE | FD_ISRESIZABLE,    // FIELD_linkCodes
-        FD_ISARRAY | FD_ISEDITABLE | FD_ISRESIZABLE,    // FIELD_linkCounts
-        FD_ISARRAY | FD_ISRESIZABLE,    // FIELD_nbIfaceAddrs
+        FD_ISARRAY | FD_ISEDITABLE | FD_ISRESIZABLE,    // FIELD_linkStatus
+        FD_ISARRAY | FD_ISEDITABLE | FD_ISRESIZABLE,    // FIELD_neighStatus
+        FD_ISARRAY | FD_ISEDITABLE | FD_ISRESIZABLE,    // FIELD_addrCounts
+        FD_ISARRAY | FD_ISRESIZABLE,    // FIELD_neighAddrs
     };
-    return (field >= 0 && field < 7) ? fieldTypeFlags[field] : 0;
+    return (field >= 0 && field < 8) ? fieldTypeFlags[field] : 0;
 }
 
-const char *OlsrHelloDescriptor::getFieldName(int field) const
+const char *Olsrv2HelloPacketDescriptor::getFieldName(int field) const
 {
     omnetpp::cClassDescriptor *base = getBaseClassDescriptor();
     if (base) {
@@ -978,14 +1067,15 @@ const char *OlsrHelloDescriptor::getFieldName(int field) const
         "hTime",
         "willingness",
         "msgSeq",
-        "linkCodes",
-        "linkCounts",
-        "nbIfaceAddrs",
+        "linkStatus",
+        "neighStatus",
+        "addrCounts",
+        "neighAddrs",
     };
-    return (field >= 0 && field < 7) ? fieldNames[field] : nullptr;
+    return (field >= 0 && field < 8) ? fieldNames[field] : nullptr;
 }
 
-int OlsrHelloDescriptor::findField(const char *fieldName) const
+int Olsrv2HelloPacketDescriptor::findField(const char *fieldName) const
 {
     omnetpp::cClassDescriptor *base = getBaseClassDescriptor();
     int baseIndex = base ? base->getFieldCount() : 0;
@@ -993,13 +1083,14 @@ int OlsrHelloDescriptor::findField(const char *fieldName) const
     if (strcmp(fieldName, "hTime") == 0) return baseIndex + 1;
     if (strcmp(fieldName, "willingness") == 0) return baseIndex + 2;
     if (strcmp(fieldName, "msgSeq") == 0) return baseIndex + 3;
-    if (strcmp(fieldName, "linkCodes") == 0) return baseIndex + 4;
-    if (strcmp(fieldName, "linkCounts") == 0) return baseIndex + 5;
-    if (strcmp(fieldName, "nbIfaceAddrs") == 0) return baseIndex + 6;
+    if (strcmp(fieldName, "linkStatus") == 0) return baseIndex + 4;
+    if (strcmp(fieldName, "neighStatus") == 0) return baseIndex + 5;
+    if (strcmp(fieldName, "addrCounts") == 0) return baseIndex + 6;
+    if (strcmp(fieldName, "neighAddrs") == 0) return baseIndex + 7;
     return base ? base->findField(fieldName) : -1;
 }
 
-const char *OlsrHelloDescriptor::getFieldTypeString(int field) const
+const char *Olsrv2HelloPacketDescriptor::getFieldTypeString(int field) const
 {
     omnetpp::cClassDescriptor *base = getBaseClassDescriptor();
     if (base) {
@@ -1012,14 +1103,15 @@ const char *OlsrHelloDescriptor::getFieldTypeString(int field) const
         "omnetpp::simtime_t",    // FIELD_hTime
         "uint8",    // FIELD_willingness
         "uint16",    // FIELD_msgSeq
-        "uint8",    // FIELD_linkCodes
-        "int",    // FIELD_linkCounts
-        "inet::L3Address",    // FIELD_nbIfaceAddrs
+        "uint8",    // FIELD_linkStatus
+        "uint8",    // FIELD_neighStatus
+        "int",    // FIELD_addrCounts
+        "inet::L3Address",    // FIELD_neighAddrs
     };
-    return (field >= 0 && field < 7) ? fieldTypeStrings[field] : nullptr;
+    return (field >= 0 && field < 8) ? fieldTypeStrings[field] : nullptr;
 }
 
-const char **OlsrHelloDescriptor::getFieldPropertyNames(int field) const
+const char **Olsrv2HelloPacketDescriptor::getFieldPropertyNames(int field) const
 {
     omnetpp::cClassDescriptor *base = getBaseClassDescriptor();
     if (base) {
@@ -1032,7 +1124,7 @@ const char **OlsrHelloDescriptor::getFieldPropertyNames(int field) const
     }
 }
 
-const char *OlsrHelloDescriptor::getFieldProperty(int field, const char *propertyName) const
+const char *Olsrv2HelloPacketDescriptor::getFieldProperty(int field, const char *propertyName) const
 {
     omnetpp::cClassDescriptor *base = getBaseClassDescriptor();
     if (base) {
@@ -1045,7 +1137,7 @@ const char *OlsrHelloDescriptor::getFieldProperty(int field, const char *propert
     }
 }
 
-int OlsrHelloDescriptor::getFieldArraySize(omnetpp::any_ptr object, int field) const
+int Olsrv2HelloPacketDescriptor::getFieldArraySize(omnetpp::any_ptr object, int field) const
 {
     omnetpp::cClassDescriptor *base = getBaseClassDescriptor();
     if (base) {
@@ -1053,16 +1145,17 @@ int OlsrHelloDescriptor::getFieldArraySize(omnetpp::any_ptr object, int field) c
             return base->getFieldArraySize(object, field);
         field -= base->getFieldCount();
     }
-    OlsrHello *pp = omnetpp::fromAnyPtr<OlsrHello>(object); (void)pp;
+    Olsrv2HelloPacket *pp = omnetpp::fromAnyPtr<Olsrv2HelloPacket>(object); (void)pp;
     switch (field) {
-        case FIELD_linkCodes: return pp->getLinkCodesArraySize();
-        case FIELD_linkCounts: return pp->getLinkCountsArraySize();
-        case FIELD_nbIfaceAddrs: return pp->getNbIfaceAddrsArraySize();
+        case FIELD_linkStatus: return pp->getLinkStatusArraySize();
+        case FIELD_neighStatus: return pp->getNeighStatusArraySize();
+        case FIELD_addrCounts: return pp->getAddrCountsArraySize();
+        case FIELD_neighAddrs: return pp->getNeighAddrsArraySize();
         default: return 0;
     }
 }
 
-void OlsrHelloDescriptor::setFieldArraySize(omnetpp::any_ptr object, int field, int size) const
+void Olsrv2HelloPacketDescriptor::setFieldArraySize(omnetpp::any_ptr object, int field, int size) const
 {
     omnetpp::cClassDescriptor *base = getBaseClassDescriptor();
     if (base) {
@@ -1072,16 +1165,17 @@ void OlsrHelloDescriptor::setFieldArraySize(omnetpp::any_ptr object, int field, 
         }
         field -= base->getFieldCount();
     }
-    OlsrHello *pp = omnetpp::fromAnyPtr<OlsrHello>(object); (void)pp;
+    Olsrv2HelloPacket *pp = omnetpp::fromAnyPtr<Olsrv2HelloPacket>(object); (void)pp;
     switch (field) {
-        case FIELD_linkCodes: pp->setLinkCodesArraySize(size); break;
-        case FIELD_linkCounts: pp->setLinkCountsArraySize(size); break;
-        case FIELD_nbIfaceAddrs: pp->setNbIfaceAddrsArraySize(size); break;
-        default: throw omnetpp::cRuntimeError("Cannot set array size of field %d of class 'OlsrHello'", field);
+        case FIELD_linkStatus: pp->setLinkStatusArraySize(size); break;
+        case FIELD_neighStatus: pp->setNeighStatusArraySize(size); break;
+        case FIELD_addrCounts: pp->setAddrCountsArraySize(size); break;
+        case FIELD_neighAddrs: pp->setNeighAddrsArraySize(size); break;
+        default: throw omnetpp::cRuntimeError("Cannot set array size of field %d of class 'Olsrv2HelloPacket'", field);
     }
 }
 
-const char *OlsrHelloDescriptor::getFieldDynamicTypeString(omnetpp::any_ptr object, int field, int i) const
+const char *Olsrv2HelloPacketDescriptor::getFieldDynamicTypeString(omnetpp::any_ptr object, int field, int i) const
 {
     omnetpp::cClassDescriptor *base = getBaseClassDescriptor();
     if (base) {
@@ -1089,13 +1183,13 @@ const char *OlsrHelloDescriptor::getFieldDynamicTypeString(omnetpp::any_ptr obje
             return base->getFieldDynamicTypeString(object,field,i);
         field -= base->getFieldCount();
     }
-    OlsrHello *pp = omnetpp::fromAnyPtr<OlsrHello>(object); (void)pp;
+    Olsrv2HelloPacket *pp = omnetpp::fromAnyPtr<Olsrv2HelloPacket>(object); (void)pp;
     switch (field) {
         default: return nullptr;
     }
 }
 
-std::string OlsrHelloDescriptor::getFieldValueAsString(omnetpp::any_ptr object, int field, int i) const
+std::string Olsrv2HelloPacketDescriptor::getFieldValueAsString(omnetpp::any_ptr object, int field, int i) const
 {
     omnetpp::cClassDescriptor *base = getBaseClassDescriptor();
     if (base) {
@@ -1103,20 +1197,21 @@ std::string OlsrHelloDescriptor::getFieldValueAsString(omnetpp::any_ptr object, 
             return base->getFieldValueAsString(object,field,i);
         field -= base->getFieldCount();
     }
-    OlsrHello *pp = omnetpp::fromAnyPtr<OlsrHello>(object); (void)pp;
+    Olsrv2HelloPacket *pp = omnetpp::fromAnyPtr<Olsrv2HelloPacket>(object); (void)pp;
     switch (field) {
         case FIELD_originator: return pp->getOriginator().str();
         case FIELD_hTime: return simtime2string(pp->getHTime());
         case FIELD_willingness: return ulong2string(pp->getWillingness());
         case FIELD_msgSeq: return ulong2string(pp->getMsgSeq());
-        case FIELD_linkCodes: return ulong2string(pp->getLinkCodes(i));
-        case FIELD_linkCounts: return long2string(pp->getLinkCounts(i));
-        case FIELD_nbIfaceAddrs: return pp->getNbIfaceAddrs(i).str();
+        case FIELD_linkStatus: return ulong2string(pp->getLinkStatus(i));
+        case FIELD_neighStatus: return ulong2string(pp->getNeighStatus(i));
+        case FIELD_addrCounts: return long2string(pp->getAddrCounts(i));
+        case FIELD_neighAddrs: return pp->getNeighAddrs(i).str();
         default: return "";
     }
 }
 
-void OlsrHelloDescriptor::setFieldValueAsString(omnetpp::any_ptr object, int field, int i, const char *value) const
+void Olsrv2HelloPacketDescriptor::setFieldValueAsString(omnetpp::any_ptr object, int field, int i, const char *value) const
 {
     omnetpp::cClassDescriptor *base = getBaseClassDescriptor();
     if (base) {
@@ -1126,18 +1221,19 @@ void OlsrHelloDescriptor::setFieldValueAsString(omnetpp::any_ptr object, int fie
         }
         field -= base->getFieldCount();
     }
-    OlsrHello *pp = omnetpp::fromAnyPtr<OlsrHello>(object); (void)pp;
+    Olsrv2HelloPacket *pp = omnetpp::fromAnyPtr<Olsrv2HelloPacket>(object); (void)pp;
     switch (field) {
         case FIELD_hTime: pp->setHTime(string2simtime(value)); break;
         case FIELD_willingness: pp->setWillingness(string2ulong(value)); break;
         case FIELD_msgSeq: pp->setMsgSeq(string2ulong(value)); break;
-        case FIELD_linkCodes: pp->setLinkCodes(i,string2ulong(value)); break;
-        case FIELD_linkCounts: pp->setLinkCounts(i,string2long(value)); break;
-        default: throw omnetpp::cRuntimeError("Cannot set field %d of class 'OlsrHello'", field);
+        case FIELD_linkStatus: pp->setLinkStatus(i,string2ulong(value)); break;
+        case FIELD_neighStatus: pp->setNeighStatus(i,string2ulong(value)); break;
+        case FIELD_addrCounts: pp->setAddrCounts(i,string2long(value)); break;
+        default: throw omnetpp::cRuntimeError("Cannot set field %d of class 'Olsrv2HelloPacket'", field);
     }
 }
 
-omnetpp::cValue OlsrHelloDescriptor::getFieldValue(omnetpp::any_ptr object, int field, int i) const
+omnetpp::cValue Olsrv2HelloPacketDescriptor::getFieldValue(omnetpp::any_ptr object, int field, int i) const
 {
     omnetpp::cClassDescriptor *base = getBaseClassDescriptor();
     if (base) {
@@ -1145,20 +1241,21 @@ omnetpp::cValue OlsrHelloDescriptor::getFieldValue(omnetpp::any_ptr object, int 
             return base->getFieldValue(object,field,i);
         field -= base->getFieldCount();
     }
-    OlsrHello *pp = omnetpp::fromAnyPtr<OlsrHello>(object); (void)pp;
+    Olsrv2HelloPacket *pp = omnetpp::fromAnyPtr<Olsrv2HelloPacket>(object); (void)pp;
     switch (field) {
         case FIELD_originator: return omnetpp::toAnyPtr(&pp->getOriginator()); break;
         case FIELD_hTime: return pp->getHTime().dbl();
         case FIELD_willingness: return (omnetpp::intval_t)(pp->getWillingness());
         case FIELD_msgSeq: return (omnetpp::intval_t)(pp->getMsgSeq());
-        case FIELD_linkCodes: return (omnetpp::intval_t)(pp->getLinkCodes(i));
-        case FIELD_linkCounts: return pp->getLinkCounts(i);
-        case FIELD_nbIfaceAddrs: return omnetpp::toAnyPtr(&pp->getNbIfaceAddrs(i)); break;
-        default: throw omnetpp::cRuntimeError("Cannot return field %d of class 'OlsrHello' as cValue -- field index out of range?", field);
+        case FIELD_linkStatus: return (omnetpp::intval_t)(pp->getLinkStatus(i));
+        case FIELD_neighStatus: return (omnetpp::intval_t)(pp->getNeighStatus(i));
+        case FIELD_addrCounts: return pp->getAddrCounts(i);
+        case FIELD_neighAddrs: return omnetpp::toAnyPtr(&pp->getNeighAddrs(i)); break;
+        default: throw omnetpp::cRuntimeError("Cannot return field %d of class 'Olsrv2HelloPacket' as cValue -- field index out of range?", field);
     }
 }
 
-void OlsrHelloDescriptor::setFieldValue(omnetpp::any_ptr object, int field, int i, const omnetpp::cValue& value) const
+void Olsrv2HelloPacketDescriptor::setFieldValue(omnetpp::any_ptr object, int field, int i, const omnetpp::cValue& value) const
 {
     omnetpp::cClassDescriptor *base = getBaseClassDescriptor();
     if (base) {
@@ -1168,18 +1265,19 @@ void OlsrHelloDescriptor::setFieldValue(omnetpp::any_ptr object, int field, int 
         }
         field -= base->getFieldCount();
     }
-    OlsrHello *pp = omnetpp::fromAnyPtr<OlsrHello>(object); (void)pp;
+    Olsrv2HelloPacket *pp = omnetpp::fromAnyPtr<Olsrv2HelloPacket>(object); (void)pp;
     switch (field) {
         case FIELD_hTime: pp->setHTime(value.doubleValue()); break;
         case FIELD_willingness: pp->setWillingness(omnetpp::checked_int_cast<uint8_t>(value.intValue())); break;
         case FIELD_msgSeq: pp->setMsgSeq(omnetpp::checked_int_cast<uint16_t>(value.intValue())); break;
-        case FIELD_linkCodes: pp->setLinkCodes(i,omnetpp::checked_int_cast<uint8_t>(value.intValue())); break;
-        case FIELD_linkCounts: pp->setLinkCounts(i,omnetpp::checked_int_cast<int>(value.intValue())); break;
-        default: throw omnetpp::cRuntimeError("Cannot set field %d of class 'OlsrHello'", field);
+        case FIELD_linkStatus: pp->setLinkStatus(i,omnetpp::checked_int_cast<uint8_t>(value.intValue())); break;
+        case FIELD_neighStatus: pp->setNeighStatus(i,omnetpp::checked_int_cast<uint8_t>(value.intValue())); break;
+        case FIELD_addrCounts: pp->setAddrCounts(i,omnetpp::checked_int_cast<int>(value.intValue())); break;
+        default: throw omnetpp::cRuntimeError("Cannot set field %d of class 'Olsrv2HelloPacket'", field);
     }
 }
 
-const char *OlsrHelloDescriptor::getFieldStructName(int field) const
+const char *Olsrv2HelloPacketDescriptor::getFieldStructName(int field) const
 {
     omnetpp::cClassDescriptor *base = getBaseClassDescriptor();
     if (base) {
@@ -1192,7 +1290,7 @@ const char *OlsrHelloDescriptor::getFieldStructName(int field) const
     };
 }
 
-omnetpp::any_ptr OlsrHelloDescriptor::getFieldStructValuePointer(omnetpp::any_ptr object, int field, int i) const
+omnetpp::any_ptr Olsrv2HelloPacketDescriptor::getFieldStructValuePointer(omnetpp::any_ptr object, int field, int i) const
 {
     omnetpp::cClassDescriptor *base = getBaseClassDescriptor();
     if (base) {
@@ -1200,15 +1298,15 @@ omnetpp::any_ptr OlsrHelloDescriptor::getFieldStructValuePointer(omnetpp::any_pt
             return base->getFieldStructValuePointer(object, field, i);
         field -= base->getFieldCount();
     }
-    OlsrHello *pp = omnetpp::fromAnyPtr<OlsrHello>(object); (void)pp;
+    Olsrv2HelloPacket *pp = omnetpp::fromAnyPtr<Olsrv2HelloPacket>(object); (void)pp;
     switch (field) {
         case FIELD_originator: return omnetpp::toAnyPtr(&pp->getOriginator()); break;
-        case FIELD_nbIfaceAddrs: return omnetpp::toAnyPtr(&pp->getNbIfaceAddrs(i)); break;
+        case FIELD_neighAddrs: return omnetpp::toAnyPtr(&pp->getNeighAddrs(i)); break;
         default: return omnetpp::any_ptr(nullptr);
     }
 }
 
-void OlsrHelloDescriptor::setFieldStructValuePointer(omnetpp::any_ptr object, int field, int i, omnetpp::any_ptr ptr) const
+void Olsrv2HelloPacketDescriptor::setFieldStructValuePointer(omnetpp::any_ptr object, int field, int i, omnetpp::any_ptr ptr) const
 {
     omnetpp::cClassDescriptor *base = getBaseClassDescriptor();
     if (base) {
@@ -1218,24 +1316,24 @@ void OlsrHelloDescriptor::setFieldStructValuePointer(omnetpp::any_ptr object, in
         }
         field -= base->getFieldCount();
     }
-    OlsrHello *pp = omnetpp::fromAnyPtr<OlsrHello>(object); (void)pp;
+    Olsrv2HelloPacket *pp = omnetpp::fromAnyPtr<Olsrv2HelloPacket>(object); (void)pp;
     switch (field) {
-        default: throw omnetpp::cRuntimeError("Cannot set field %d of class 'OlsrHello'", field);
+        default: throw omnetpp::cRuntimeError("Cannot set field %d of class 'Olsrv2HelloPacket'", field);
     }
 }
 
-Register_Class(OlsrTcGroup)
+Register_Class(Olsrv2TcGroup)
 
-OlsrTcGroup::OlsrTcGroup() : ::inet::OlsrControlPacket()
+Olsrv2TcGroup::Olsrv2TcGroup() : ::inet::Olsrv2ControlPacket()
 {
 }
 
-OlsrTcGroup::OlsrTcGroup(const OlsrTcGroup& other) : ::inet::OlsrControlPacket(other)
+Olsrv2TcGroup::Olsrv2TcGroup(const Olsrv2TcGroup& other) : ::inet::Olsrv2ControlPacket(other)
 {
     copy(other);
 }
 
-OlsrTcGroup::~OlsrTcGroup()
+Olsrv2TcGroup::~Olsrv2TcGroup()
 {
     delete [] this->originators;
     delete [] this->ansns;
@@ -1245,15 +1343,15 @@ OlsrTcGroup::~OlsrTcGroup()
     delete [] this->advertisedNeighbors;
 }
 
-OlsrTcGroup& OlsrTcGroup::operator=(const OlsrTcGroup& other)
+Olsrv2TcGroup& Olsrv2TcGroup::operator=(const Olsrv2TcGroup& other)
 {
     if (this == &other) return *this;
-    ::inet::OlsrControlPacket::operator=(other);
+    ::inet::Olsrv2ControlPacket::operator=(other);
     copy(other);
     return *this;
 }
 
-void OlsrTcGroup::copy(const OlsrTcGroup& other)
+void Olsrv2TcGroup::copy(const Olsrv2TcGroup& other)
 {
     this->genTime = other.genTime;
     delete [] this->originators;
@@ -1294,9 +1392,9 @@ void OlsrTcGroup::copy(const OlsrTcGroup& other)
     }
 }
 
-void OlsrTcGroup::parsimPack(omnetpp::cCommBuffer *b) const
+void Olsrv2TcGroup::parsimPack(omnetpp::cCommBuffer *b) const
 {
-    ::inet::OlsrControlPacket::parsimPack(b);
+    ::inet::Olsrv2ControlPacket::parsimPack(b);
     doParsimPacking(b,this->genTime);
     b->pack(originators_arraysize);
     doParsimArrayPacking(b,this->originators,originators_arraysize);
@@ -1312,9 +1410,9 @@ void OlsrTcGroup::parsimPack(omnetpp::cCommBuffer *b) const
     doParsimArrayPacking(b,this->advertisedNeighbors,advertisedNeighbors_arraysize);
 }
 
-void OlsrTcGroup::parsimUnpack(omnetpp::cCommBuffer *b)
+void Olsrv2TcGroup::parsimUnpack(omnetpp::cCommBuffer *b)
 {
-    ::inet::OlsrControlPacket::parsimUnpack(b);
+    ::inet::Olsrv2ControlPacket::parsimUnpack(b);
     doParsimUnpacking(b,this->genTime);
     delete [] this->originators;
     b->unpack(originators_arraysize);
@@ -1366,29 +1464,29 @@ void OlsrTcGroup::parsimUnpack(omnetpp::cCommBuffer *b)
     }
 }
 
-::omnetpp::simtime_t OlsrTcGroup::getGenTime() const
+::omnetpp::simtime_t Olsrv2TcGroup::getGenTime() const
 {
     return this->genTime;
 }
 
-void OlsrTcGroup::setGenTime(::omnetpp::simtime_t genTime)
+void Olsrv2TcGroup::setGenTime(::omnetpp::simtime_t genTime)
 {
     handleChange();
     this->genTime = genTime;
 }
 
-size_t OlsrTcGroup::getOriginatorsArraySize() const
+size_t Olsrv2TcGroup::getOriginatorsArraySize() const
 {
     return originators_arraysize;
 }
 
-const L3Address& OlsrTcGroup::getOriginators(size_t k) const
+const L3Address& Olsrv2TcGroup::getOriginators(size_t k) const
 {
     if (k >= originators_arraysize) throw omnetpp::cRuntimeError("Array of size %lu indexed by %lu", (unsigned long)originators_arraysize, (unsigned long)k);
     return this->originators[k];
 }
 
-void OlsrTcGroup::setOriginatorsArraySize(size_t newSize)
+void Olsrv2TcGroup::setOriginatorsArraySize(size_t newSize)
 {
     handleChange();
     L3Address *originators2 = (newSize==0) ? nullptr : new L3Address[newSize];
@@ -1400,14 +1498,14 @@ void OlsrTcGroup::setOriginatorsArraySize(size_t newSize)
     originators_arraysize = newSize;
 }
 
-void OlsrTcGroup::setOriginators(size_t k, const L3Address& originators)
+void Olsrv2TcGroup::setOriginators(size_t k, const L3Address& originators)
 {
     if (k >= originators_arraysize) throw omnetpp::cRuntimeError("Array of size %lu indexed by %lu", (unsigned long)originators_arraysize, (unsigned long)k);
     handleChange();
     this->originators[k] = originators;
 }
 
-void OlsrTcGroup::insertOriginators(size_t k, const L3Address& originators)
+void Olsrv2TcGroup::insertOriginators(size_t k, const L3Address& originators)
 {
     if (k > originators_arraysize) throw omnetpp::cRuntimeError("Array of size %lu indexed by %lu", (unsigned long)originators_arraysize, (unsigned long)k);
     handleChange();
@@ -1424,12 +1522,12 @@ void OlsrTcGroup::insertOriginators(size_t k, const L3Address& originators)
     originators_arraysize = newSize;
 }
 
-void OlsrTcGroup::appendOriginators(const L3Address& originators)
+void Olsrv2TcGroup::appendOriginators(const L3Address& originators)
 {
     insertOriginators(originators_arraysize, originators);
 }
 
-void OlsrTcGroup::eraseOriginators(size_t k)
+void Olsrv2TcGroup::eraseOriginators(size_t k)
 {
     if (k >= originators_arraysize) throw omnetpp::cRuntimeError("Array of size %lu indexed by %lu", (unsigned long)originators_arraysize, (unsigned long)k);
     handleChange();
@@ -1445,18 +1543,18 @@ void OlsrTcGroup::eraseOriginators(size_t k)
     originators_arraysize = newSize;
 }
 
-size_t OlsrTcGroup::getAnsnsArraySize() const
+size_t Olsrv2TcGroup::getAnsnsArraySize() const
 {
     return ansns_arraysize;
 }
 
-uint16_t OlsrTcGroup::getAnsns(size_t k) const
+uint16_t Olsrv2TcGroup::getAnsns(size_t k) const
 {
     if (k >= ansns_arraysize) throw omnetpp::cRuntimeError("Array of size %lu indexed by %lu", (unsigned long)ansns_arraysize, (unsigned long)k);
     return this->ansns[k];
 }
 
-void OlsrTcGroup::setAnsnsArraySize(size_t newSize)
+void Olsrv2TcGroup::setAnsnsArraySize(size_t newSize)
 {
     handleChange();
     uint16_t *ansns2 = (newSize==0) ? nullptr : new uint16_t[newSize];
@@ -1470,14 +1568,14 @@ void OlsrTcGroup::setAnsnsArraySize(size_t newSize)
     ansns_arraysize = newSize;
 }
 
-void OlsrTcGroup::setAnsns(size_t k, uint16_t ansns)
+void Olsrv2TcGroup::setAnsns(size_t k, uint16_t ansns)
 {
     if (k >= ansns_arraysize) throw omnetpp::cRuntimeError("Array of size %lu indexed by %lu", (unsigned long)ansns_arraysize, (unsigned long)k);
     handleChange();
     this->ansns[k] = ansns;
 }
 
-void OlsrTcGroup::insertAnsns(size_t k, uint16_t ansns)
+void Olsrv2TcGroup::insertAnsns(size_t k, uint16_t ansns)
 {
     if (k > ansns_arraysize) throw omnetpp::cRuntimeError("Array of size %lu indexed by %lu", (unsigned long)ansns_arraysize, (unsigned long)k);
     handleChange();
@@ -1494,12 +1592,12 @@ void OlsrTcGroup::insertAnsns(size_t k, uint16_t ansns)
     ansns_arraysize = newSize;
 }
 
-void OlsrTcGroup::appendAnsns(uint16_t ansns)
+void Olsrv2TcGroup::appendAnsns(uint16_t ansns)
 {
     insertAnsns(ansns_arraysize, ansns);
 }
 
-void OlsrTcGroup::eraseAnsns(size_t k)
+void Olsrv2TcGroup::eraseAnsns(size_t k)
 {
     if (k >= ansns_arraysize) throw omnetpp::cRuntimeError("Array of size %lu indexed by %lu", (unsigned long)ansns_arraysize, (unsigned long)k);
     handleChange();
@@ -1515,18 +1613,18 @@ void OlsrTcGroup::eraseAnsns(size_t k)
     ansns_arraysize = newSize;
 }
 
-size_t OlsrTcGroup::getSeqNumsArraySize() const
+size_t Olsrv2TcGroup::getSeqNumsArraySize() const
 {
     return seqNums_arraysize;
 }
 
-uint16_t OlsrTcGroup::getSeqNums(size_t k) const
+uint16_t Olsrv2TcGroup::getSeqNums(size_t k) const
 {
     if (k >= seqNums_arraysize) throw omnetpp::cRuntimeError("Array of size %lu indexed by %lu", (unsigned long)seqNums_arraysize, (unsigned long)k);
     return this->seqNums[k];
 }
 
-void OlsrTcGroup::setSeqNumsArraySize(size_t newSize)
+void Olsrv2TcGroup::setSeqNumsArraySize(size_t newSize)
 {
     handleChange();
     uint16_t *seqNums2 = (newSize==0) ? nullptr : new uint16_t[newSize];
@@ -1540,14 +1638,14 @@ void OlsrTcGroup::setSeqNumsArraySize(size_t newSize)
     seqNums_arraysize = newSize;
 }
 
-void OlsrTcGroup::setSeqNums(size_t k, uint16_t seqNums)
+void Olsrv2TcGroup::setSeqNums(size_t k, uint16_t seqNums)
 {
     if (k >= seqNums_arraysize) throw omnetpp::cRuntimeError("Array of size %lu indexed by %lu", (unsigned long)seqNums_arraysize, (unsigned long)k);
     handleChange();
     this->seqNums[k] = seqNums;
 }
 
-void OlsrTcGroup::insertSeqNums(size_t k, uint16_t seqNums)
+void Olsrv2TcGroup::insertSeqNums(size_t k, uint16_t seqNums)
 {
     if (k > seqNums_arraysize) throw omnetpp::cRuntimeError("Array of size %lu indexed by %lu", (unsigned long)seqNums_arraysize, (unsigned long)k);
     handleChange();
@@ -1564,12 +1662,12 @@ void OlsrTcGroup::insertSeqNums(size_t k, uint16_t seqNums)
     seqNums_arraysize = newSize;
 }
 
-void OlsrTcGroup::appendSeqNums(uint16_t seqNums)
+void Olsrv2TcGroup::appendSeqNums(uint16_t seqNums)
 {
     insertSeqNums(seqNums_arraysize, seqNums);
 }
 
-void OlsrTcGroup::eraseSeqNums(size_t k)
+void Olsrv2TcGroup::eraseSeqNums(size_t k)
 {
     if (k >= seqNums_arraysize) throw omnetpp::cRuntimeError("Array of size %lu indexed by %lu", (unsigned long)seqNums_arraysize, (unsigned long)k);
     handleChange();
@@ -1585,18 +1683,18 @@ void OlsrTcGroup::eraseSeqNums(size_t k)
     seqNums_arraysize = newSize;
 }
 
-size_t OlsrTcGroup::getHopCountsArraySize() const
+size_t Olsrv2TcGroup::getHopCountsArraySize() const
 {
     return hopCounts_arraysize;
 }
 
-uint8_t OlsrTcGroup::getHopCounts(size_t k) const
+uint8_t Olsrv2TcGroup::getHopCounts(size_t k) const
 {
     if (k >= hopCounts_arraysize) throw omnetpp::cRuntimeError("Array of size %lu indexed by %lu", (unsigned long)hopCounts_arraysize, (unsigned long)k);
     return this->hopCounts[k];
 }
 
-void OlsrTcGroup::setHopCountsArraySize(size_t newSize)
+void Olsrv2TcGroup::setHopCountsArraySize(size_t newSize)
 {
     handleChange();
     uint8_t *hopCounts2 = (newSize==0) ? nullptr : new uint8_t[newSize];
@@ -1610,14 +1708,14 @@ void OlsrTcGroup::setHopCountsArraySize(size_t newSize)
     hopCounts_arraysize = newSize;
 }
 
-void OlsrTcGroup::setHopCounts(size_t k, uint8_t hopCounts)
+void Olsrv2TcGroup::setHopCounts(size_t k, uint8_t hopCounts)
 {
     if (k >= hopCounts_arraysize) throw omnetpp::cRuntimeError("Array of size %lu indexed by %lu", (unsigned long)hopCounts_arraysize, (unsigned long)k);
     handleChange();
     this->hopCounts[k] = hopCounts;
 }
 
-void OlsrTcGroup::insertHopCounts(size_t k, uint8_t hopCounts)
+void Olsrv2TcGroup::insertHopCounts(size_t k, uint8_t hopCounts)
 {
     if (k > hopCounts_arraysize) throw omnetpp::cRuntimeError("Array of size %lu indexed by %lu", (unsigned long)hopCounts_arraysize, (unsigned long)k);
     handleChange();
@@ -1634,12 +1732,12 @@ void OlsrTcGroup::insertHopCounts(size_t k, uint8_t hopCounts)
     hopCounts_arraysize = newSize;
 }
 
-void OlsrTcGroup::appendHopCounts(uint8_t hopCounts)
+void Olsrv2TcGroup::appendHopCounts(uint8_t hopCounts)
 {
     insertHopCounts(hopCounts_arraysize, hopCounts);
 }
 
-void OlsrTcGroup::eraseHopCounts(size_t k)
+void Olsrv2TcGroup::eraseHopCounts(size_t k)
 {
     if (k >= hopCounts_arraysize) throw omnetpp::cRuntimeError("Array of size %lu indexed by %lu", (unsigned long)hopCounts_arraysize, (unsigned long)k);
     handleChange();
@@ -1655,18 +1753,18 @@ void OlsrTcGroup::eraseHopCounts(size_t k)
     hopCounts_arraysize = newSize;
 }
 
-size_t OlsrTcGroup::getAdvCountsArraySize() const
+size_t Olsrv2TcGroup::getAdvCountsArraySize() const
 {
     return advCounts_arraysize;
 }
 
-int OlsrTcGroup::getAdvCounts(size_t k) const
+int Olsrv2TcGroup::getAdvCounts(size_t k) const
 {
     if (k >= advCounts_arraysize) throw omnetpp::cRuntimeError("Array of size %lu indexed by %lu", (unsigned long)advCounts_arraysize, (unsigned long)k);
     return this->advCounts[k];
 }
 
-void OlsrTcGroup::setAdvCountsArraySize(size_t newSize)
+void Olsrv2TcGroup::setAdvCountsArraySize(size_t newSize)
 {
     handleChange();
     int *advCounts2 = (newSize==0) ? nullptr : new int[newSize];
@@ -1680,14 +1778,14 @@ void OlsrTcGroup::setAdvCountsArraySize(size_t newSize)
     advCounts_arraysize = newSize;
 }
 
-void OlsrTcGroup::setAdvCounts(size_t k, int advCounts)
+void Olsrv2TcGroup::setAdvCounts(size_t k, int advCounts)
 {
     if (k >= advCounts_arraysize) throw omnetpp::cRuntimeError("Array of size %lu indexed by %lu", (unsigned long)advCounts_arraysize, (unsigned long)k);
     handleChange();
     this->advCounts[k] = advCounts;
 }
 
-void OlsrTcGroup::insertAdvCounts(size_t k, int advCounts)
+void Olsrv2TcGroup::insertAdvCounts(size_t k, int advCounts)
 {
     if (k > advCounts_arraysize) throw omnetpp::cRuntimeError("Array of size %lu indexed by %lu", (unsigned long)advCounts_arraysize, (unsigned long)k);
     handleChange();
@@ -1704,12 +1802,12 @@ void OlsrTcGroup::insertAdvCounts(size_t k, int advCounts)
     advCounts_arraysize = newSize;
 }
 
-void OlsrTcGroup::appendAdvCounts(int advCounts)
+void Olsrv2TcGroup::appendAdvCounts(int advCounts)
 {
     insertAdvCounts(advCounts_arraysize, advCounts);
 }
 
-void OlsrTcGroup::eraseAdvCounts(size_t k)
+void Olsrv2TcGroup::eraseAdvCounts(size_t k)
 {
     if (k >= advCounts_arraysize) throw omnetpp::cRuntimeError("Array of size %lu indexed by %lu", (unsigned long)advCounts_arraysize, (unsigned long)k);
     handleChange();
@@ -1725,18 +1823,18 @@ void OlsrTcGroup::eraseAdvCounts(size_t k)
     advCounts_arraysize = newSize;
 }
 
-size_t OlsrTcGroup::getAdvertisedNeighborsArraySize() const
+size_t Olsrv2TcGroup::getAdvertisedNeighborsArraySize() const
 {
     return advertisedNeighbors_arraysize;
 }
 
-const L3Address& OlsrTcGroup::getAdvertisedNeighbors(size_t k) const
+const L3Address& Olsrv2TcGroup::getAdvertisedNeighbors(size_t k) const
 {
     if (k >= advertisedNeighbors_arraysize) throw omnetpp::cRuntimeError("Array of size %lu indexed by %lu", (unsigned long)advertisedNeighbors_arraysize, (unsigned long)k);
     return this->advertisedNeighbors[k];
 }
 
-void OlsrTcGroup::setAdvertisedNeighborsArraySize(size_t newSize)
+void Olsrv2TcGroup::setAdvertisedNeighborsArraySize(size_t newSize)
 {
     handleChange();
     L3Address *advertisedNeighbors2 = (newSize==0) ? nullptr : new L3Address[newSize];
@@ -1748,14 +1846,14 @@ void OlsrTcGroup::setAdvertisedNeighborsArraySize(size_t newSize)
     advertisedNeighbors_arraysize = newSize;
 }
 
-void OlsrTcGroup::setAdvertisedNeighbors(size_t k, const L3Address& advertisedNeighbors)
+void Olsrv2TcGroup::setAdvertisedNeighbors(size_t k, const L3Address& advertisedNeighbors)
 {
     if (k >= advertisedNeighbors_arraysize) throw omnetpp::cRuntimeError("Array of size %lu indexed by %lu", (unsigned long)advertisedNeighbors_arraysize, (unsigned long)k);
     handleChange();
     this->advertisedNeighbors[k] = advertisedNeighbors;
 }
 
-void OlsrTcGroup::insertAdvertisedNeighbors(size_t k, const L3Address& advertisedNeighbors)
+void Olsrv2TcGroup::insertAdvertisedNeighbors(size_t k, const L3Address& advertisedNeighbors)
 {
     if (k > advertisedNeighbors_arraysize) throw omnetpp::cRuntimeError("Array of size %lu indexed by %lu", (unsigned long)advertisedNeighbors_arraysize, (unsigned long)k);
     handleChange();
@@ -1772,12 +1870,12 @@ void OlsrTcGroup::insertAdvertisedNeighbors(size_t k, const L3Address& advertise
     advertisedNeighbors_arraysize = newSize;
 }
 
-void OlsrTcGroup::appendAdvertisedNeighbors(const L3Address& advertisedNeighbors)
+void Olsrv2TcGroup::appendAdvertisedNeighbors(const L3Address& advertisedNeighbors)
 {
     insertAdvertisedNeighbors(advertisedNeighbors_arraysize, advertisedNeighbors);
 }
 
-void OlsrTcGroup::eraseAdvertisedNeighbors(size_t k)
+void Olsrv2TcGroup::eraseAdvertisedNeighbors(size_t k)
 {
     if (k >= advertisedNeighbors_arraysize) throw omnetpp::cRuntimeError("Array of size %lu indexed by %lu", (unsigned long)advertisedNeighbors_arraysize, (unsigned long)k);
     handleChange();
@@ -1793,7 +1891,7 @@ void OlsrTcGroup::eraseAdvertisedNeighbors(size_t k)
     advertisedNeighbors_arraysize = newSize;
 }
 
-class OlsrTcGroupDescriptor : public omnetpp::cClassDescriptor
+class Olsrv2TcGroupDescriptor : public omnetpp::cClassDescriptor
 {
   private:
     mutable const char **propertyNames;
@@ -1807,8 +1905,8 @@ class OlsrTcGroupDescriptor : public omnetpp::cClassDescriptor
         FIELD_advertisedNeighbors,
     };
   public:
-    OlsrTcGroupDescriptor();
-    virtual ~OlsrTcGroupDescriptor();
+    Olsrv2TcGroupDescriptor();
+    virtual ~Olsrv2TcGroupDescriptor();
 
     virtual bool doesSupport(omnetpp::cObject *obj) const override;
     virtual const char **getPropertyNames() const override;
@@ -1834,24 +1932,24 @@ class OlsrTcGroupDescriptor : public omnetpp::cClassDescriptor
     virtual void setFieldStructValuePointer(omnetpp::any_ptr object, int field, int i, omnetpp::any_ptr ptr) const override;
 };
 
-Register_ClassDescriptor(OlsrTcGroupDescriptor)
+Register_ClassDescriptor(Olsrv2TcGroupDescriptor)
 
-OlsrTcGroupDescriptor::OlsrTcGroupDescriptor() : omnetpp::cClassDescriptor(omnetpp::opp_typename(typeid(inet::OlsrTcGroup)), "inet::OlsrControlPacket")
+Olsrv2TcGroupDescriptor::Olsrv2TcGroupDescriptor() : omnetpp::cClassDescriptor(omnetpp::opp_typename(typeid(inet::Olsrv2TcGroup)), "inet::Olsrv2ControlPacket")
 {
     propertyNames = nullptr;
 }
 
-OlsrTcGroupDescriptor::~OlsrTcGroupDescriptor()
+Olsrv2TcGroupDescriptor::~Olsrv2TcGroupDescriptor()
 {
     delete[] propertyNames;
 }
 
-bool OlsrTcGroupDescriptor::doesSupport(omnetpp::cObject *obj) const
+bool Olsrv2TcGroupDescriptor::doesSupport(omnetpp::cObject *obj) const
 {
-    return dynamic_cast<OlsrTcGroup *>(obj)!=nullptr;
+    return dynamic_cast<Olsrv2TcGroup *>(obj)!=nullptr;
 }
 
-const char **OlsrTcGroupDescriptor::getPropertyNames() const
+const char **Olsrv2TcGroupDescriptor::getPropertyNames() const
 {
     if (!propertyNames) {
         static const char *names[] = {  nullptr };
@@ -1862,19 +1960,19 @@ const char **OlsrTcGroupDescriptor::getPropertyNames() const
     return propertyNames;
 }
 
-const char *OlsrTcGroupDescriptor::getProperty(const char *propertyName) const
+const char *Olsrv2TcGroupDescriptor::getProperty(const char *propertyName) const
 {
     omnetpp::cClassDescriptor *base = getBaseClassDescriptor();
     return base ? base->getProperty(propertyName) : nullptr;
 }
 
-int OlsrTcGroupDescriptor::getFieldCount() const
+int Olsrv2TcGroupDescriptor::getFieldCount() const
 {
     omnetpp::cClassDescriptor *base = getBaseClassDescriptor();
     return base ? 7+base->getFieldCount() : 7;
 }
 
-unsigned int OlsrTcGroupDescriptor::getFieldTypeFlags(int field) const
+unsigned int Olsrv2TcGroupDescriptor::getFieldTypeFlags(int field) const
 {
     omnetpp::cClassDescriptor *base = getBaseClassDescriptor();
     if (base) {
@@ -1894,7 +1992,7 @@ unsigned int OlsrTcGroupDescriptor::getFieldTypeFlags(int field) const
     return (field >= 0 && field < 7) ? fieldTypeFlags[field] : 0;
 }
 
-const char *OlsrTcGroupDescriptor::getFieldName(int field) const
+const char *Olsrv2TcGroupDescriptor::getFieldName(int field) const
 {
     omnetpp::cClassDescriptor *base = getBaseClassDescriptor();
     if (base) {
@@ -1914,7 +2012,7 @@ const char *OlsrTcGroupDescriptor::getFieldName(int field) const
     return (field >= 0 && field < 7) ? fieldNames[field] : nullptr;
 }
 
-int OlsrTcGroupDescriptor::findField(const char *fieldName) const
+int Olsrv2TcGroupDescriptor::findField(const char *fieldName) const
 {
     omnetpp::cClassDescriptor *base = getBaseClassDescriptor();
     int baseIndex = base ? base->getFieldCount() : 0;
@@ -1928,7 +2026,7 @@ int OlsrTcGroupDescriptor::findField(const char *fieldName) const
     return base ? base->findField(fieldName) : -1;
 }
 
-const char *OlsrTcGroupDescriptor::getFieldTypeString(int field) const
+const char *Olsrv2TcGroupDescriptor::getFieldTypeString(int field) const
 {
     omnetpp::cClassDescriptor *base = getBaseClassDescriptor();
     if (base) {
@@ -1948,7 +2046,7 @@ const char *OlsrTcGroupDescriptor::getFieldTypeString(int field) const
     return (field >= 0 && field < 7) ? fieldTypeStrings[field] : nullptr;
 }
 
-const char **OlsrTcGroupDescriptor::getFieldPropertyNames(int field) const
+const char **Olsrv2TcGroupDescriptor::getFieldPropertyNames(int field) const
 {
     omnetpp::cClassDescriptor *base = getBaseClassDescriptor();
     if (base) {
@@ -1961,7 +2059,7 @@ const char **OlsrTcGroupDescriptor::getFieldPropertyNames(int field) const
     }
 }
 
-const char *OlsrTcGroupDescriptor::getFieldProperty(int field, const char *propertyName) const
+const char *Olsrv2TcGroupDescriptor::getFieldProperty(int field, const char *propertyName) const
 {
     omnetpp::cClassDescriptor *base = getBaseClassDescriptor();
     if (base) {
@@ -1974,7 +2072,7 @@ const char *OlsrTcGroupDescriptor::getFieldProperty(int field, const char *prope
     }
 }
 
-int OlsrTcGroupDescriptor::getFieldArraySize(omnetpp::any_ptr object, int field) const
+int Olsrv2TcGroupDescriptor::getFieldArraySize(omnetpp::any_ptr object, int field) const
 {
     omnetpp::cClassDescriptor *base = getBaseClassDescriptor();
     if (base) {
@@ -1982,7 +2080,7 @@ int OlsrTcGroupDescriptor::getFieldArraySize(omnetpp::any_ptr object, int field)
             return base->getFieldArraySize(object, field);
         field -= base->getFieldCount();
     }
-    OlsrTcGroup *pp = omnetpp::fromAnyPtr<OlsrTcGroup>(object); (void)pp;
+    Olsrv2TcGroup *pp = omnetpp::fromAnyPtr<Olsrv2TcGroup>(object); (void)pp;
     switch (field) {
         case FIELD_originators: return pp->getOriginatorsArraySize();
         case FIELD_ansns: return pp->getAnsnsArraySize();
@@ -1994,7 +2092,7 @@ int OlsrTcGroupDescriptor::getFieldArraySize(omnetpp::any_ptr object, int field)
     }
 }
 
-void OlsrTcGroupDescriptor::setFieldArraySize(omnetpp::any_ptr object, int field, int size) const
+void Olsrv2TcGroupDescriptor::setFieldArraySize(omnetpp::any_ptr object, int field, int size) const
 {
     omnetpp::cClassDescriptor *base = getBaseClassDescriptor();
     if (base) {
@@ -2004,7 +2102,7 @@ void OlsrTcGroupDescriptor::setFieldArraySize(omnetpp::any_ptr object, int field
         }
         field -= base->getFieldCount();
     }
-    OlsrTcGroup *pp = omnetpp::fromAnyPtr<OlsrTcGroup>(object); (void)pp;
+    Olsrv2TcGroup *pp = omnetpp::fromAnyPtr<Olsrv2TcGroup>(object); (void)pp;
     switch (field) {
         case FIELD_originators: pp->setOriginatorsArraySize(size); break;
         case FIELD_ansns: pp->setAnsnsArraySize(size); break;
@@ -2012,11 +2110,11 @@ void OlsrTcGroupDescriptor::setFieldArraySize(omnetpp::any_ptr object, int field
         case FIELD_hopCounts: pp->setHopCountsArraySize(size); break;
         case FIELD_advCounts: pp->setAdvCountsArraySize(size); break;
         case FIELD_advertisedNeighbors: pp->setAdvertisedNeighborsArraySize(size); break;
-        default: throw omnetpp::cRuntimeError("Cannot set array size of field %d of class 'OlsrTcGroup'", field);
+        default: throw omnetpp::cRuntimeError("Cannot set array size of field %d of class 'Olsrv2TcGroup'", field);
     }
 }
 
-const char *OlsrTcGroupDescriptor::getFieldDynamicTypeString(omnetpp::any_ptr object, int field, int i) const
+const char *Olsrv2TcGroupDescriptor::getFieldDynamicTypeString(omnetpp::any_ptr object, int field, int i) const
 {
     omnetpp::cClassDescriptor *base = getBaseClassDescriptor();
     if (base) {
@@ -2024,13 +2122,13 @@ const char *OlsrTcGroupDescriptor::getFieldDynamicTypeString(omnetpp::any_ptr ob
             return base->getFieldDynamicTypeString(object,field,i);
         field -= base->getFieldCount();
     }
-    OlsrTcGroup *pp = omnetpp::fromAnyPtr<OlsrTcGroup>(object); (void)pp;
+    Olsrv2TcGroup *pp = omnetpp::fromAnyPtr<Olsrv2TcGroup>(object); (void)pp;
     switch (field) {
         default: return nullptr;
     }
 }
 
-std::string OlsrTcGroupDescriptor::getFieldValueAsString(omnetpp::any_ptr object, int field, int i) const
+std::string Olsrv2TcGroupDescriptor::getFieldValueAsString(omnetpp::any_ptr object, int field, int i) const
 {
     omnetpp::cClassDescriptor *base = getBaseClassDescriptor();
     if (base) {
@@ -2038,7 +2136,7 @@ std::string OlsrTcGroupDescriptor::getFieldValueAsString(omnetpp::any_ptr object
             return base->getFieldValueAsString(object,field,i);
         field -= base->getFieldCount();
     }
-    OlsrTcGroup *pp = omnetpp::fromAnyPtr<OlsrTcGroup>(object); (void)pp;
+    Olsrv2TcGroup *pp = omnetpp::fromAnyPtr<Olsrv2TcGroup>(object); (void)pp;
     switch (field) {
         case FIELD_genTime: return simtime2string(pp->getGenTime());
         case FIELD_originators: return pp->getOriginators(i).str();
@@ -2051,7 +2149,7 @@ std::string OlsrTcGroupDescriptor::getFieldValueAsString(omnetpp::any_ptr object
     }
 }
 
-void OlsrTcGroupDescriptor::setFieldValueAsString(omnetpp::any_ptr object, int field, int i, const char *value) const
+void Olsrv2TcGroupDescriptor::setFieldValueAsString(omnetpp::any_ptr object, int field, int i, const char *value) const
 {
     omnetpp::cClassDescriptor *base = getBaseClassDescriptor();
     if (base) {
@@ -2061,18 +2159,18 @@ void OlsrTcGroupDescriptor::setFieldValueAsString(omnetpp::any_ptr object, int f
         }
         field -= base->getFieldCount();
     }
-    OlsrTcGroup *pp = omnetpp::fromAnyPtr<OlsrTcGroup>(object); (void)pp;
+    Olsrv2TcGroup *pp = omnetpp::fromAnyPtr<Olsrv2TcGroup>(object); (void)pp;
     switch (field) {
         case FIELD_genTime: pp->setGenTime(string2simtime(value)); break;
         case FIELD_ansns: pp->setAnsns(i,string2ulong(value)); break;
         case FIELD_seqNums: pp->setSeqNums(i,string2ulong(value)); break;
         case FIELD_hopCounts: pp->setHopCounts(i,string2ulong(value)); break;
         case FIELD_advCounts: pp->setAdvCounts(i,string2long(value)); break;
-        default: throw omnetpp::cRuntimeError("Cannot set field %d of class 'OlsrTcGroup'", field);
+        default: throw omnetpp::cRuntimeError("Cannot set field %d of class 'Olsrv2TcGroup'", field);
     }
 }
 
-omnetpp::cValue OlsrTcGroupDescriptor::getFieldValue(omnetpp::any_ptr object, int field, int i) const
+omnetpp::cValue Olsrv2TcGroupDescriptor::getFieldValue(omnetpp::any_ptr object, int field, int i) const
 {
     omnetpp::cClassDescriptor *base = getBaseClassDescriptor();
     if (base) {
@@ -2080,7 +2178,7 @@ omnetpp::cValue OlsrTcGroupDescriptor::getFieldValue(omnetpp::any_ptr object, in
             return base->getFieldValue(object,field,i);
         field -= base->getFieldCount();
     }
-    OlsrTcGroup *pp = omnetpp::fromAnyPtr<OlsrTcGroup>(object); (void)pp;
+    Olsrv2TcGroup *pp = omnetpp::fromAnyPtr<Olsrv2TcGroup>(object); (void)pp;
     switch (field) {
         case FIELD_genTime: return pp->getGenTime().dbl();
         case FIELD_originators: return omnetpp::toAnyPtr(&pp->getOriginators(i)); break;
@@ -2089,11 +2187,11 @@ omnetpp::cValue OlsrTcGroupDescriptor::getFieldValue(omnetpp::any_ptr object, in
         case FIELD_hopCounts: return (omnetpp::intval_t)(pp->getHopCounts(i));
         case FIELD_advCounts: return pp->getAdvCounts(i);
         case FIELD_advertisedNeighbors: return omnetpp::toAnyPtr(&pp->getAdvertisedNeighbors(i)); break;
-        default: throw omnetpp::cRuntimeError("Cannot return field %d of class 'OlsrTcGroup' as cValue -- field index out of range?", field);
+        default: throw omnetpp::cRuntimeError("Cannot return field %d of class 'Olsrv2TcGroup' as cValue -- field index out of range?", field);
     }
 }
 
-void OlsrTcGroupDescriptor::setFieldValue(omnetpp::any_ptr object, int field, int i, const omnetpp::cValue& value) const
+void Olsrv2TcGroupDescriptor::setFieldValue(omnetpp::any_ptr object, int field, int i, const omnetpp::cValue& value) const
 {
     omnetpp::cClassDescriptor *base = getBaseClassDescriptor();
     if (base) {
@@ -2103,18 +2201,18 @@ void OlsrTcGroupDescriptor::setFieldValue(omnetpp::any_ptr object, int field, in
         }
         field -= base->getFieldCount();
     }
-    OlsrTcGroup *pp = omnetpp::fromAnyPtr<OlsrTcGroup>(object); (void)pp;
+    Olsrv2TcGroup *pp = omnetpp::fromAnyPtr<Olsrv2TcGroup>(object); (void)pp;
     switch (field) {
         case FIELD_genTime: pp->setGenTime(value.doubleValue()); break;
         case FIELD_ansns: pp->setAnsns(i,omnetpp::checked_int_cast<uint16_t>(value.intValue())); break;
         case FIELD_seqNums: pp->setSeqNums(i,omnetpp::checked_int_cast<uint16_t>(value.intValue())); break;
         case FIELD_hopCounts: pp->setHopCounts(i,omnetpp::checked_int_cast<uint8_t>(value.intValue())); break;
         case FIELD_advCounts: pp->setAdvCounts(i,omnetpp::checked_int_cast<int>(value.intValue())); break;
-        default: throw omnetpp::cRuntimeError("Cannot set field %d of class 'OlsrTcGroup'", field);
+        default: throw omnetpp::cRuntimeError("Cannot set field %d of class 'Olsrv2TcGroup'", field);
     }
 }
 
-const char *OlsrTcGroupDescriptor::getFieldStructName(int field) const
+const char *Olsrv2TcGroupDescriptor::getFieldStructName(int field) const
 {
     omnetpp::cClassDescriptor *base = getBaseClassDescriptor();
     if (base) {
@@ -2127,7 +2225,7 @@ const char *OlsrTcGroupDescriptor::getFieldStructName(int field) const
     };
 }
 
-omnetpp::any_ptr OlsrTcGroupDescriptor::getFieldStructValuePointer(omnetpp::any_ptr object, int field, int i) const
+omnetpp::any_ptr Olsrv2TcGroupDescriptor::getFieldStructValuePointer(omnetpp::any_ptr object, int field, int i) const
 {
     omnetpp::cClassDescriptor *base = getBaseClassDescriptor();
     if (base) {
@@ -2135,7 +2233,7 @@ omnetpp::any_ptr OlsrTcGroupDescriptor::getFieldStructValuePointer(omnetpp::any_
             return base->getFieldStructValuePointer(object, field, i);
         field -= base->getFieldCount();
     }
-    OlsrTcGroup *pp = omnetpp::fromAnyPtr<OlsrTcGroup>(object); (void)pp;
+    Olsrv2TcGroup *pp = omnetpp::fromAnyPtr<Olsrv2TcGroup>(object); (void)pp;
     switch (field) {
         case FIELD_originators: return omnetpp::toAnyPtr(&pp->getOriginators(i)); break;
         case FIELD_advertisedNeighbors: return omnetpp::toAnyPtr(&pp->getAdvertisedNeighbors(i)); break;
@@ -2143,7 +2241,7 @@ omnetpp::any_ptr OlsrTcGroupDescriptor::getFieldStructValuePointer(omnetpp::any_
     }
 }
 
-void OlsrTcGroupDescriptor::setFieldStructValuePointer(omnetpp::any_ptr object, int field, int i, omnetpp::any_ptr ptr) const
+void Olsrv2TcGroupDescriptor::setFieldStructValuePointer(omnetpp::any_ptr object, int field, int i, omnetpp::any_ptr ptr) const
 {
     omnetpp::cClassDescriptor *base = getBaseClassDescriptor();
     if (base) {
@@ -2153,30 +2251,30 @@ void OlsrTcGroupDescriptor::setFieldStructValuePointer(omnetpp::any_ptr object, 
         }
         field -= base->getFieldCount();
     }
-    OlsrTcGroup *pp = omnetpp::fromAnyPtr<OlsrTcGroup>(object); (void)pp;
+    Olsrv2TcGroup *pp = omnetpp::fromAnyPtr<Olsrv2TcGroup>(object); (void)pp;
     switch (field) {
-        default: throw omnetpp::cRuntimeError("Cannot set field %d of class 'OlsrTcGroup'", field);
+        default: throw omnetpp::cRuntimeError("Cannot set field %d of class 'Olsrv2TcGroup'", field);
     }
 }
 
-Register_Class(OlsrPacketHolderMessage)
+Register_Class(Olsrv2PacketHolderMessage)
 
-OlsrPacketHolderMessage::OlsrPacketHolderMessage(const char *name, short kind) : ::omnetpp::cMessage(name, kind)
+Olsrv2PacketHolderMessage::Olsrv2PacketHolderMessage(const char *name, short kind) : ::omnetpp::cMessage(name, kind)
 {
     if (this->ownedPacket != nullptr) take(this->ownedPacket);
 }
 
-OlsrPacketHolderMessage::OlsrPacketHolderMessage(const OlsrPacketHolderMessage& other) : ::omnetpp::cMessage(other)
+Olsrv2PacketHolderMessage::Olsrv2PacketHolderMessage(const Olsrv2PacketHolderMessage& other) : ::omnetpp::cMessage(other)
 {
     copy(other);
 }
 
-OlsrPacketHolderMessage::~OlsrPacketHolderMessage()
+Olsrv2PacketHolderMessage::~Olsrv2PacketHolderMessage()
 {
     dropAndDelete(this->ownedPacket);
 }
 
-OlsrPacketHolderMessage& OlsrPacketHolderMessage::operator=(const OlsrPacketHolderMessage& other)
+Olsrv2PacketHolderMessage& Olsrv2PacketHolderMessage::operator=(const Olsrv2PacketHolderMessage& other)
 {
     if (this == &other) return *this;
     ::omnetpp::cMessage::operator=(other);
@@ -2184,7 +2282,7 @@ OlsrPacketHolderMessage& OlsrPacketHolderMessage::operator=(const OlsrPacketHold
     return *this;
 }
 
-void OlsrPacketHolderMessage::copy(const OlsrPacketHolderMessage& other)
+void Olsrv2PacketHolderMessage::copy(const Olsrv2PacketHolderMessage& other)
 {
     dropAndDelete(this->ownedPacket);
     this->ownedPacket = other.ownedPacket;
@@ -2195,31 +2293,31 @@ void OlsrPacketHolderMessage::copy(const OlsrPacketHolderMessage& other)
     }
 }
 
-void OlsrPacketHolderMessage::parsimPack(omnetpp::cCommBuffer *b) const
+void Olsrv2PacketHolderMessage::parsimPack(omnetpp::cCommBuffer *b) const
 {
     ::omnetpp::cMessage::parsimPack(b);
     doParsimPacking(b,this->ownedPacket);
 }
 
-void OlsrPacketHolderMessage::parsimUnpack(omnetpp::cCommBuffer *b)
+void Olsrv2PacketHolderMessage::parsimUnpack(omnetpp::cCommBuffer *b)
 {
     ::omnetpp::cMessage::parsimUnpack(b);
     doParsimUnpacking(b,this->ownedPacket);
 }
 
-const Packet * OlsrPacketHolderMessage::getOwnedPacket() const
+const Packet * Olsrv2PacketHolderMessage::getOwnedPacket() const
 {
     return this->ownedPacket;
 }
 
-void OlsrPacketHolderMessage::setOwnedPacket(Packet * ownedPacket)
+void Olsrv2PacketHolderMessage::setOwnedPacket(Packet * ownedPacket)
 {
     if (this->ownedPacket != nullptr) throw omnetpp::cRuntimeError("setOwnedPacket(): a value is already set, remove it first with removeOwnedPacket()");
     this->ownedPacket = ownedPacket;
     if (this->ownedPacket != nullptr) take(this->ownedPacket);
 }
 
-Packet * OlsrPacketHolderMessage::removeOwnedPacket()
+Packet * Olsrv2PacketHolderMessage::removeOwnedPacket()
 {
     Packet * retval = this->ownedPacket;
     if (retval != nullptr) drop(retval);
@@ -2227,7 +2325,7 @@ Packet * OlsrPacketHolderMessage::removeOwnedPacket()
     return retval;
 }
 
-class OlsrPacketHolderMessageDescriptor : public omnetpp::cClassDescriptor
+class Olsrv2PacketHolderMessageDescriptor : public omnetpp::cClassDescriptor
 {
   private:
     mutable const char **propertyNames;
@@ -2235,8 +2333,8 @@ class OlsrPacketHolderMessageDescriptor : public omnetpp::cClassDescriptor
         FIELD_ownedPacket,
     };
   public:
-    OlsrPacketHolderMessageDescriptor();
-    virtual ~OlsrPacketHolderMessageDescriptor();
+    Olsrv2PacketHolderMessageDescriptor();
+    virtual ~Olsrv2PacketHolderMessageDescriptor();
 
     virtual bool doesSupport(omnetpp::cObject *obj) const override;
     virtual const char **getPropertyNames() const override;
@@ -2262,24 +2360,24 @@ class OlsrPacketHolderMessageDescriptor : public omnetpp::cClassDescriptor
     virtual void setFieldStructValuePointer(omnetpp::any_ptr object, int field, int i, omnetpp::any_ptr ptr) const override;
 };
 
-Register_ClassDescriptor(OlsrPacketHolderMessageDescriptor)
+Register_ClassDescriptor(Olsrv2PacketHolderMessageDescriptor)
 
-OlsrPacketHolderMessageDescriptor::OlsrPacketHolderMessageDescriptor() : omnetpp::cClassDescriptor(omnetpp::opp_typename(typeid(inet::OlsrPacketHolderMessage)), "omnetpp::cMessage")
+Olsrv2PacketHolderMessageDescriptor::Olsrv2PacketHolderMessageDescriptor() : omnetpp::cClassDescriptor(omnetpp::opp_typename(typeid(inet::Olsrv2PacketHolderMessage)), "omnetpp::cMessage")
 {
     propertyNames = nullptr;
 }
 
-OlsrPacketHolderMessageDescriptor::~OlsrPacketHolderMessageDescriptor()
+Olsrv2PacketHolderMessageDescriptor::~Olsrv2PacketHolderMessageDescriptor()
 {
     delete[] propertyNames;
 }
 
-bool OlsrPacketHolderMessageDescriptor::doesSupport(omnetpp::cObject *obj) const
+bool Olsrv2PacketHolderMessageDescriptor::doesSupport(omnetpp::cObject *obj) const
 {
-    return dynamic_cast<OlsrPacketHolderMessage *>(obj)!=nullptr;
+    return dynamic_cast<Olsrv2PacketHolderMessage *>(obj)!=nullptr;
 }
 
-const char **OlsrPacketHolderMessageDescriptor::getPropertyNames() const
+const char **Olsrv2PacketHolderMessageDescriptor::getPropertyNames() const
 {
     if (!propertyNames) {
         static const char *names[] = {  nullptr };
@@ -2290,19 +2388,19 @@ const char **OlsrPacketHolderMessageDescriptor::getPropertyNames() const
     return propertyNames;
 }
 
-const char *OlsrPacketHolderMessageDescriptor::getProperty(const char *propertyName) const
+const char *Olsrv2PacketHolderMessageDescriptor::getProperty(const char *propertyName) const
 {
     omnetpp::cClassDescriptor *base = getBaseClassDescriptor();
     return base ? base->getProperty(propertyName) : nullptr;
 }
 
-int OlsrPacketHolderMessageDescriptor::getFieldCount() const
+int Olsrv2PacketHolderMessageDescriptor::getFieldCount() const
 {
     omnetpp::cClassDescriptor *base = getBaseClassDescriptor();
     return base ? 1+base->getFieldCount() : 1;
 }
 
-unsigned int OlsrPacketHolderMessageDescriptor::getFieldTypeFlags(int field) const
+unsigned int Olsrv2PacketHolderMessageDescriptor::getFieldTypeFlags(int field) const
 {
     omnetpp::cClassDescriptor *base = getBaseClassDescriptor();
     if (base) {
@@ -2316,7 +2414,7 @@ unsigned int OlsrPacketHolderMessageDescriptor::getFieldTypeFlags(int field) con
     return (field >= 0 && field < 1) ? fieldTypeFlags[field] : 0;
 }
 
-const char *OlsrPacketHolderMessageDescriptor::getFieldName(int field) const
+const char *Olsrv2PacketHolderMessageDescriptor::getFieldName(int field) const
 {
     omnetpp::cClassDescriptor *base = getBaseClassDescriptor();
     if (base) {
@@ -2330,7 +2428,7 @@ const char *OlsrPacketHolderMessageDescriptor::getFieldName(int field) const
     return (field >= 0 && field < 1) ? fieldNames[field] : nullptr;
 }
 
-int OlsrPacketHolderMessageDescriptor::findField(const char *fieldName) const
+int Olsrv2PacketHolderMessageDescriptor::findField(const char *fieldName) const
 {
     omnetpp::cClassDescriptor *base = getBaseClassDescriptor();
     int baseIndex = base ? base->getFieldCount() : 0;
@@ -2338,7 +2436,7 @@ int OlsrPacketHolderMessageDescriptor::findField(const char *fieldName) const
     return base ? base->findField(fieldName) : -1;
 }
 
-const char *OlsrPacketHolderMessageDescriptor::getFieldTypeString(int field) const
+const char *Olsrv2PacketHolderMessageDescriptor::getFieldTypeString(int field) const
 {
     omnetpp::cClassDescriptor *base = getBaseClassDescriptor();
     if (base) {
@@ -2352,7 +2450,7 @@ const char *OlsrPacketHolderMessageDescriptor::getFieldTypeString(int field) con
     return (field >= 0 && field < 1) ? fieldTypeStrings[field] : nullptr;
 }
 
-const char **OlsrPacketHolderMessageDescriptor::getFieldPropertyNames(int field) const
+const char **Olsrv2PacketHolderMessageDescriptor::getFieldPropertyNames(int field) const
 {
     omnetpp::cClassDescriptor *base = getBaseClassDescriptor();
     if (base) {
@@ -2369,7 +2467,7 @@ const char **OlsrPacketHolderMessageDescriptor::getFieldPropertyNames(int field)
     }
 }
 
-const char *OlsrPacketHolderMessageDescriptor::getFieldProperty(int field, const char *propertyName) const
+const char *Olsrv2PacketHolderMessageDescriptor::getFieldProperty(int field, const char *propertyName) const
 {
     omnetpp::cClassDescriptor *base = getBaseClassDescriptor();
     if (base) {
@@ -2385,7 +2483,7 @@ const char *OlsrPacketHolderMessageDescriptor::getFieldProperty(int field, const
     }
 }
 
-int OlsrPacketHolderMessageDescriptor::getFieldArraySize(omnetpp::any_ptr object, int field) const
+int Olsrv2PacketHolderMessageDescriptor::getFieldArraySize(omnetpp::any_ptr object, int field) const
 {
     omnetpp::cClassDescriptor *base = getBaseClassDescriptor();
     if (base) {
@@ -2393,13 +2491,13 @@ int OlsrPacketHolderMessageDescriptor::getFieldArraySize(omnetpp::any_ptr object
             return base->getFieldArraySize(object, field);
         field -= base->getFieldCount();
     }
-    OlsrPacketHolderMessage *pp = omnetpp::fromAnyPtr<OlsrPacketHolderMessage>(object); (void)pp;
+    Olsrv2PacketHolderMessage *pp = omnetpp::fromAnyPtr<Olsrv2PacketHolderMessage>(object); (void)pp;
     switch (field) {
         default: return 0;
     }
 }
 
-void OlsrPacketHolderMessageDescriptor::setFieldArraySize(omnetpp::any_ptr object, int field, int size) const
+void Olsrv2PacketHolderMessageDescriptor::setFieldArraySize(omnetpp::any_ptr object, int field, int size) const
 {
     omnetpp::cClassDescriptor *base = getBaseClassDescriptor();
     if (base) {
@@ -2409,13 +2507,13 @@ void OlsrPacketHolderMessageDescriptor::setFieldArraySize(omnetpp::any_ptr objec
         }
         field -= base->getFieldCount();
     }
-    OlsrPacketHolderMessage *pp = omnetpp::fromAnyPtr<OlsrPacketHolderMessage>(object); (void)pp;
+    Olsrv2PacketHolderMessage *pp = omnetpp::fromAnyPtr<Olsrv2PacketHolderMessage>(object); (void)pp;
     switch (field) {
-        default: throw omnetpp::cRuntimeError("Cannot set array size of field %d of class 'OlsrPacketHolderMessage'", field);
+        default: throw omnetpp::cRuntimeError("Cannot set array size of field %d of class 'Olsrv2PacketHolderMessage'", field);
     }
 }
 
-const char *OlsrPacketHolderMessageDescriptor::getFieldDynamicTypeString(omnetpp::any_ptr object, int field, int i) const
+const char *Olsrv2PacketHolderMessageDescriptor::getFieldDynamicTypeString(omnetpp::any_ptr object, int field, int i) const
 {
     omnetpp::cClassDescriptor *base = getBaseClassDescriptor();
     if (base) {
@@ -2423,14 +2521,14 @@ const char *OlsrPacketHolderMessageDescriptor::getFieldDynamicTypeString(omnetpp
             return base->getFieldDynamicTypeString(object,field,i);
         field -= base->getFieldCount();
     }
-    OlsrPacketHolderMessage *pp = omnetpp::fromAnyPtr<OlsrPacketHolderMessage>(object); (void)pp;
+    Olsrv2PacketHolderMessage *pp = omnetpp::fromAnyPtr<Olsrv2PacketHolderMessage>(object); (void)pp;
     switch (field) {
         case FIELD_ownedPacket: { const Packet * value = pp->getOwnedPacket(); return omnetpp::opp_typename(typeid(*value)); }
         default: return nullptr;
     }
 }
 
-std::string OlsrPacketHolderMessageDescriptor::getFieldValueAsString(omnetpp::any_ptr object, int field, int i) const
+std::string Olsrv2PacketHolderMessageDescriptor::getFieldValueAsString(omnetpp::any_ptr object, int field, int i) const
 {
     omnetpp::cClassDescriptor *base = getBaseClassDescriptor();
     if (base) {
@@ -2438,14 +2536,14 @@ std::string OlsrPacketHolderMessageDescriptor::getFieldValueAsString(omnetpp::an
             return base->getFieldValueAsString(object,field,i);
         field -= base->getFieldCount();
     }
-    OlsrPacketHolderMessage *pp = omnetpp::fromAnyPtr<OlsrPacketHolderMessage>(object); (void)pp;
+    Olsrv2PacketHolderMessage *pp = omnetpp::fromAnyPtr<Olsrv2PacketHolderMessage>(object); (void)pp;
     switch (field) {
         case FIELD_ownedPacket: { auto obj = pp->getOwnedPacket(); return obj == nullptr ? "" : obj->str(); }
         default: return "";
     }
 }
 
-void OlsrPacketHolderMessageDescriptor::setFieldValueAsString(omnetpp::any_ptr object, int field, int i, const char *value) const
+void Olsrv2PacketHolderMessageDescriptor::setFieldValueAsString(omnetpp::any_ptr object, int field, int i, const char *value) const
 {
     omnetpp::cClassDescriptor *base = getBaseClassDescriptor();
     if (base) {
@@ -2455,13 +2553,13 @@ void OlsrPacketHolderMessageDescriptor::setFieldValueAsString(omnetpp::any_ptr o
         }
         field -= base->getFieldCount();
     }
-    OlsrPacketHolderMessage *pp = omnetpp::fromAnyPtr<OlsrPacketHolderMessage>(object); (void)pp;
+    Olsrv2PacketHolderMessage *pp = omnetpp::fromAnyPtr<Olsrv2PacketHolderMessage>(object); (void)pp;
     switch (field) {
-        default: throw omnetpp::cRuntimeError("Cannot set field %d of class 'OlsrPacketHolderMessage'", field);
+        default: throw omnetpp::cRuntimeError("Cannot set field %d of class 'Olsrv2PacketHolderMessage'", field);
     }
 }
 
-omnetpp::cValue OlsrPacketHolderMessageDescriptor::getFieldValue(omnetpp::any_ptr object, int field, int i) const
+omnetpp::cValue Olsrv2PacketHolderMessageDescriptor::getFieldValue(omnetpp::any_ptr object, int field, int i) const
 {
     omnetpp::cClassDescriptor *base = getBaseClassDescriptor();
     if (base) {
@@ -2469,14 +2567,14 @@ omnetpp::cValue OlsrPacketHolderMessageDescriptor::getFieldValue(omnetpp::any_pt
             return base->getFieldValue(object,field,i);
         field -= base->getFieldCount();
     }
-    OlsrPacketHolderMessage *pp = omnetpp::fromAnyPtr<OlsrPacketHolderMessage>(object); (void)pp;
+    Olsrv2PacketHolderMessage *pp = omnetpp::fromAnyPtr<Olsrv2PacketHolderMessage>(object); (void)pp;
     switch (field) {
         case FIELD_ownedPacket: return omnetpp::toAnyPtr(pp->getOwnedPacket()); break;
-        default: throw omnetpp::cRuntimeError("Cannot return field %d of class 'OlsrPacketHolderMessage' as cValue -- field index out of range?", field);
+        default: throw omnetpp::cRuntimeError("Cannot return field %d of class 'Olsrv2PacketHolderMessage' as cValue -- field index out of range?", field);
     }
 }
 
-void OlsrPacketHolderMessageDescriptor::setFieldValue(omnetpp::any_ptr object, int field, int i, const omnetpp::cValue& value) const
+void Olsrv2PacketHolderMessageDescriptor::setFieldValue(omnetpp::any_ptr object, int field, int i, const omnetpp::cValue& value) const
 {
     omnetpp::cClassDescriptor *base = getBaseClassDescriptor();
     if (base) {
@@ -2486,14 +2584,14 @@ void OlsrPacketHolderMessageDescriptor::setFieldValue(omnetpp::any_ptr object, i
         }
         field -= base->getFieldCount();
     }
-    OlsrPacketHolderMessage *pp = omnetpp::fromAnyPtr<OlsrPacketHolderMessage>(object); (void)pp;
+    Olsrv2PacketHolderMessage *pp = omnetpp::fromAnyPtr<Olsrv2PacketHolderMessage>(object); (void)pp;
     switch (field) {
         case FIELD_ownedPacket: pp->setOwnedPacket(omnetpp::fromAnyPtr<Packet>(value.pointerValue())); break;
-        default: throw omnetpp::cRuntimeError("Cannot set field %d of class 'OlsrPacketHolderMessage'", field);
+        default: throw omnetpp::cRuntimeError("Cannot set field %d of class 'Olsrv2PacketHolderMessage'", field);
     }
 }
 
-const char *OlsrPacketHolderMessageDescriptor::getFieldStructName(int field) const
+const char *Olsrv2PacketHolderMessageDescriptor::getFieldStructName(int field) const
 {
     omnetpp::cClassDescriptor *base = getBaseClassDescriptor();
     if (base) {
@@ -2507,7 +2605,7 @@ const char *OlsrPacketHolderMessageDescriptor::getFieldStructName(int field) con
     };
 }
 
-omnetpp::any_ptr OlsrPacketHolderMessageDescriptor::getFieldStructValuePointer(omnetpp::any_ptr object, int field, int i) const
+omnetpp::any_ptr Olsrv2PacketHolderMessageDescriptor::getFieldStructValuePointer(omnetpp::any_ptr object, int field, int i) const
 {
     omnetpp::cClassDescriptor *base = getBaseClassDescriptor();
     if (base) {
@@ -2515,14 +2613,14 @@ omnetpp::any_ptr OlsrPacketHolderMessageDescriptor::getFieldStructValuePointer(o
             return base->getFieldStructValuePointer(object, field, i);
         field -= base->getFieldCount();
     }
-    OlsrPacketHolderMessage *pp = omnetpp::fromAnyPtr<OlsrPacketHolderMessage>(object); (void)pp;
+    Olsrv2PacketHolderMessage *pp = omnetpp::fromAnyPtr<Olsrv2PacketHolderMessage>(object); (void)pp;
     switch (field) {
         case FIELD_ownedPacket: return omnetpp::toAnyPtr(pp->getOwnedPacket()); break;
         default: return omnetpp::any_ptr(nullptr);
     }
 }
 
-void OlsrPacketHolderMessageDescriptor::setFieldStructValuePointer(omnetpp::any_ptr object, int field, int i, omnetpp::any_ptr ptr) const
+void Olsrv2PacketHolderMessageDescriptor::setFieldStructValuePointer(omnetpp::any_ptr object, int field, int i, omnetpp::any_ptr ptr) const
 {
     omnetpp::cClassDescriptor *base = getBaseClassDescriptor();
     if (base) {
@@ -2532,10 +2630,10 @@ void OlsrPacketHolderMessageDescriptor::setFieldStructValuePointer(omnetpp::any_
         }
         field -= base->getFieldCount();
     }
-    OlsrPacketHolderMessage *pp = omnetpp::fromAnyPtr<OlsrPacketHolderMessage>(object); (void)pp;
+    Olsrv2PacketHolderMessage *pp = omnetpp::fromAnyPtr<Olsrv2PacketHolderMessage>(object); (void)pp;
     switch (field) {
         case FIELD_ownedPacket: pp->setOwnedPacket(omnetpp::fromAnyPtr<Packet>(ptr)); break;
-        default: throw omnetpp::cRuntimeError("Cannot set field %d of class 'OlsrPacketHolderMessage'", field);
+        default: throw omnetpp::cRuntimeError("Cannot set field %d of class 'Olsrv2PacketHolderMessage'", field);
     }
 }
 

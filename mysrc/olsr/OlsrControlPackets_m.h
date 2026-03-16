@@ -1,5 +1,5 @@
 //
-// Generated file, do not edit! Created by opp_msgtool 6.2 from mysrc/OLSR/OlsrControlPackets.msg.
+// Generated file, do not edit! Created by opp_msgtool 6.2 from mysrc/olsr/OlsrControlPackets.msg.
 //
 
 #ifndef __INET_OLSRCONTROLPACKETS_M_H
@@ -38,7 +38,7 @@ class OlsrPacketHolderMessage;
 namespace inet {
 
 /**
- * Enum generated from <tt>mysrc/OLSR/OlsrControlPackets.msg:25</tt> by opp_msgtool.
+ * Enum generated from <tt>mysrc/olsr/OlsrControlPackets.msg:25</tt> by opp_msgtool.
  * <pre>
  * enum OlsrPktType
  * {
@@ -56,7 +56,7 @@ inline void doParsimPacking(omnetpp::cCommBuffer *b, const OlsrPktType& e) { b->
 inline void doParsimUnpacking(omnetpp::cCommBuffer *b, OlsrPktType& e) { int n; b->unpack(n); e = static_cast<OlsrPktType>(n); }
 
 /**
- * Class generated from <tt>mysrc/OLSR/OlsrControlPackets.msg:31</tt> by opp_msgtool.
+ * Class generated from <tt>mysrc/olsr/OlsrControlPackets.msg:31</tt> by opp_msgtool.
  * <pre>
  * // Base type for OLSR control messages (individual message types inherit from it)
  * class OlsrControlPacket extends FieldsChunk
@@ -94,7 +94,7 @@ inline void doParsimPacking(omnetpp::cCommBuffer *b, const OlsrControlPacket& ob
 inline void doParsimUnpacking(omnetpp::cCommBuffer *b, OlsrControlPacket& obj) {obj.parsimUnpack(b);}
 
 /**
- * Class generated from <tt>mysrc/OLSR/OlsrControlPackets.msg:38</tt> by opp_msgtool.
+ * Class generated from <tt>mysrc/olsr/OlsrControlPackets.msg:38</tt> by opp_msgtool.
  * <pre>
  * // HELLO message
  * class OlsrHello extends OlsrControlPacket
@@ -189,7 +189,7 @@ inline void doParsimPacking(omnetpp::cCommBuffer *b, const OlsrHello& obj) {obj.
 inline void doParsimUnpacking(omnetpp::cCommBuffer *b, OlsrHello& obj) {obj.parsimUnpack(b);}
 
 /**
- * Class generated from <tt>mysrc/OLSR/OlsrControlPackets.msg:58</tt> by opp_msgtool.
+ * Class generated from <tt>mysrc/olsr/OlsrControlPackets.msg:58</tt> by opp_msgtool.
  * <pre>
  * // OlsrTcGroup: a group-of-TC logical entries packed into one UDP packet.
  * // Inherit OLSRControlPacket 
@@ -309,7 +309,7 @@ inline void doParsimPacking(omnetpp::cCommBuffer *b, const OlsrTcGroup& obj) {ob
 inline void doParsimUnpacking(omnetpp::cCommBuffer *b, OlsrTcGroup& obj) {obj.parsimUnpack(b);}
 
 /**
- * Class generated from <tt>mysrc/OLSR/OlsrControlPackets.msg:77</tt> by opp_msgtool.
+ * Class generated from <tt>mysrc/olsr/OlsrControlPackets.msg:77</tt> by opp_msgtool.
  * <pre>
  * message OlsrPacketHolderMessage//for delay send
  * {
