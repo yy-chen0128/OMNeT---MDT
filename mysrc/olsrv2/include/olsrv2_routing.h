@@ -1,96 +1,77 @@
-#ifndef MYSRC_OLSRV2_OLSRV2ROUTING_H
-#define MYSRC_OLSRV2_OLSRV2ROUTING_H
+#ifndef MYSRC_OLSRV2_OLSRV2_H
+#define MYSRC_OLSRV2_OLSRV2_H
 
-#include <vector>
-#include <map>
-#include <set>
-#include <memory>
 
+// Public umbrella header for OLSRv2 core logic.
+// External users should include this file instead of individual headers.
+
+#include "olsrv2.h"
 #include "olsrv2_state.h"
-
-#include "inet/common/INETDefs.h"
-#include "inet/networklayer/ipv4/IIpv4RoutingTable.h"
-#include "inet/networklayer/contract/IInterfaceTable.h"
-#include "inet/networklayer/contract/INetfilter.h"
-#include "inet/transportlayer/contract/udp/UdpSocket.h"
-#include "inet/mobility/contract/IMobility.h"
-#include "inet/routing/base/RoutingProtocolBase.h"
-#include "nhdp/nhdp.h"
+#include "olsrv2_tc.h"
+#include "olsrv2_types.h"
+#include "nhdp/nhdp_db.h"
 #include "../message/OLSRv2Packet_m.h"
+#include "inet/common/packet/Packet.h"
 
 namespace mysrc::olsrv2 {
 
-// Forward declare Core to break circular dependency
-class Olsrv2Core;
+struct netaddr;
+struct rfc5444_reader_tlvblock_context;
 
-// Stateless route calculator from current OLSRv2 sets.
-class Olsrv2RoutingEngine
+// Facade for typical OLSRv2 core workflow in simulation modules.
+class Olsrv2Core
 {
   public:
-    // Computes shortest-path-like routes from originator to reachable nodes.
-    // Metric policy: currently hop count.
-    std::vector<RouteTuple> computeRoutes(const MainAddress& originator, const Olsrv2State& state) const;
-};
+    explicit Olsrv2Core(MainAddress originator = MainAddress::UNSPECIFIED_ADDRESS)
+        : originator_(originator)
+    {
+    }
 
-// Main OMNeT++ Module for OLSRv2 Routing
-class Olsrv2Routing : public inet::RoutingProtocolBase, public inet::UdpSocket::ICallback, public inet::INetfilter::IHook
-{
-  public:
-    Olsrv2Routing();
-    virtual ~Olsrv2Routing();
+    void setOriginator(MainAddress originator) { originator_ = originator; }
+    MainAddress getOriginator() const { return originator_; }
 
-  protected:
-    virtual int numInitStages() const override { return inet::NUM_INIT_STAGES; }
-    virtual void initialize(int stage) override;
-    virtual void handleMessageWhenUp(omnetpp::cMessage *msg) override;
+    Olsrv2State& state() { return state_; }
+    const Olsrv2State& state() const { return state_; }
 
-    // IMHnetRouting interface (not inherited anymore)
-    virtual void handleStartOperation(inet::LifecycleOperation *operation) override {}
-    virtual void handleStopOperation(inet::LifecycleOperation *operation) override {}
-    virtual void handleCrashOperation(inet::LifecycleOperation *operation) override {}
+    // Ingest one TC and recompute route set.
+    void processTcAndRecompute(const inet::Olsrv2TcGroup* tc, double now);
 
-    // UdpSocket::ICallback interface
-    virtual void socketDataArrived(inet::UdpSocket *socket, inet::Packet *packet) override;
-    virtual void socketErrorArrived(inet::UdpSocket *socket, inet::Indication *indication) override;
-    virtual void socketClosed(inet::UdpSocket *socket) override;
+    // Recompute route set using current state.
+    void recomputeRoutes()
+    {
+        state_.setRoutes(routing_engine_.computeRoutes(originator_, state_));
+    }
 
-    // INetfilter::IHook interface
-    virtual inet::INetfilter::IHook::Result datagramPreRoutingHook(inet::Packet *datagram) override;
-    virtual inet::INetfilter::IHook::Result datagramPostRoutingHook(inet::Packet *datagram) override { return inet::INetfilter::IHook::ACCEPT; }
-    virtual inet::INetfilter::IHook::Result datagramLocalInHook(inet::Packet *datagram) override { return inet::INetfilter::IHook::ACCEPT; }
-    virtual inet::INetfilter::IHook::Result datagramLocalOutHook(inet::Packet *datagram) override { return inet::INetfilter::IHook::ACCEPT; }
-    virtual inet::INetfilter::IHook::Result datagramForwardHook(inet::Packet *datagram) override { return inet::INetfilter::IHook::ACCEPT; }
+    void purgeExpired(double now) { state_.purgeExpired(now); }
+    
+    // Generate TC packet
+    inet::Packet* generateTc(const NhdpDb& nhdpDb, double now);
 
   private:
-    void processHelloTimer();
-    void processTcTimer();
-    void sendHello();
-    void sendTc();
-    void processOlsrPacket(inet::Packet *packet);
-    void updateRoutingTable();
+    MainAddress originator_;
+    Olsrv2State state_;
+    Olsrv2TcProcessor tc_processor_;
+    Olsrv2RoutingEngine routing_engine_;
+    uint16_t tcSeqNum_ = 0;
+    uint16_t ansn_ = 0;
+};
 
-    // Module parameters
-    double helloInterval_ = 2.0;
-    double tcInterval_ = 5.0;
-    
-    // Core logic
-    // Use unique_ptr to avoid full definition of Olsrv2Core in header (Pimpl-like)
-    // or just pointer. unique_ptr is safer.
-    std::unique_ptr<Olsrv2Core> core_;
-    Nhdp nhdp_; 
+class Olsrv2
+{
+public:
+    static uint64_t get_tc_interval(void);
+    static uint64_t get_tc_validity(void);
 
-    // INET interactions
-    inet::IIpv4RoutingTable *routingTable_ = nullptr;
-    inet::IInterfaceTable *interfaceTable_ = nullptr;
-    inet::INetfilter *netfilter_ = nullptr;
-    inet::IMobility *mobility_ = nullptr;
-    inet::UdpSocket socket_;
-    
-    // Timers
-    omnetpp::cMessage *helloTimer_ = nullptr;
-    omnetpp::cMessage *tcTimer_ = nullptr;
+    static bool is_nhdp_routable(struct netaddr* addr);
+    static bool is_routable(struct netaddr* addr);
+
+    static bool mpr_shall_process(struct rfc5444_reader_tlvblock_context* context, uint64_t vtime);
+    static bool mpr_shall_forwarding(
+        struct rfc5444_reader_tlvblock_context* context, struct netaddr* source_address, uint64_t vtime);
+
+    static void generate_tcs(bool generate);
 };
 
 } // namespace mysrc::olsrv2
 
-#endif // MYSRC_OLSRV2_OLSRV2ROUTING_H
+#endif // MYSRC_OLSRV2_OLSRV2_H
