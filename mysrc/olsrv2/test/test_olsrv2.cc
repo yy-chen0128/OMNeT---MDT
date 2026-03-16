@@ -2,7 +2,7 @@
 #include <string>
 #include <vector>
 
-#include "../include/olsrv2.h"
+#include "../include/olsrv2_routing.h"
 
 #include "inet/common/packet/Packet.h"
 #include "inet/networklayer/common/L3Address.h"
