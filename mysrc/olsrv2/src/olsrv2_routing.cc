@@ -8,14 +8,14 @@
 #include <queue>
 #include <set>
 
-#ifndef UNIT_TEST
 #include "inet/common/ModuleAccess.h"
 #include "inet/common/packet/Packet.h"
 #include "inet/networklayer/common/L3AddressTag_m.h"
 #include "inet/networklayer/common/L3AddressResolver.h"
 #include "inet/networklayer/ipv4/Ipv4RoutingTable.h"
 #include "inet/networklayer/ipv4/Ipv4Route.h"
-#endif
+
+using namespace omnetpp;
 
 namespace mysrc::olsrv2 {
 
@@ -99,33 +99,25 @@ void Olsrv2Routing::initialize(int stage)
         helloInterval_ = par("helloInterval");
         tcInterval_ = par("tcInterval");
         
-#ifdef UNIT_TEST
-    helloTimer_ = new omnetpp::cMessage("helloTimer");
-    tcTimer_ = new omnetpp::cMessage("tcTimer");
-#else
-    helloTimer_ = new inet::cMessage("helloTimer");
-    tcTimer_ = new inet::cMessage("tcTimer");
-#endif
+        helloTimer_ = new inet::cMessage("helloTimer");
+        tcTimer_ = new inet::cMessage("tcTimer");
     }
     else if (stage == inet::INITSTAGE_ROUTING_PROTOCOLS) {
-#ifndef UNIT_TEST
-        routingTable_ = inet::getModuleFromPar<inet::IRoutingTable>(par("routingTableModule"), this);
-        networkProtocol_ = inet::getModuleFromPar<inet::INetfilter>(par("networkProtocolModule"), this);
+        routingTable_ = inet::getModuleFromPar<inet::IIpv4RoutingTable>(par("routingTableModule"), this);
+        interfaceTable_ = inet::getModuleFromPar<inet::IInterfaceTable>(par("interfaceTableModule"), this);
+        netfilter_ = inet::getModuleFromPar<inet::INetfilter>(par("networkProtocolModule"), this);
         mobility_ = inet::getModuleFromPar<inet::IMobility>(par("mobilityModule"), this);
 
-        networkProtocol_->registerHook(0, this);
+        netfilter_->registerHook(0, this);
 
         socket_.setOutputGate(gate("socketOut"));
         socket_.bind(698);
         socket_.setCallback(this);
 
         // Initialize Core Logic
-        inet::L3Address myIp = routingTable_->getRouterId();
-        core_ = std::make_unique<Olsrv2Core>(myIp.toIpv4());
-        nhdp_.setOriginator(myIp);
-#else
-        core_ = std::make_unique<Olsrv2Core>(inet::Ipv4Address(0));
-#endif
+        inet::Ipv4Address myIp = routingTable_->getRouterId();
+        core_ = std::make_unique<Olsrv2Core>(myIp);
+        nhdp_.setOriginator(inet::L3Address(myIp));
 
         scheduleAfter(helloInterval_, helloTimer_);
         scheduleAfter(tcInterval_, tcTimer_);
@@ -141,9 +133,7 @@ void Olsrv2Routing::handleMessageWhenUp(omnetpp::cMessage *msg)
             processTcTimer();
         }
     } else {
-#ifndef UNIT_TEST
         socket_.processMessage(msg);
-#endif
     }
 }
 
@@ -161,49 +151,39 @@ void Olsrv2Routing::processTcTimer()
 
 void Olsrv2Routing::sendHello()
 {
-#ifdef UNIT_TEST
-    double now = 0.0;
-#else
     double now = simTime().dbl();
-#endif
     auto pkt = nhdp_.generateHello(now);
-#ifndef UNIT_TEST
     socket_.sendTo(pkt, inet::L3Address(inet::Ipv4Address::ALLONES_ADDRESS), 698);
-#endif
 }
 
 void Olsrv2Routing::sendTc()
 {
-#ifdef UNIT_TEST
-    double now = 0.0;
-#else
     double now = simTime().dbl();
-#endif
     if (core_) {
         auto pkt = core_->generateTc(nhdp_.getDb(), now);
-#ifndef UNIT_TEST
         socket_.sendTo(pkt, inet::L3Address(inet::Ipv4Address::ALLONES_ADDRESS), 698);
-#endif
     }
 }
 
-void Olsrv2Routing::onDataAvailable(inet::UdpSocket *socket)
+void Olsrv2Routing::socketDataArrived(inet::UdpSocket *socket, inet::Packet *packet)
 {
-#ifndef UNIT_TEST
-    inet::Packet *packet = socket->receive();
     processOlsrPacket(packet);
     delete packet;
-#endif
 }
 
-void Olsrv2Routing::onError(inet::UdpSocket *socket)
+void Olsrv2Routing::socketErrorArrived(inet::UdpSocket *socket, inet::Indication *indication)
 {
     // Handle socket error
+    delete indication;
+}
+
+void Olsrv2Routing::socketClosed(inet::UdpSocket *socket)
+{
+    // Handle closed
 }
 
 void Olsrv2Routing::processOlsrPacket(inet::Packet *packet)
 {
-#ifndef UNIT_TEST
     auto chunk = packet->peekAtFront<inet::Olsrv2ControlPacket>();
     if (!chunk) return;
 
@@ -211,53 +191,42 @@ void Olsrv2Routing::processOlsrPacket(inet::Packet *packet)
     auto l3Tag = packet->getTag<inet::L3AddressInd>();
     if (l3Tag) source = l3Tag->getSrcAddress();
 
-    if (auto hello = std::dynamic_pointer_cast<const inet::Olsrv2HelloPacket>(chunk)) {
+    if (auto hello = inet::dynamicPtrCast<const inet::Olsrv2HelloPacket>(chunk)) {
         nhdp_.processHello(hello.get(), source, simTime().dbl());
-    } else if (auto tc = std::dynamic_pointer_cast<const inet::Olsrv2TcGroup>(chunk)) {
+    } else if (auto tc = inet::dynamicPtrCast<const inet::Olsrv2TcGroup>(chunk)) {
         if (core_) {
             core_->processTcAndRecompute(tc.get(), simTime().dbl());
             updateRoutingTable();
         }
     }
-#endif
 }
 
-#ifdef UNIT_TEST
 inet::INetfilter::IHook::Result Olsrv2Routing::datagramPreRoutingHook(inet::Packet *datagram)
-#else
-inet::IHook::Result Olsrv2Routing::datagramPreRoutingHook(inet::Packet *datagram)
-#endif
 {
-#ifdef UNIT_TEST
     return inet::INetfilter::IHook::ACCEPT;
-#else
-    return inet::IHook::ACCEPT;
-#endif
 }
 
 void Olsrv2Routing::updateRoutingTable()
 {
-#ifndef UNIT_TEST
     if (!core_) return;
 
     const auto& routes = core_->state().getRoutes();
-    inet::IRoutingTable *rt = routingTable_;
+    inet::IIpv4RoutingTable *rt = routingTable_;
     
     for (const auto& r : routes) {
         inet::Ipv4Route *route = new inet::Ipv4Route();
         route->setDestination(inet::Ipv4Address(r.destination.getInt())); 
-        route->setNetmask(inet::Ipv4Address::ALLONES_MASK);
+        route->setNetmask(inet::Ipv4Address::ALLONES_ADDRESS);
         route->setGateway(inet::Ipv4Address(r.next_hop.getInt()));
         
         inet::NetworkInterface *ie = rt->getInterfaceByAddress(inet::Ipv4Address(r.next_hop.getInt()));
-        if (!ie) ie = rt->getInterface(0); // Fallback
+        if (!ie) ie = interfaceTable_->getInterface(0); // Fallback
 
         route->setInterface(ie);
         route->setSourceType(inet::IRoute::MANET);
         route->setMetric(r.metric);
         rt->addRoute(route);
     }
-#endif
 }
 
 } // namespace mysrc::olsrv2

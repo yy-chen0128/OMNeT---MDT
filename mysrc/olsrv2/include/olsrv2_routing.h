@@ -8,42 +8,15 @@
 
 #include "olsrv2_state.h"
 
-// Check if we are in unit test mode or normal OMNeT++ build
-#ifdef UNIT_TEST
-  #include "mock/omnetpp.h"
-  #include "mock/inet/common/packet/Packet.h"
-  #include "mock/message/OLSRv2Packet_m.h"
-  #include "mock/inet_interfaces.h" 
-  #include "nhdp/nhdp.h" // Need Nhdp definition
-  
-  // Use mock namespace for cSimpleModule etc.
-  using namespace omnetpp;
-  namespace inet { 
-    class LifecycleOperation;
-    class RoutingProtocolBase : public omnetpp::cSimpleModule {
-    public:
-        virtual void handleMessageWhenUp(omnetpp::cMessage *msg) {}
-        // Mock handleMessage to forward to handleMessageWhenUp
-        virtual void handleMessage(omnetpp::cMessage *msg) override { handleMessageWhenUp(msg); }
-        
-        // Lifecycle methods
-        virtual void handleStartOperation(LifecycleOperation *operation) {}
-        virtual void handleStopOperation(LifecycleOperation *operation) {}
-        virtual void handleCrashOperation(LifecycleOperation *operation) {}
-    }; 
-  }
-#else
-  #include "inet/common/INETDefs.h"
-  #include "inet/networklayer/contract/IRoutingTable.h"
-  #include "inet/networklayer/contract/INetfilter.h"
-  #include "inet/transportlayer/contract/udp/UdpSocket.h"
-  #include "inet/mobility/contract/IMobility.h"
-  #include "inet/routing/base/RoutingProtocolBase.h"
-  #include "nhdp/nhdp.h"
-  #include "../message/OLSRv2Packet_m.h"
-  
-  // In normal build, cSimpleModule is in omnetpp namespace or inet inherits it
-#endif
+#include "inet/common/INETDefs.h"
+#include "inet/networklayer/ipv4/IIpv4RoutingTable.h"
+#include "inet/networklayer/contract/IInterfaceTable.h"
+#include "inet/networklayer/contract/INetfilter.h"
+#include "inet/transportlayer/contract/udp/UdpSocket.h"
+#include "inet/mobility/contract/IMobility.h"
+#include "inet/routing/base/RoutingProtocolBase.h"
+#include "nhdp/nhdp.h"
+#include "../message/OLSRv2Packet_m.h"
 
 namespace mysrc::olsrv2 {
 
@@ -71,14 +44,15 @@ class Olsrv2Routing : public inet::RoutingProtocolBase, public inet::UdpSocket::
     virtual void initialize(int stage) override;
     virtual void handleMessageWhenUp(omnetpp::cMessage *msg) override;
 
-    // IMHnetRouting interface
+    // IMHnetRouting interface (not inherited anymore)
     virtual void handleStartOperation(inet::LifecycleOperation *operation) override {}
     virtual void handleStopOperation(inet::LifecycleOperation *operation) override {}
     virtual void handleCrashOperation(inet::LifecycleOperation *operation) override {}
 
     // UdpSocket::ICallback interface
-    virtual void onDataAvailable(inet::UdpSocket *socket) override;
-    virtual void onError(inet::UdpSocket *socket) override;
+    virtual void socketDataArrived(inet::UdpSocket *socket, inet::Packet *packet) override;
+    virtual void socketErrorArrived(inet::UdpSocket *socket, inet::Indication *indication) override;
+    virtual void socketClosed(inet::UdpSocket *socket) override;
 
     // INetfilter::IHook interface
     virtual inet::INetfilter::IHook::Result datagramPreRoutingHook(inet::Packet *datagram) override;
@@ -104,13 +78,11 @@ class Olsrv2Routing : public inet::RoutingProtocolBase, public inet::UdpSocket::
     // or just pointer. unique_ptr is safer.
     std::unique_ptr<Olsrv2Core> core_;
     Nhdp nhdp_; 
-#ifdef UNIT_TEST
-#else
-#endif
 
     // INET interactions
-    inet::IRoutingTable *routingTable_ = nullptr;
-    inet::INetfilter *networkProtocol_ = nullptr;
+    inet::IIpv4RoutingTable *routingTable_ = nullptr;
+    inet::IInterfaceTable *interfaceTable_ = nullptr;
+    inet::INetfilter *netfilter_ = nullptr;
     inet::IMobility *mobility_ = nullptr;
     inet::UdpSocket socket_;
     

@@ -1,10 +1,6 @@
 #include "../../include/nhdp/nhdp.h"
 #include "../../include/nhdp/nhdp_db.h"
-#ifdef UNIT_TEST
-#include "message/OLSRv2Packet_m.h"
-#else
 #include "../../message/OLSRv2Packet_m.h"
-#endif
 #include "inet/common/packet/Packet.h"
 #include "inet/common/packet/chunk/Chunk.h"
 
@@ -86,10 +82,22 @@ void Nhdp::processHello(const inet::Olsrv2HelloPacket *hello, const inet::L3Addr
     bool symmetric = false;
     inet::L3Address myOriginator = originator_; 
     
+    link.twohop_addresses.clear();
+
     for (size_t i = 0; i < hello->getNeighAddrsArraySize(); ++i) {
-        if (hello->getNeighAddrs(i) == myOriginator) {
+        inet::L3Address neighAddr = hello->getNeighAddrs(i);
+        if (neighAddr == myOriginator) {
             symmetric = true; 
-            break;
+        } else {
+            // Add to 2-hop neighbors
+            link.twohop_addresses.insert(neighAddr.toIpv4());
+            
+            // Update NhdpTwoHop in DB
+            NhdpTwoHop th;
+            th.twohop_addr = neighAddr.toIpv4();
+            th.link_id = link.id;
+            th.expire_ms = static_cast<NhdpTimeMs>((now + hello->getHTime().dbl() * 3.0) * 1000);
+            db_.addOrUpdateTwoHop(th);
         }
     }
     
@@ -99,6 +107,84 @@ void Nhdp::processHello(const inet::Olsrv2HelloPacket *hello, const inet::L3Addr
     link.expire_ms = static_cast<NhdpTimeMs>((now + hello->getHTime().dbl() * 3.0) * 1000);
     
     db_.addOrUpdateLink(link);
+}
+
+std::set<inet::Ipv4Address> Nhdp::calculateMprSet() const
+{
+    std::set<inet::Ipv4Address> mprSet;
+    std::set<inet::Ipv4Address> N2;
+    std::map<inet::Ipv4Address, std::set<inet::Ipv4Address>> coverage; // neighbor -> {2-hop neighbors}
+
+    auto links = db_.getLinks();
+    std::set<inet::Ipv4Address> N1;
+
+    // 1. Identify N1 and N2
+    for (const auto& link : links) {
+        if (link.status == NhdpLinkStatus::Symmetric) {
+            inet::Ipv4Address n1 = link.neighbor_iface_addr; // Use interface address for link
+            N1.insert(n1);
+            
+            for (const auto& n2 : link.twohop_addresses) {
+                if (n2 != originator_.toIpv4() && N1.find(n2) == N1.end()) {
+                    N2.insert(n2);
+                    coverage[n1].insert(n2);
+                }
+            }
+        }
+    }
+    
+    // Clean up N2: remove nodes that are in N1 (direct neighbors)
+    // (Already done in loop above: N1.find(n2) == N1.end())
+    // But we need to be careful about order.
+    // Re-check N2 against N1 fully.
+    for (auto it = N2.begin(); it != N2.end(); ) {
+        if (N1.count(*it)) {
+            it = N2.erase(it);
+        } else {
+            ++it;
+        }
+    }
+
+    // Update coverage maps to remove non-N2 nodes
+    for (auto& kv : coverage) {
+        std::set<inet::Ipv4Address> clean;
+        for (const auto& addr : kv.second) {
+            if (N2.count(addr)) clean.insert(addr);
+        }
+        kv.second = clean;
+    }
+
+    // 2. Greedy Selection
+    // a. Select nodes that provide unique coverage
+    // (Simplification: skip unique coverage optimization for now, go straight to max coverage)
+
+    while (!N2.empty()) {
+        inet::Ipv4Address best_n1;
+        size_t max_cover = 0;
+        
+        for (const auto& kv : coverage) {
+            size_t cover = 0;
+            for (const auto& n2 : kv.second) {
+                if (N2.count(n2)) cover++;
+            }
+            
+            if (cover > max_cover) {
+                max_cover = cover;
+                best_n1 = kv.first;
+            }
+        }
+        
+        if (max_cover == 0) break; // Should not happen
+        
+        mprSet.insert(best_n1);
+        
+        // Remove covered
+        for (const auto& n2 : coverage[best_n1]) {
+            N2.erase(n2);
+        }
+    }
+    
+    return mprSet;
 }
 
 inet::Packet* Nhdp::generateHello(double now)
@@ -111,20 +197,33 @@ inet::Packet* Nhdp::generateHello(double now)
     pkt->setWillingness(7); // Default
     pkt->setMsgSeq(helloSeqNum_++);
 
-    // Add neighbors
-    // Iterate over links/neighbors in DB
-    // Populate linkStatus, neighStatus, neighAddrs
-    
-    std::vector<inet::L3Address> neighbors;
-    std::vector<uint8_t> statuses;
-    
-    // Dummy implementation: Add all known neighbors as HEARD/SYMMETRIC
-    // In a real implementation, we iterate db_.getLinks()
-    
-    pkt->setNeighAddrsArraySize(neighbors.size());
-    for (size_t i = 0; i < neighbors.size(); ++i) {
-        pkt->setNeighAddrs(i, neighbors[i]);
-        // Set status...
+    // Calculate MPRs
+    std::set<inet::Ipv4Address> mprSet = calculateMprSet();
+
+    auto links = db_.getLinks();
+    pkt->setNeighAddrsArraySize(links.size());
+    pkt->setLinkStatusArraySize(links.size());
+    pkt->setNeighStatusArraySize(links.size());
+
+    for (size_t i = 0; i < links.size(); ++i) {
+        const auto& link = links[i];
+        pkt->setNeighAddrs(i, inet::L3Address(link.neighbor_iface_addr));
+        
+        // Link Status
+        if (link.status == NhdpLinkStatus::Symmetric) {
+            pkt->setLinkStatus(i, 2); // SYMMETRIC
+        } else if (link.status == NhdpLinkStatus::Heard) {
+            pkt->setLinkStatus(i, 1); // HEARD
+        } else {
+            pkt->setLinkStatus(i, 0); // LOST/PENDING
+        }
+        
+        // Neighbor Status (MPR)
+        if (mprSet.count(link.neighbor_iface_addr)) {
+            pkt->setNeighStatus(i, 1); // MPR
+        } else {
+            pkt->setNeighStatus(i, 0); // Not MPR
+        }
     }
 
     auto packet = new inet::Packet("OLSRv2-Hello");

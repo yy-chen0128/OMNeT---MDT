@@ -10,11 +10,7 @@
 #include "olsrv2_tc.h"
 #include "olsrv2_types.h"
 #include "nhdp/nhdp_db.h"
-#ifdef UNIT_TEST
-#include "message/OLSRv2Packet_m.h"
-#else
 #include "../message/OLSRv2Packet_m.h"
-#endif
 #include "inet/common/packet/Packet.h"
 
 namespace mysrc::olsrv2 {

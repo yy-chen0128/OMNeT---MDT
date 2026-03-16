@@ -10,11 +10,7 @@
 
 #include "inet/networklayer/common/L3Address.h"
 #include "nhdp_db.h"
-#ifdef UNIT_TEST
-#include "message/OLSRv2Packet_m.h"
-#else
 #include "../../message/OLSRv2Packet_m.h"
-#endif
 
 namespace mysrc::olsrv2 {
 
@@ -83,6 +79,8 @@ class Nhdp
     // Hello Message Processing
     void processHello(const inet::Olsrv2HelloPacket *hello, const inet::L3Address& source, double now);
     inet::Packet* generateHello(double now);
+
+    std::set<inet::Ipv4Address> calculateMprSet() const;
 
     // Access to DB
     const NhdpDb& getDb() const { return db_; }
