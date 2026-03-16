@@ -6,5 +6,6 @@ int run_olsrv2_tests();
 int run_routing_tests();
 int run_rfc5444_tests();
 int run_tc_tests();
+int run_integration_tests();
 
 #endif // TEST_RUNNER_H

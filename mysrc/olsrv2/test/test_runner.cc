@@ -1,12 +1,21 @@
 #include <iostream>
+#include <memory>
 #include <string>
 #include <vector>
 
 #include "inet/common/INETDefs.h"
+#include "omnetpp/cnullenvir.h"
+#include "omnetpp/csimulation.h"
 #include "test_runner.h"
 
 int main() {
     omnetpp::SimTime::setScaleExp(-9);
+
+    int argc = 0;
+    char **argv = nullptr;
+    auto *envir = new omnetpp::cNullEnvir(argc, argv, nullptr);
+    auto sim = std::make_unique<omnetpp::cSimulation>("olsrv2-test", envir);
+    omnetpp::cSimulation::setActiveSimulation(sim.get());
     
     std::cout << "Starting Test Suite...\n";
     int failures = 0;
@@ -57,11 +66,22 @@ int main() {
     }
 
     std::cout << "--------------------------------\n";
+    std::cout << "Running Integration Tests:\n";
+    if (run_integration_tests() != 0) {
+        failures++;
+        std::cout << "[FAIL] Integration Tests Failed\n";
+    } else {
+        std::cout << "[PASS] Integration Tests Passed\n";
+    }
+
+    std::cout << "--------------------------------\n";
     if (failures == 0) {
         std::cout << "All Tests Passed!\n";
+        omnetpp::cSimulation::setActiveSimulation(nullptr);
         return 0;
     } else {
         std::cerr << "Some tests failed (" << failures << " suites failed).\n";
+        omnetpp::cSimulation::setActiveSimulation(nullptr);
         return 1;
     }
 }

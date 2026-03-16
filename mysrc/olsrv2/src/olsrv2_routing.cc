@@ -127,30 +127,18 @@ void Olsrv2Core::processTcAndRecompute(const inet::Olsrv2TcGroup* tc, double now
 
 inet::Packet* Olsrv2Core::generateTc(const NhdpDb& nhdpDb, double now)
 {
-    // Check if we need to generate TC (MPR selection)
-    bool am_i_mpr = false;
-    // TODO: Check NhdpDb for MPR selector status
-    // For now, assume always generate if we have neighbors
-    // In strict RFC 7181, check if I am selected as MPR by anyone.
-    
-    // Iterate over links to find if local_is_flooding_mpr is true
-    // nhdpDb doesn't expose links directly in public API efficiently maybe?
-    // nhdpDb has getNeighbors().
-    // But local_is_flooding_mpr is on Link.
-    
-    // We assume we advertise all symmetric neighbors for now (Full topology).
-    // RFC 7181 allows full topology.
-    
     std::vector<MainAddress> advertised_neighbors;
-    // Get all symmetric neighbors
-    // Note: NhdpDb uses internal structures. We need to access them.
-    // Assuming NhdpDb has a way to get neighbors.
-    // Let's use getNeighbors() and assume it returns symmetric ones or check status.
-    // NhdpNeighbor doesn't have status, NhdpLink has.
-    
-    // This part requires better NhdpDb access. 
-    // For now, dummy implementation to return a packet.
-    
+
+    for (const auto& link : nhdpDb.getLinks()) {
+        if (link.status != NhdpLinkStatus::Symmetric)
+            continue;
+        if (link.neighbor_originator == MainAddress::UNSPECIFIED_ADDRESS)
+            continue;
+        if (link.neighbor_originator == originator_)
+            continue;
+        advertised_neighbors.push_back(link.neighbor_originator);
+    }
+
     auto pkt = inet::makeShared<inet::Olsrv2TcGroup>();
     pkt->setChunkLength(inet::B(100));
     pkt->setPacketType(inet::Olsrv2Tc);
@@ -165,10 +153,13 @@ inet::Packet* Olsrv2Core::generateTc(const NhdpDb& nhdpDb, double now)
     pkt->setHopCountsArraySize(1);
     pkt->setHopCounts(0, 0);
     
-    // Add neighbors
-    // Dummy: No neighbors added yet because of NhdpDb access.
     pkt->setAdvCountsArraySize(1);
-    pkt->setAdvCounts(0, 0);
+    pkt->setAdvCounts(0, static_cast<int>(advertised_neighbors.size()));
+
+    pkt->setAdvertisedNeighborsArraySize(advertised_neighbors.size());
+    for (size_t i = 0; i < advertised_neighbors.size(); ++i) {
+        pkt->setAdvertisedNeighbors(i, inet::L3Address(advertised_neighbors[i]));
+    }
     
     auto packet = new inet::Packet("OLSRv2-TC");
     packet->insertAtBack(pkt);
