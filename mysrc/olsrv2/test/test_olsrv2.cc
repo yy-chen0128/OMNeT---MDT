@@ -111,8 +111,8 @@ void testProcessTcAndRecompute() {
 }
 
 void testGlobalTunables() {
-    expectTrue(Olsrv2::get_tc_interval() > 0, "tc interval must be positive");
-    expectTrue(Olsrv2::get_tc_validity() > 0, "tc validity must be positive");
+    expectTrue(Olsrv2RoutingHelper::get_tc_interval() > 0, "tc interval must be positive");
+    expectTrue(Olsrv2RoutingHelper::get_tc_validity() > 0, "tc validity must be positive");
 }
 } // namespace
 

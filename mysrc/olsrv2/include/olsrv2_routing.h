@@ -56,7 +56,7 @@ class Olsrv2Core
     uint16_t ansn_ = 0;
 };
 
-class Olsrv2
+class Olsrv2RoutingHelper
 {
 public:
     static uint64_t get_tc_interval(void);

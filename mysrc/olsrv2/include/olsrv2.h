@@ -33,11 +33,11 @@ class Olsrv2RoutingEngine
 };
 
 // Main OMNeT++ Module for OLSRv2 Routing
-class Olsrv2Routing : public inet::RoutingProtocolBase, public inet::UdpSocket::ICallback, public inet::INetfilter::IHook
+class OLSRv2 : public inet::RoutingProtocolBase, public inet::UdpSocket::ICallback, public inet::INetfilter::IHook
 {
   public:
-    Olsrv2Routing();
-    virtual ~Olsrv2Routing();
+    OLSRv2();
+    virtual ~OLSRv2();
 
   protected:
     virtual int numInitStages() const override { return inet::NUM_INIT_STAGES; }

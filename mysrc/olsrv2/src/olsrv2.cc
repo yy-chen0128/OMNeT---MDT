@@ -79,19 +79,19 @@ std::vector<RouteTuple> Olsrv2RoutingEngine::computeRoutes(const MainAddress& or
 }
 
 // Module Implementation
-Define_Module(Olsrv2Routing);
+Define_Module(OLSRv2);
 
-Olsrv2Routing::Olsrv2Routing()
+OLSRv2::OLSRv2()
 {
 }
 
-Olsrv2Routing::~Olsrv2Routing()
+OLSRv2::~OLSRv2()
 {
     cancelAndDelete(helloTimer_);
     cancelAndDelete(tcTimer_);
 }
 
-void Olsrv2Routing::initialize(int stage)
+void OLSRv2::initialize(int stage)
 {
     RoutingProtocolBase::initialize(stage);
 
@@ -124,7 +124,7 @@ void Olsrv2Routing::initialize(int stage)
     }
 }
 
-void Olsrv2Routing::handleMessageWhenUp(omnetpp::cMessage *msg)
+void OLSRv2::handleMessageWhenUp(omnetpp::cMessage *msg)
 {
     if (msg->isSelfMessage()) {
         if (msg == helloTimer_) {
@@ -137,26 +137,26 @@ void Olsrv2Routing::handleMessageWhenUp(omnetpp::cMessage *msg)
     }
 }
 
-void Olsrv2Routing::processHelloTimer()
+void OLSRv2::processHelloTimer()
 {
     sendHello();
     scheduleAfter(helloInterval_, helloTimer_);
 }
 
-void Olsrv2Routing::processTcTimer()
+void OLSRv2::processTcTimer()
 {
     sendTc();
     scheduleAfter(tcInterval_, tcTimer_);
 }
 
-void Olsrv2Routing::sendHello()
+void OLSRv2::sendHello()
 {
     double now = simTime().dbl();
     auto pkt = nhdp_.generateHello(now);
     socket_.sendTo(pkt, inet::L3Address(inet::Ipv4Address::ALLONES_ADDRESS), 698);
 }
 
-void Olsrv2Routing::sendTc()
+void OLSRv2::sendTc()
 {
     double now = simTime().dbl();
     if (core_) {
@@ -165,24 +165,24 @@ void Olsrv2Routing::sendTc()
     }
 }
 
-void Olsrv2Routing::socketDataArrived(inet::UdpSocket *socket, inet::Packet *packet)
+void OLSRv2::socketDataArrived(inet::UdpSocket *socket, inet::Packet *packet)
 {
     processOlsrPacket(packet);
     delete packet;
 }
 
-void Olsrv2Routing::socketErrorArrived(inet::UdpSocket *socket, inet::Indication *indication)
+void OLSRv2::socketErrorArrived(inet::UdpSocket *socket, inet::Indication *indication)
 {
     // Handle socket error
     delete indication;
 }
 
-void Olsrv2Routing::socketClosed(inet::UdpSocket *socket)
+void OLSRv2::socketClosed(inet::UdpSocket *socket)
 {
     // Handle closed
 }
 
-void Olsrv2Routing::processOlsrPacket(inet::Packet *packet)
+void OLSRv2::processOlsrPacket(inet::Packet *packet)
 {
     auto chunk = packet->peekAtFront<inet::Olsrv2ControlPacket>();
     if (!chunk) return;
@@ -201,12 +201,12 @@ void Olsrv2Routing::processOlsrPacket(inet::Packet *packet)
     }
 }
 
-inet::INetfilter::IHook::Result Olsrv2Routing::datagramPreRoutingHook(inet::Packet *datagram)
+inet::INetfilter::IHook::Result OLSRv2::datagramPreRoutingHook(inet::Packet *datagram)
 {
     return inet::INetfilter::IHook::ACCEPT;
 }
 
-void Olsrv2Routing::updateRoutingTable()
+void OLSRv2::updateRoutingTable()
 {
     if (!core_) return;
 

@@ -47,31 +47,31 @@ std::set<DupKey> g_forwarded_set;
 
 } // namespace
 
-uint64_t Olsrv2::get_tc_interval(void)
+uint64_t Olsrv2RoutingHelper::get_tc_interval(void)
 {
     if (g_overwrite_tc_interval_ms != 0)
         return g_overwrite_tc_interval_ms;
     return g_tc_interval_ms;
 }
 
-uint64_t Olsrv2::get_tc_validity(void)
+uint64_t Olsrv2RoutingHelper::get_tc_validity(void)
 {
     if (g_overwrite_tc_validity_ms != 0)
         return g_overwrite_tc_validity_ms;
     return g_tc_validity_ms;
 }
 
-bool Olsrv2::is_nhdp_routable(struct netaddr* addr)
+bool Olsrv2RoutingHelper::is_nhdp_routable(struct netaddr* addr)
 {
     return is_routable(addr);
 }
 
-bool Olsrv2::is_routable(struct netaddr* addr)
+bool Olsrv2RoutingHelper::is_routable(struct netaddr* addr)
 {
     return addr != nullptr;
 }
 
-bool Olsrv2::mpr_shall_process(struct rfc5444_reader_tlvblock_context* context, uint64_t /*vtime*/)
+bool Olsrv2RoutingHelper::mpr_shall_process(struct rfc5444_reader_tlvblock_context* context, uint64_t /*vtime*/)
 {
     if (context == nullptr)
         return false;
@@ -80,7 +80,7 @@ bool Olsrv2::mpr_shall_process(struct rfc5444_reader_tlvblock_context* context, 
     return inserted;
 }
 
-bool Olsrv2::mpr_shall_forwarding(
+bool Olsrv2RoutingHelper::mpr_shall_forwarding(
     struct rfc5444_reader_tlvblock_context* context, struct netaddr* /*source_address*/, uint64_t /*vtime*/)
 {
     if (context == nullptr)
@@ -88,7 +88,7 @@ bool Olsrv2::mpr_shall_forwarding(
     return true;
 }
 
-void Olsrv2::generate_tcs(bool generate)
+void Olsrv2RoutingHelper::generate_tcs(bool generate)
 {
     g_generate_tcs = generate;
 }
