@@ -4,10 +4,9 @@
 #include "../include/nhdp/nhdp.h"
 #include "../include/olsrv2_state.h"
 
-// Mock INET Packet
-#include "mock/inet/common/packet/Packet.h"
-#include "mock/inet/networklayer/common/L3Address.h"
-#include "mock/message/OLSRv2Packet_m.h"
+#include "inet/common/packet/Packet.h"
+#include "inet/networklayer/common/L3Address.h"
+#include "../message/OLSRv2Packet_m.h"
 
 using namespace mysrc::olsrv2;
 
@@ -92,12 +91,55 @@ void testNeighborAndLinkLifecycle() {
     state.removeNeighbor(n1);
     expectTrue(state.getNeighbors().empty(), "removeNeighbor must erase n1");
 }
+
+void testMprSelection() {
+    // Topology:
+    // Me --(sym)--> N1 --(sym)--> N2
+    // Me --(sym)--> N3 --(sym)--> N4
+    // N1 covers N2. N3 covers N4.
+    // MPR set should be {N1, N3}.
+
+    Nhdp nhdp;
+    nhdp.setOriginator(inet::L3Address("10.0.0.1"));
+    double now = 100.0;
+
+    // 1. Receive Hello from N1 advertising N2
+    auto helloN1 = std::make_shared<inet::Olsrv2HelloPacket>();
+    helloN1->setOriginator(inet::L3Address("10.0.0.2")); // N1
+    helloN1->setHTime(2.0);
+    helloN1->setNeighAddrsArraySize(2);
+    helloN1->setNeighAddrs(0, inet::L3Address("10.0.0.1")); // Me (for symmetry)
+    helloN1->setNeighAddrs(1, inet::L3Address("10.0.0.3")); // N2
+    nhdp.processHello(helloN1.get(), inet::L3Address("10.0.0.2"), now);
+
+    // 2. Receive Hello from N3 advertising N4
+    auto helloN3 = std::make_shared<inet::Olsrv2HelloPacket>();
+    helloN3->setOriginator(inet::L3Address("10.0.0.4")); // N3
+    helloN3->setHTime(2.0);
+    helloN3->setNeighAddrsArraySize(2);
+    helloN3->setNeighAddrs(0, inet::L3Address("10.0.0.1")); // Me (for symmetry)
+    helloN3->setNeighAddrs(1, inet::L3Address("10.0.0.5")); // N4
+    nhdp.processHello(helloN3.get(), inet::L3Address("10.0.0.4"), now);
+
+    // Calculate MPR
+    auto mprSet = nhdp.calculateMprSet();
+
+    expectTrue(mprSet.size() == 2, "MPR set size should be 2");
+    expectTrue(mprSet.count(inet::Ipv4Address("10.0.0.2")), "N1 must be MPR");
+    expectTrue(mprSet.count(inet::Ipv4Address("10.0.0.4")), "N3 must be MPR");
+}
 } // namespace
 
-int main() {
+#include "test_runner.h"
+
+// ... (existing code)
+
+int run_nhdp_tests() {
+    omnetpp::SimTime::setScaleExp(-9);
     std::cout << "Running test_nhdp...\n";
     testNhdpHelloProcessing();
     testNeighborAndLinkLifecycle();
+    testMprSelection();
 
     if (g_failures == 0) {
         std::cout << "[PASS] test_nhdp\n";

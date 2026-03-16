@@ -85,7 +85,9 @@ static void test_result_to_string() {
   assert(std::string_view(toString(Result::BadTlvIndex)) == "BadTlvIndex");
 }
 
-int main() {
+#include "test_runner.h"
+
+int run_rfc5444_tests() {
   test_timetlv_vector();
   test_timetlv_encode_decode();
   test_metric_encode_decode();

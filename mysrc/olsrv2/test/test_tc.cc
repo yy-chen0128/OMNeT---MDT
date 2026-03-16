@@ -43,7 +43,10 @@ void testTcProcessorAppliesTopology() {
 }
 } // namespace
 
-int main() {
+#include "test_runner.h"
+
+int run_tc_tests() {
+    omnetpp::SimTime::setScaleExp(-9);
     std::cout << "Running test_message...\n";
     testTcProcessorAppliesTopology();
 

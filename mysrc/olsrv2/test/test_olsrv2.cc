@@ -4,10 +4,9 @@
 
 #include "../include/olsrv2.h"
 
-// Mock INET
-#include "mock/inet/common/packet/Packet.h"
-#include "mock/inet/networklayer/common/L3Address.h"
-#include "mock/message/OLSRv2Packet_m.h"
+#include "inet/common/packet/Packet.h"
+#include "inet/networklayer/common/L3Address.h"
+#include "../message/OLSRv2Packet_m.h"
 
 using namespace mysrc::olsrv2;
 
@@ -117,7 +116,10 @@ void testGlobalTunables() {
 }
 } // namespace
 
-int main() {
+#include "test_runner.h"
+
+int run_olsrv2_tests() {
+    omnetpp::SimTime::setScaleExp(-9);
     std::cout << "Running test_olsrv2...\n";
     testCoreRecomputeRoutes();
     testProcessTcAndRecompute();

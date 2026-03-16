@@ -6,8 +6,7 @@
 #include "../include/olsrv2_routing.h"
 #include "../include/olsrv2_state.h"
 
-// Mock INET (needed because olsrv2_state.h includes olsrv2_types.h which includes L3Address.h)
-#include "mock/inet/networklayer/common/L3Address.h"
+#include "inet/networklayer/common/L3Address.h"
 
 using namespace mysrc::olsrv2;
 
@@ -97,7 +96,10 @@ void testBrokenLink() {
 
 } // namespace
 
-int main() {
+#include "test_runner.h"
+
+int run_routing_tests() {
+    omnetpp::SimTime::setScaleExp(-9);
     std::cout << "Running test_routing...\n";
     testDiamondTopology();
     testBrokenLink();
