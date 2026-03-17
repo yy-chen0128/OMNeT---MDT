@@ -90,6 +90,16 @@ OLSRv2::~OLSRv2()
 {
     cancelAndDelete(helloTimer_);
     cancelAndDelete(tcTimer_);
+    cancelAndDelete(routeCleanupTimer_);
+
+    auto *rt4 = dynamic_cast<inet::Ipv4RoutingTable *>(routingTable_);
+    if (rt4) {
+        for (auto *r : installedRoutes_) {
+            if (r)
+                rt4->deleteRoute(r);
+        }
+    }
+    installedRoutes_.clear();
 }
 
 void OLSRv2::initialize(int stage)
@@ -100,10 +110,12 @@ void OLSRv2::initialize(int stage)
         helloInterval_ = par("helloInterval");
         tcInterval_ = par("tcInterval");
         startJitter_ = par("startJitter");
+        routeCleanupInterval_ = par("routeCleanupInterval");
         udpPort_ = par("udpPort");
         
         helloTimer_ = new inet::cMessage("helloTimer");
         tcTimer_ = new inet::cMessage("tcTimer");
+        routeCleanupTimer_ = new inet::cMessage("routeCleanupTimer");
     }
     else if (stage == inet::INITSTAGE_ROUTING_PROTOCOLS) {
         routingTable_ = inet::getModuleFromPar<inet::IIpv4RoutingTable>(par("routingTableModule"), this);
@@ -146,6 +158,11 @@ void OLSRv2::initialize(int stage)
         const double tc_jitter_s = (startJitter_ > 0.0) ? uniform(0.0, startJitter_) : 0.0;
         scheduleAfter(helloInterval_ + hello_jitter_s, helloTimer_);
         scheduleAfter(tcInterval_ + tc_jitter_s, tcTimer_);
+
+        if (routeCleanupInterval_ > 0.0) {
+            const double cleanup_jitter_s = (startJitter_ > 0.0) ? uniform(0.0, startJitter_) : 0.0;
+            scheduleAfter(routeCleanupInterval_ + cleanup_jitter_s, routeCleanupTimer_);
+        }
     }
 }
 
@@ -156,6 +173,8 @@ void OLSRv2::handleMessageWhenUp(omnetpp::cMessage *msg)
             processHelloTimer();
         } else if (msg == tcTimer_) {
             processTcTimer();
+        } else if (msg == routeCleanupTimer_) {
+            processRouteCleanupTimer();
         }
     } else {
         socket_.processMessage(msg);
@@ -172,6 +191,21 @@ void OLSRv2::processTcTimer()
 {
     sendTc();
     scheduleAfter(tcInterval_, tcTimer_);
+}
+
+void OLSRv2::processRouteCleanupTimer()
+{
+    const double now_s = simTime().dbl();
+    nhdp_.getDb().purgeExpired(static_cast<NhdpTimeMs>(now_s * 1000));
+
+    if (core_) {
+        core_->purgeExpired(now_s);
+        core_->recomputeRoutes();
+        updateRoutingTable();
+    }
+
+    if (routeCleanupInterval_ > 0.0)
+        scheduleAfter(routeCleanupInterval_, routeCleanupTimer_);
 }
 
 void OLSRv2::sendHello()
@@ -238,7 +272,15 @@ void OLSRv2::updateRoutingTable()
     if (!core_) return;
 
     const auto& routes = core_->state().getRoutes();
-    inet::IIpv4RoutingTable *rt = routingTable_;
+    auto *rt4 = dynamic_cast<inet::Ipv4RoutingTable *>(routingTable_);
+    if (!rt4)
+        return;
+
+    for (auto *r : installedRoutes_) {
+        if (r)
+            rt4->deleteRoute(r);
+    }
+    installedRoutes_.clear();
     
     for (const auto& r : routes) {
         inet::Ipv4Route *route = new inet::Ipv4Route();
@@ -246,13 +288,14 @@ void OLSRv2::updateRoutingTable()
         route->setNetmask(inet::Ipv4Address::ALLONES_ADDRESS);
         route->setGateway(inet::Ipv4Address(r.next_hop.getInt()));
         
-        inet::NetworkInterface *ie = rt->getInterfaceByAddress(inet::Ipv4Address(r.next_hop.getInt()));
+        inet::NetworkInterface *ie = rt4->getInterfaceByAddress(inet::Ipv4Address(r.next_hop.getInt()));
         if (!ie) ie = interfaceTable_->getInterface(0); // Fallback
 
         route->setInterface(ie);
         route->setSourceType(inet::IRoute::MANET);
         route->setMetric(r.metric);
-        rt->addRoute(route);
+        rt4->addRoute(route);
+        installedRoutes_.push_back(route);
     }
 
     printProtocolState("UPDATE_ROUTING_TABLE");

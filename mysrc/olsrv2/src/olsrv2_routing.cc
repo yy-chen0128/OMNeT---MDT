@@ -99,6 +99,8 @@ void Olsrv2Core::processTcAndRecompute(const inet::Olsrv2TcGroup* tc, double now
 {
     if (!tc) return;
 
+    state_.purgeExpired(now);
+
     TcMessageView view;
     // Iterate over originators in the TC Group (assuming flattened structure allows multiple TCs?)
     // The .msg defines arrays: originators[], ansns[], seqNums[], hopCounts[], advCounts[], advertisedNeighbors[]
@@ -107,8 +109,12 @@ void Olsrv2Core::processTcAndRecompute(const inet::Olsrv2TcGroup* tc, double now
     size_t offset = 0;
     for (size_t i = 0; i < tc->getOriginatorsArraySize(); ++i) {
         view.originator = tc->getOriginators(i).toIpv4();
-        view.ansn = tc->getAnsns(i);
-        view.validity_duration = 300.0; // Default validity (should be in packet)
+        const uint16_t ansn = tc->getAnsns(i);
+        const uint16_t seq = tc->getSeqNums(i);
+        view.ansn = ansn;
+        view.validity_duration = tc->getValidityTime().dbl();
+        if (view.validity_duration <= 0.0)
+            view.validity_duration = 300.0;
         
         view.advertised_neighbors.clear();
         int count = tc->getAdvCounts(i);
@@ -118,6 +124,17 @@ void Olsrv2Core::processTcAndRecompute(const inet::Olsrv2TcGroup* tc, double now
             view.advertised_neighbors.push_back(adv);
         }
         offset += count;
+
+        const auto it_seq = lastTcSeqByOriginator_.find(view.originator);
+        if (it_seq != lastTcSeqByOriginator_.end() && seq <= it_seq->second)
+            continue;
+
+        const auto it_ansn = lastAnsnByOriginator_.find(view.originator);
+        if (it_ansn != lastAnsnByOriginator_.end() && ansn < it_ansn->second)
+            continue;
+
+        lastTcSeqByOriginator_[view.originator] = seq;
+        lastAnsnByOriginator_[view.originator] = ansn;
 
         tc_processor_.applyTc(view, now, state_);
     }
@@ -146,6 +163,7 @@ inet::Packet* Olsrv2Core::generateTc(const NhdpDb& nhdpDb, double now)
     pkt->setChunkLength(inet::B(100));
     pkt->setPacketType(inet::Olsrv2Tc);
     pkt->setGenTime(now);
+    pkt->setValidityTime(omnetpp::SimTime(g_tc_validity_ms, omnetpp::SIMTIME_MS));
 
     pkt->setOriginatorsArraySize(1);
     pkt->setOriginators(0, originator_);

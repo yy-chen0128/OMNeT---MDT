@@ -66,6 +66,7 @@ class OLSRv2 : public inet::RoutingProtocolBase, public inet::UdpSocket::ICallba
   private:
     void processHelloTimer();
     void processTcTimer();
+    void processRouteCleanupTimer();
     void sendHello();
     void sendTc();
     void processOlsrPacket(inet::Packet *packet);
@@ -78,6 +79,7 @@ class OLSRv2 : public inet::RoutingProtocolBase, public inet::UdpSocket::ICallba
     double helloInterval_ = 2.0;
     double tcInterval_ = 5.0;
     double startJitter_ = 0.0;
+    double routeCleanupInterval_ = 1.0;
     int udpPort_ = 698;
     inet::L3Address multicastGroup_;
     int multicastIfId_ = -1;
@@ -98,6 +100,9 @@ class OLSRv2 : public inet::RoutingProtocolBase, public inet::UdpSocket::ICallba
     // Timers
     omnetpp::cMessage *helloTimer_ = nullptr;
     omnetpp::cMessage *tcTimer_ = nullptr;
+    omnetpp::cMessage *routeCleanupTimer_ = nullptr;
+
+    std::vector<inet::Ipv4Route *> installedRoutes_;
 };
 
 } // namespace mysrc::olsrv2

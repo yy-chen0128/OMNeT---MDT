@@ -1,6 +1,7 @@
 #ifndef MYSRC_OLSRV2_OLSRV2_H
 #define MYSRC_OLSRV2_OLSRV2_H
 
+#include <map>
 
 // Public umbrella header for OLSRv2 core logic.
 // External users should include this file instead of individual headers.
@@ -54,6 +55,8 @@ class Olsrv2Core
     Olsrv2RoutingEngine routing_engine_;
     uint16_t tcSeqNum_ = 0;
     uint16_t ansn_ = 0;
+    std::map<MainAddress, uint16_t> lastTcSeqByOriginator_;
+    std::map<MainAddress, uint16_t> lastAnsnByOriginator_;
 };
 
 class Olsrv2RoutingHelper

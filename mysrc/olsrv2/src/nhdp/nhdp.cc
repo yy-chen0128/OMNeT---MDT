@@ -84,7 +84,10 @@ void Nhdp::processHello(const inet::Olsrv2HelloPacket *hello, const inet::L3Addr
     
     link.twohop_addresses.clear();
 
-    const NhdpTimeMs expire_ms = static_cast<NhdpTimeMs>((now + hello->getHTime().dbl() * 3.0) * 1000);
+    double validity_s = hello->getValidityTime().dbl();
+    if (validity_s <= 0.0)
+        validity_s = hello->getHTime().dbl() * 3.0;
+    const NhdpTimeMs expire_ms = static_cast<NhdpTimeMs>((now + validity_s) * 1000);
     bool have_selector_info = false;
     bool selected_as_mpr = false;
 
@@ -216,6 +219,7 @@ inet::Packet* Nhdp::generateHello(double now)
     pkt->setPacketType(inet::Olsrv2Hello);
     pkt->setOriginator(originator_);
     pkt->setHTime(2.0); // 2 seconds
+    pkt->setValidityTime(pkt->getHTime().dbl() * 3.0);
     pkt->setWillingness(7); // Default
     pkt->setMsgSeq(helloSeqNum_++);
 

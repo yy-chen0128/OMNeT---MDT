@@ -25,6 +25,7 @@ simple OLSRv2 like IApp
         double helloInterval @unit(s) = default(2s);
         double tcInterval @unit(s) = default(5s);
         double startJitter @unit(s) = default(0.2s);
+        double routeCleanupInterval @unit(s) = default(1s);
     gates:
         input socketIn;
         output socketOut;

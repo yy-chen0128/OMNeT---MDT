@@ -37,6 +37,7 @@ class Olsrv2HelloPacket extends Olsrv2ControlPacket
 {
     L3Address originator;      // Originator/main address
     simtime_t hTime;           // HELLO interval
+    simtime_t validityTime;    // RFC 7181 VALIDITY_TIME
     uint8 willingness;         // RFC 7181 willingness
     uint16 msgSeq;             // Message sequence number
 
@@ -51,6 +52,7 @@ class Olsrv2HelloPacket extends Olsrv2ControlPacket
 class Olsrv2TcGroup extends Olsrv2ControlPacket
 {
     simtime_t genTime;         // Generation time
+    simtime_t validityTime;    // RFC 7181 VALIDITY_TIME
 
     // Per-originator TC metadata
     L3Address originators[];   // Originator addresses
