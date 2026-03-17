@@ -5,6 +5,7 @@
 #include <map>
 #include <set>
 #include <memory>
+#include <string>
 
 #include "olsrv2_state.h"
 
@@ -15,6 +16,7 @@
 #include "inet/transportlayer/contract/udp/UdpSocket.h"
 #include "inet/mobility/contract/IMobility.h"
 #include "inet/routing/base/RoutingProtocolBase.h"
+#include "inet/networklayer/common/L3Address.h"
 #include "nhdp/nhdp.h"
 #include "../message/OLSRv2Packet_m.h"
 
@@ -68,10 +70,17 @@ class OLSRv2 : public inet::RoutingProtocolBase, public inet::UdpSocket::ICallba
     void sendTc();
     void processOlsrPacket(inet::Packet *packet);
     void updateRoutingTable();
+    void printProtocolState(const char *tag) const;
+    void printNhdpState() const;
+    void printIpv4RoutingTable() const;
 
     // Module parameters
     double helloInterval_ = 2.0;
     double tcInterval_ = 5.0;
+    double startJitter_ = 0.0;
+    int udpPort_ = 698;
+    inet::L3Address multicastGroup_;
+    int multicastIfId_ = -1;
     
     // Core logic
     // Use unique_ptr to avoid full definition of Olsrv2Core in header (Pimpl-like)

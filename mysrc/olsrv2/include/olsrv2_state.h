@@ -41,6 +41,12 @@ namespace mysrc::olsrv2 {
         // Expire outdated tuples by current time.
         void purgeExpired(double now);
 
+        void printLinkSet() const;
+        void printNeighborSet() const;
+        void printTopologySet() const;
+        void printRouteSet() const;
+        void printOlsrv2State() const;
+
     private:
         struct LinkKey {
             MainAddress local_iface;

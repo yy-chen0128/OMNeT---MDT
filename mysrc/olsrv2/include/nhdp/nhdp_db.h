@@ -161,6 +161,11 @@ class NhdpDb
     // Periodic cleanup.
     void purgeExpired(NhdpTimeMs now_ms);
 
+    void addOrUpdateMprSelector(const NhdpAddress& selector_originator, NhdpTimeMs expire_ms);
+    void removeMprSelector(const NhdpAddress& selector_originator);
+    bool isMprSelector(const NhdpAddress& selector_originator, NhdpTimeMs now_ms) const;
+    std::vector<NhdpAddress> getMprSelectors() const;
+
   private:
     struct TwoHopKey {
         NhdpAddress addr;
@@ -178,6 +183,7 @@ class NhdpDb
     std::map<uint64_t, NhdpLink> links_;
     std::map<NhdpAddress, NhdpLinkAddress> link_addresses_;
     std::map<TwoHopKey, NhdpTwoHop> twohop_;
+    std::map<NhdpAddress, NhdpTimeMs> mpr_selectors_;
 };
 
 } // namespace mysrc::olsrv2

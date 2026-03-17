@@ -16,6 +16,7 @@ void NhdpDb::cleanup()
     links_.clear();
     link_addresses_.clear();
     twohop_.clear();
+    mpr_selectors_.clear();
 }
 
 void NhdpDb::addOrUpdateNeighbor(const NhdpNeighbor& neighbor)
@@ -240,6 +241,40 @@ void NhdpDb::purgeExpired(NhdpTimeMs now_ms)
     }
     for (uint64_t link_id : expired_links)
         removeLink(link_id);
+
+    for (auto it = mpr_selectors_.begin(); it != mpr_selectors_.end();) {
+        if (it->second > 0 && now_ms >= it->second)
+            it = mpr_selectors_.erase(it);
+        else
+            ++it;
+    }
+}
+
+void NhdpDb::addOrUpdateMprSelector(const NhdpAddress& selector_originator, NhdpTimeMs expire_ms)
+{
+    mpr_selectors_[selector_originator] = expire_ms;
+}
+
+void NhdpDb::removeMprSelector(const NhdpAddress& selector_originator)
+{
+    mpr_selectors_.erase(selector_originator);
+}
+
+bool NhdpDb::isMprSelector(const NhdpAddress& selector_originator, NhdpTimeMs now_ms) const
+{
+    auto it = mpr_selectors_.find(selector_originator);
+    if (it == mpr_selectors_.end())
+        return false;
+    return it->second == 0 || now_ms < it->second;
+}
+
+std::vector<NhdpAddress> NhdpDb::getMprSelectors() const
+{
+    std::vector<NhdpAddress> out;
+    out.reserve(mpr_selectors_.size());
+    for (const auto& kv : mpr_selectors_)
+        out.push_back(kv.first);
+    return out;
 }
 
 } // namespace mysrc::olsrv2

@@ -5,6 +5,10 @@
 
 #include <algorithm>
 
+#include "inet/common/INETDefs.h"
+
+using namespace omnetpp;
+
 namespace mysrc::olsrv2 {
 
 void Olsrv2State::upsertLink(const LinkTuple& tuple)
@@ -106,4 +110,69 @@ void Olsrv2State::purgeExpired(double now)
     }
 }
 
-} // namespace omnet::olsrv2
+void Olsrv2State::printLinkSet() const
+{
+    EV_INFO << "\n=== LINK SET ===\n";
+    for (const auto& kv : link_set_) {
+        const auto& t = kv.second;
+        EV_INFO << "Neighbor=" << t.neighbor_iface_addr
+                << " Local=" << t.local_iface_addr
+                << " SymExpire=" << t.sym_time.expires_at
+                << " HeardExpire=" << t.heard_time.expires_at
+                << omnetpp::endl;
+    }
+    EV_INFO << "LinkSet size=" << link_set_.size() << "\n";
+}
+
+void Olsrv2State::printNeighborSet() const
+{
+    EV_INFO << "\n=== NEIGHBOR SET ===\n";
+    for (const auto& kv : neighbor_set_) {
+        const auto& t = kv.second;
+        EV_INFO << "NeighborMainAddr=" << t.main_addr
+                << " Symmetric=" << (t.is_symmetric ? 1 : 0)
+                << " Ifaces=" << t.iface_addrs.size()
+                << " Expire=" << t.validity.expires_at
+                << omnetpp::endl;
+    }
+    EV_INFO << "NeighborSet size=" << neighbor_set_.size() << "\n";
+}
+
+void Olsrv2State::printTopologySet() const
+{
+    EV_INFO << "\n=== TOPOLOGY SET ===\n";
+    for (const auto& kv : topology_set_) {
+        const auto& t = kv.second;
+        EV_INFO << "Dest=" << t.dest_addr
+                << " LastHop=" << t.last_addr
+                << " Ansn=" << t.ansn
+                << " Expire=" << t.validity.expires_at
+                << omnetpp::endl;
+    }
+    EV_INFO << "TopologySet size=" << topology_set_.size() << "\n";
+}
+
+void Olsrv2State::printRouteSet() const
+{
+    EV_INFO << "\n=== ROUTE SET ===\n";
+    for (const auto& t : routing_set_) {
+        EV_INFO << "Dest=" << t.destination
+                << " NextHop=" << t.next_hop
+                << " Metric=" << t.metric
+                << " HopCount=" << static_cast<int>(t.hop_count)
+                << omnetpp::endl;
+    }
+    EV_INFO << "RouteSet size=" << routing_set_.size() << "\n";
+}
+
+void Olsrv2State::printOlsrv2State() const
+{
+    EV_INFO << "\n\n================ OLSRV2 STATE ================\n";
+    printLinkSet();
+    printNeighborSet();
+    printTopologySet();
+    printRouteSet();
+    EV_INFO << "==============================================\n\n";
+}
+
+} // namespace mysrc::olsrv2
