@@ -1,5 +1,5 @@
 //
-// Generated file, do not edit! Created by opp_msgtool 6.2 from mysrc/olsrv2/message/OLSRv2Packet.msg.
+// Generated file, do not edit! Created by opp_msgtool 6.2 from ../src/nhdp/../../message/OLSRv2Packet.msg.
 //
 
 #ifndef __INET_OLSRV2PACKET_M_H
@@ -22,7 +22,6 @@ namespace inet {
 class Olsrv2ControlPacket;
 class Olsrv2HelloPacket;
 class Olsrv2TcGroup;
-class Olsrv2PacketHolderMessage;
 
 }  // namespace inet
 
@@ -30,15 +29,13 @@ class Olsrv2PacketHolderMessage;
 
 #include "inet/common/packet/chunk/Chunk_m.h" // import inet.common.packet.chunk.Chunk
 
-#include "inet/common/packet/Packet_m.h" // import inet.common.packet.Packet
-
 #include "inet/networklayer/common/L3Address_m.h" // import inet.networklayer.common.L3Address
 
 
 namespace inet {
 
 /**
- * Enum generated from <tt>mysrc/olsrv2/message/OLSRv2Packet.msg:24</tt> by opp_msgtool.
+ * Enum generated from <tt>../src/nhdp/../../message/OLSRv2Packet.msg:23</tt> by opp_msgtool.
  * <pre>
  * enum Olsrv2PktType
  * {
@@ -56,7 +53,7 @@ inline void doParsimPacking(omnetpp::cCommBuffer *b, const Olsrv2PktType& e) { b
 inline void doParsimUnpacking(omnetpp::cCommBuffer *b, Olsrv2PktType& e) { int n; b->unpack(n); e = static_cast<Olsrv2PktType>(n); }
 
 /**
- * Class generated from <tt>mysrc/olsrv2/message/OLSRv2Packet.msg:31</tt> by opp_msgtool.
+ * Class generated from <tt>../src/nhdp/../../message/OLSRv2Packet.msg:30</tt> by opp_msgtool.
  * <pre>
  * // Base type for OLSRv2 control messages
  * class Olsrv2ControlPacket extends FieldsChunk
@@ -93,13 +90,14 @@ inline void doParsimPacking(omnetpp::cCommBuffer *b, const Olsrv2ControlPacket& 
 inline void doParsimUnpacking(omnetpp::cCommBuffer *b, Olsrv2ControlPacket& obj) {obj.parsimUnpack(b);}
 
 /**
- * Class generated from <tt>mysrc/olsrv2/message/OLSRv2Packet.msg:37</tt> by opp_msgtool.
+ * Class generated from <tt>../src/nhdp/../../message/OLSRv2Packet.msg:36</tt> by opp_msgtool.
  * <pre>
  * // OLSRv2 HELLO message (flattened representation)
  * class Olsrv2HelloPacket extends Olsrv2ControlPacket
  * {
  *     L3Address originator;      // Originator/main address
  *     simtime_t hTime;           // HELLO interval
+ *     simtime_t validityTime;    // RFC 7181 VALIDITY_TIME
  *     uint8 willingness;         // RFC 7181 willingness
  *     uint16 msgSeq;             // Message sequence number
  * 
@@ -116,6 +114,7 @@ class Olsrv2HelloPacket : public ::inet::Olsrv2ControlPacket
   protected:
     L3Address originator;
     ::omnetpp::simtime_t hTime = SIMTIME_ZERO;
+    ::omnetpp::simtime_t validityTime = SIMTIME_ZERO;
     uint8_t willingness = 0;
     uint16_t msgSeq = 0;
     uint8_t *linkStatus = nullptr;
@@ -148,6 +147,9 @@ class Olsrv2HelloPacket : public ::inet::Olsrv2ControlPacket
 
     virtual ::omnetpp::simtime_t getHTime() const;
     virtual void setHTime(::omnetpp::simtime_t hTime);
+
+    virtual ::omnetpp::simtime_t getValidityTime() const;
+    virtual void setValidityTime(::omnetpp::simtime_t validityTime);
 
     virtual uint8_t getWillingness() const;
     virtual void setWillingness(uint8_t willingness);
@@ -197,12 +199,13 @@ inline void doParsimPacking(omnetpp::cCommBuffer *b, const Olsrv2HelloPacket& ob
 inline void doParsimUnpacking(omnetpp::cCommBuffer *b, Olsrv2HelloPacket& obj) {obj.parsimUnpack(b);}
 
 /**
- * Class generated from <tt>mysrc/olsrv2/message/OLSRv2Packet.msg:52</tt> by opp_msgtool.
+ * Class generated from <tt>../src/nhdp/../../message/OLSRv2Packet.msg:52</tt> by opp_msgtool.
  * <pre>
  * // OLSRv2 TC group message (flattened representation)
  * class Olsrv2TcGroup extends Olsrv2ControlPacket
  * {
  *     simtime_t genTime;         // Generation time
+ *     simtime_t validityTime;    // RFC 7181 VALIDITY_TIME
  * 
  *     // Per-originator TC metadata
  *     L3Address originators[];   // Originator addresses
@@ -220,6 +223,7 @@ class Olsrv2TcGroup : public ::inet::Olsrv2ControlPacket
 {
   protected:
     ::omnetpp::simtime_t genTime = SIMTIME_ZERO;
+    ::omnetpp::simtime_t validityTime = SIMTIME_ZERO;
     L3Address *originators = nullptr;
     size_t originators_arraysize = 0;
     uint16_t *ansns = nullptr;
@@ -250,6 +254,9 @@ class Olsrv2TcGroup : public ::inet::Olsrv2ControlPacket
 
     virtual ::omnetpp::simtime_t getGenTime() const;
     virtual void setGenTime(::omnetpp::simtime_t genTime);
+
+    virtual ::omnetpp::simtime_t getValidityTime() const;
+    virtual void setValidityTime(::omnetpp::simtime_t validityTime);
 
     virtual void setOriginatorsArraySize(size_t size);
     virtual size_t getOriginatorsArraySize() const;
@@ -311,45 +318,6 @@ class Olsrv2TcGroup : public ::inet::Olsrv2ControlPacket
 inline void doParsimPacking(omnetpp::cCommBuffer *b, const Olsrv2TcGroup& obj) {obj.parsimPack(b);}
 inline void doParsimUnpacking(omnetpp::cCommBuffer *b, Olsrv2TcGroup& obj) {obj.parsimUnpack(b);}
 
-/**
- * Class generated from <tt>mysrc/olsrv2/message/OLSRv2Packet.msg:67</tt> by opp_msgtool.
- * <pre>
- * message Olsrv2PacketHolderMessage
- * {
- *     Packet *ownedPacket \@owned;
- * }
- * </pre>
- */
-class Olsrv2PacketHolderMessage : public ::omnetpp::cMessage
-{
-  protected:
-    Packet * ownedPacket = nullptr;
-
-  private:
-    void copy(const Olsrv2PacketHolderMessage& other);
-
-  protected:
-    bool operator==(const Olsrv2PacketHolderMessage&) = delete;
-
-  public:
-    Olsrv2PacketHolderMessage(const char *name=nullptr, short kind=0);
-    Olsrv2PacketHolderMessage(const Olsrv2PacketHolderMessage& other);
-    virtual ~Olsrv2PacketHolderMessage();
-    Olsrv2PacketHolderMessage& operator=(const Olsrv2PacketHolderMessage& other);
-    virtual Olsrv2PacketHolderMessage *dup() const override {return new Olsrv2PacketHolderMessage(*this);}
-    virtual void parsimPack(omnetpp::cCommBuffer *b) const override;
-    virtual void parsimUnpack(omnetpp::cCommBuffer *b) override;
-
-    virtual const Packet * getOwnedPacket() const;
-    virtual Packet * getOwnedPacketForUpdate() { return const_cast<Packet *>(const_cast<Olsrv2PacketHolderMessage*>(this)->getOwnedPacket());}
-    virtual void setOwnedPacket(Packet * ownedPacket);
-    virtual Packet * removeOwnedPacket();
-    [[deprecated]] Packet * dropOwnedPacket() {return removeOwnedPacket();}
-};
-
-inline void doParsimPacking(omnetpp::cCommBuffer *b, const Olsrv2PacketHolderMessage& obj) {obj.parsimPack(b);}
-inline void doParsimUnpacking(omnetpp::cCommBuffer *b, Olsrv2PacketHolderMessage& obj) {obj.parsimUnpack(b);}
-
 
 }  // namespace inet
 
@@ -359,7 +327,6 @@ namespace omnetpp {
 template<> inline inet::Olsrv2ControlPacket *fromAnyPtr(any_ptr ptr) { return check_and_cast<inet::Olsrv2ControlPacket*>(ptr.get<cObject>()); }
 template<> inline inet::Olsrv2HelloPacket *fromAnyPtr(any_ptr ptr) { return check_and_cast<inet::Olsrv2HelloPacket*>(ptr.get<cObject>()); }
 template<> inline inet::Olsrv2TcGroup *fromAnyPtr(any_ptr ptr) { return check_and_cast<inet::Olsrv2TcGroup*>(ptr.get<cObject>()); }
-template<> inline inet::Olsrv2PacketHolderMessage *fromAnyPtr(any_ptr ptr) { return check_and_cast<inet::Olsrv2PacketHolderMessage*>(ptr.get<cObject>()); }
 
 }  // namespace omnetpp
 

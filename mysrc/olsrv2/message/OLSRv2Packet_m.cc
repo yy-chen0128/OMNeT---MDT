@@ -1,5 +1,5 @@
 //
-// Generated file, do not edit! Created by opp_msgtool 6.2 from mysrc/olsrv2/message/OLSRv2Packet.msg.
+// Generated file, do not edit! Created by opp_msgtool 6.2 from ../src/nhdp/../../message/OLSRv2Packet.msg.
 //
 
 // Disable warnings about unused variables, empty switch stmts, etc:
@@ -543,6 +543,7 @@ void Olsrv2HelloPacket::copy(const Olsrv2HelloPacket& other)
 {
     this->originator = other.originator;
     this->hTime = other.hTime;
+    this->validityTime = other.validityTime;
     this->willingness = other.willingness;
     this->msgSeq = other.msgSeq;
     delete [] this->linkStatus;
@@ -576,6 +577,7 @@ void Olsrv2HelloPacket::parsimPack(omnetpp::cCommBuffer *b) const
     ::inet::Olsrv2ControlPacket::parsimPack(b);
     doParsimPacking(b,this->originator);
     doParsimPacking(b,this->hTime);
+    doParsimPacking(b,this->validityTime);
     doParsimPacking(b,this->willingness);
     doParsimPacking(b,this->msgSeq);
     b->pack(linkStatus_arraysize);
@@ -593,6 +595,7 @@ void Olsrv2HelloPacket::parsimUnpack(omnetpp::cCommBuffer *b)
     ::inet::Olsrv2ControlPacket::parsimUnpack(b);
     doParsimUnpacking(b,this->originator);
     doParsimUnpacking(b,this->hTime);
+    doParsimUnpacking(b,this->validityTime);
     doParsimUnpacking(b,this->willingness);
     doParsimUnpacking(b,this->msgSeq);
     delete [] this->linkStatus;
@@ -649,6 +652,17 @@ void Olsrv2HelloPacket::setHTime(::omnetpp::simtime_t hTime)
 {
     handleChange();
     this->hTime = hTime;
+}
+
+::omnetpp::simtime_t Olsrv2HelloPacket::getValidityTime() const
+{
+    return this->validityTime;
+}
+
+void Olsrv2HelloPacket::setValidityTime(::omnetpp::simtime_t validityTime)
+{
+    handleChange();
+    this->validityTime = validityTime;
 }
 
 uint8_t Olsrv2HelloPacket::getWillingness() const
@@ -958,6 +972,7 @@ class Olsrv2HelloPacketDescriptor : public omnetpp::cClassDescriptor
     enum FieldConstants {
         FIELD_originator,
         FIELD_hTime,
+        FIELD_validityTime,
         FIELD_willingness,
         FIELD_msgSeq,
         FIELD_linkStatus,
@@ -1030,7 +1045,7 @@ const char *Olsrv2HelloPacketDescriptor::getProperty(const char *propertyName) c
 int Olsrv2HelloPacketDescriptor::getFieldCount() const
 {
     omnetpp::cClassDescriptor *base = getBaseClassDescriptor();
-    return base ? 8+base->getFieldCount() : 8;
+    return base ? 9+base->getFieldCount() : 9;
 }
 
 unsigned int Olsrv2HelloPacketDescriptor::getFieldTypeFlags(int field) const
@@ -1044,6 +1059,7 @@ unsigned int Olsrv2HelloPacketDescriptor::getFieldTypeFlags(int field) const
     static unsigned int fieldTypeFlags[] = {
         0,    // FIELD_originator
         FD_ISEDITABLE,    // FIELD_hTime
+        FD_ISEDITABLE,    // FIELD_validityTime
         FD_ISEDITABLE,    // FIELD_willingness
         FD_ISEDITABLE,    // FIELD_msgSeq
         FD_ISARRAY | FD_ISEDITABLE | FD_ISRESIZABLE,    // FIELD_linkStatus
@@ -1051,7 +1067,7 @@ unsigned int Olsrv2HelloPacketDescriptor::getFieldTypeFlags(int field) const
         FD_ISARRAY | FD_ISEDITABLE | FD_ISRESIZABLE,    // FIELD_addrCounts
         FD_ISARRAY | FD_ISRESIZABLE,    // FIELD_neighAddrs
     };
-    return (field >= 0 && field < 8) ? fieldTypeFlags[field] : 0;
+    return (field >= 0 && field < 9) ? fieldTypeFlags[field] : 0;
 }
 
 const char *Olsrv2HelloPacketDescriptor::getFieldName(int field) const
@@ -1065,6 +1081,7 @@ const char *Olsrv2HelloPacketDescriptor::getFieldName(int field) const
     static const char *fieldNames[] = {
         "originator",
         "hTime",
+        "validityTime",
         "willingness",
         "msgSeq",
         "linkStatus",
@@ -1072,7 +1089,7 @@ const char *Olsrv2HelloPacketDescriptor::getFieldName(int field) const
         "addrCounts",
         "neighAddrs",
     };
-    return (field >= 0 && field < 8) ? fieldNames[field] : nullptr;
+    return (field >= 0 && field < 9) ? fieldNames[field] : nullptr;
 }
 
 int Olsrv2HelloPacketDescriptor::findField(const char *fieldName) const
@@ -1081,12 +1098,13 @@ int Olsrv2HelloPacketDescriptor::findField(const char *fieldName) const
     int baseIndex = base ? base->getFieldCount() : 0;
     if (strcmp(fieldName, "originator") == 0) return baseIndex + 0;
     if (strcmp(fieldName, "hTime") == 0) return baseIndex + 1;
-    if (strcmp(fieldName, "willingness") == 0) return baseIndex + 2;
-    if (strcmp(fieldName, "msgSeq") == 0) return baseIndex + 3;
-    if (strcmp(fieldName, "linkStatus") == 0) return baseIndex + 4;
-    if (strcmp(fieldName, "neighStatus") == 0) return baseIndex + 5;
-    if (strcmp(fieldName, "addrCounts") == 0) return baseIndex + 6;
-    if (strcmp(fieldName, "neighAddrs") == 0) return baseIndex + 7;
+    if (strcmp(fieldName, "validityTime") == 0) return baseIndex + 2;
+    if (strcmp(fieldName, "willingness") == 0) return baseIndex + 3;
+    if (strcmp(fieldName, "msgSeq") == 0) return baseIndex + 4;
+    if (strcmp(fieldName, "linkStatus") == 0) return baseIndex + 5;
+    if (strcmp(fieldName, "neighStatus") == 0) return baseIndex + 6;
+    if (strcmp(fieldName, "addrCounts") == 0) return baseIndex + 7;
+    if (strcmp(fieldName, "neighAddrs") == 0) return baseIndex + 8;
     return base ? base->findField(fieldName) : -1;
 }
 
@@ -1101,6 +1119,7 @@ const char *Olsrv2HelloPacketDescriptor::getFieldTypeString(int field) const
     static const char *fieldTypeStrings[] = {
         "inet::L3Address",    // FIELD_originator
         "omnetpp::simtime_t",    // FIELD_hTime
+        "omnetpp::simtime_t",    // FIELD_validityTime
         "uint8",    // FIELD_willingness
         "uint16",    // FIELD_msgSeq
         "uint8",    // FIELD_linkStatus
@@ -1108,7 +1127,7 @@ const char *Olsrv2HelloPacketDescriptor::getFieldTypeString(int field) const
         "int",    // FIELD_addrCounts
         "inet::L3Address",    // FIELD_neighAddrs
     };
-    return (field >= 0 && field < 8) ? fieldTypeStrings[field] : nullptr;
+    return (field >= 0 && field < 9) ? fieldTypeStrings[field] : nullptr;
 }
 
 const char **Olsrv2HelloPacketDescriptor::getFieldPropertyNames(int field) const
@@ -1201,6 +1220,7 @@ std::string Olsrv2HelloPacketDescriptor::getFieldValueAsString(omnetpp::any_ptr 
     switch (field) {
         case FIELD_originator: return pp->getOriginator().str();
         case FIELD_hTime: return simtime2string(pp->getHTime());
+        case FIELD_validityTime: return simtime2string(pp->getValidityTime());
         case FIELD_willingness: return ulong2string(pp->getWillingness());
         case FIELD_msgSeq: return ulong2string(pp->getMsgSeq());
         case FIELD_linkStatus: return ulong2string(pp->getLinkStatus(i));
@@ -1224,6 +1244,7 @@ void Olsrv2HelloPacketDescriptor::setFieldValueAsString(omnetpp::any_ptr object,
     Olsrv2HelloPacket *pp = omnetpp::fromAnyPtr<Olsrv2HelloPacket>(object); (void)pp;
     switch (field) {
         case FIELD_hTime: pp->setHTime(string2simtime(value)); break;
+        case FIELD_validityTime: pp->setValidityTime(string2simtime(value)); break;
         case FIELD_willingness: pp->setWillingness(string2ulong(value)); break;
         case FIELD_msgSeq: pp->setMsgSeq(string2ulong(value)); break;
         case FIELD_linkStatus: pp->setLinkStatus(i,string2ulong(value)); break;
@@ -1245,6 +1266,7 @@ omnetpp::cValue Olsrv2HelloPacketDescriptor::getFieldValue(omnetpp::any_ptr obje
     switch (field) {
         case FIELD_originator: return omnetpp::toAnyPtr(&pp->getOriginator()); break;
         case FIELD_hTime: return pp->getHTime().dbl();
+        case FIELD_validityTime: return pp->getValidityTime().dbl();
         case FIELD_willingness: return (omnetpp::intval_t)(pp->getWillingness());
         case FIELD_msgSeq: return (omnetpp::intval_t)(pp->getMsgSeq());
         case FIELD_linkStatus: return (omnetpp::intval_t)(pp->getLinkStatus(i));
@@ -1268,6 +1290,7 @@ void Olsrv2HelloPacketDescriptor::setFieldValue(omnetpp::any_ptr object, int fie
     Olsrv2HelloPacket *pp = omnetpp::fromAnyPtr<Olsrv2HelloPacket>(object); (void)pp;
     switch (field) {
         case FIELD_hTime: pp->setHTime(value.doubleValue()); break;
+        case FIELD_validityTime: pp->setValidityTime(value.doubleValue()); break;
         case FIELD_willingness: pp->setWillingness(omnetpp::checked_int_cast<uint8_t>(value.intValue())); break;
         case FIELD_msgSeq: pp->setMsgSeq(omnetpp::checked_int_cast<uint16_t>(value.intValue())); break;
         case FIELD_linkStatus: pp->setLinkStatus(i,omnetpp::checked_int_cast<uint8_t>(value.intValue())); break;
@@ -1354,6 +1377,7 @@ Olsrv2TcGroup& Olsrv2TcGroup::operator=(const Olsrv2TcGroup& other)
 void Olsrv2TcGroup::copy(const Olsrv2TcGroup& other)
 {
     this->genTime = other.genTime;
+    this->validityTime = other.validityTime;
     delete [] this->originators;
     this->originators = (other.originators_arraysize==0) ? nullptr : new L3Address[other.originators_arraysize];
     originators_arraysize = other.originators_arraysize;
@@ -1396,6 +1420,7 @@ void Olsrv2TcGroup::parsimPack(omnetpp::cCommBuffer *b) const
 {
     ::inet::Olsrv2ControlPacket::parsimPack(b);
     doParsimPacking(b,this->genTime);
+    doParsimPacking(b,this->validityTime);
     b->pack(originators_arraysize);
     doParsimArrayPacking(b,this->originators,originators_arraysize);
     b->pack(ansns_arraysize);
@@ -1414,6 +1439,7 @@ void Olsrv2TcGroup::parsimUnpack(omnetpp::cCommBuffer *b)
 {
     ::inet::Olsrv2ControlPacket::parsimUnpack(b);
     doParsimUnpacking(b,this->genTime);
+    doParsimUnpacking(b,this->validityTime);
     delete [] this->originators;
     b->unpack(originators_arraysize);
     if (originators_arraysize == 0) {
@@ -1473,6 +1499,17 @@ void Olsrv2TcGroup::setGenTime(::omnetpp::simtime_t genTime)
 {
     handleChange();
     this->genTime = genTime;
+}
+
+::omnetpp::simtime_t Olsrv2TcGroup::getValidityTime() const
+{
+    return this->validityTime;
+}
+
+void Olsrv2TcGroup::setValidityTime(::omnetpp::simtime_t validityTime)
+{
+    handleChange();
+    this->validityTime = validityTime;
 }
 
 size_t Olsrv2TcGroup::getOriginatorsArraySize() const
@@ -1897,6 +1934,7 @@ class Olsrv2TcGroupDescriptor : public omnetpp::cClassDescriptor
     mutable const char **propertyNames;
     enum FieldConstants {
         FIELD_genTime,
+        FIELD_validityTime,
         FIELD_originators,
         FIELD_ansns,
         FIELD_seqNums,
@@ -1969,7 +2007,7 @@ const char *Olsrv2TcGroupDescriptor::getProperty(const char *propertyName) const
 int Olsrv2TcGroupDescriptor::getFieldCount() const
 {
     omnetpp::cClassDescriptor *base = getBaseClassDescriptor();
-    return base ? 7+base->getFieldCount() : 7;
+    return base ? 8+base->getFieldCount() : 8;
 }
 
 unsigned int Olsrv2TcGroupDescriptor::getFieldTypeFlags(int field) const
@@ -1982,6 +2020,7 @@ unsigned int Olsrv2TcGroupDescriptor::getFieldTypeFlags(int field) const
     }
     static unsigned int fieldTypeFlags[] = {
         FD_ISEDITABLE,    // FIELD_genTime
+        FD_ISEDITABLE,    // FIELD_validityTime
         FD_ISARRAY | FD_ISRESIZABLE,    // FIELD_originators
         FD_ISARRAY | FD_ISEDITABLE | FD_ISRESIZABLE,    // FIELD_ansns
         FD_ISARRAY | FD_ISEDITABLE | FD_ISRESIZABLE,    // FIELD_seqNums
@@ -1989,7 +2028,7 @@ unsigned int Olsrv2TcGroupDescriptor::getFieldTypeFlags(int field) const
         FD_ISARRAY | FD_ISEDITABLE | FD_ISRESIZABLE,    // FIELD_advCounts
         FD_ISARRAY | FD_ISRESIZABLE,    // FIELD_advertisedNeighbors
     };
-    return (field >= 0 && field < 7) ? fieldTypeFlags[field] : 0;
+    return (field >= 0 && field < 8) ? fieldTypeFlags[field] : 0;
 }
 
 const char *Olsrv2TcGroupDescriptor::getFieldName(int field) const
@@ -2002,6 +2041,7 @@ const char *Olsrv2TcGroupDescriptor::getFieldName(int field) const
     }
     static const char *fieldNames[] = {
         "genTime",
+        "validityTime",
         "originators",
         "ansns",
         "seqNums",
@@ -2009,7 +2049,7 @@ const char *Olsrv2TcGroupDescriptor::getFieldName(int field) const
         "advCounts",
         "advertisedNeighbors",
     };
-    return (field >= 0 && field < 7) ? fieldNames[field] : nullptr;
+    return (field >= 0 && field < 8) ? fieldNames[field] : nullptr;
 }
 
 int Olsrv2TcGroupDescriptor::findField(const char *fieldName) const
@@ -2017,12 +2057,13 @@ int Olsrv2TcGroupDescriptor::findField(const char *fieldName) const
     omnetpp::cClassDescriptor *base = getBaseClassDescriptor();
     int baseIndex = base ? base->getFieldCount() : 0;
     if (strcmp(fieldName, "genTime") == 0) return baseIndex + 0;
-    if (strcmp(fieldName, "originators") == 0) return baseIndex + 1;
-    if (strcmp(fieldName, "ansns") == 0) return baseIndex + 2;
-    if (strcmp(fieldName, "seqNums") == 0) return baseIndex + 3;
-    if (strcmp(fieldName, "hopCounts") == 0) return baseIndex + 4;
-    if (strcmp(fieldName, "advCounts") == 0) return baseIndex + 5;
-    if (strcmp(fieldName, "advertisedNeighbors") == 0) return baseIndex + 6;
+    if (strcmp(fieldName, "validityTime") == 0) return baseIndex + 1;
+    if (strcmp(fieldName, "originators") == 0) return baseIndex + 2;
+    if (strcmp(fieldName, "ansns") == 0) return baseIndex + 3;
+    if (strcmp(fieldName, "seqNums") == 0) return baseIndex + 4;
+    if (strcmp(fieldName, "hopCounts") == 0) return baseIndex + 5;
+    if (strcmp(fieldName, "advCounts") == 0) return baseIndex + 6;
+    if (strcmp(fieldName, "advertisedNeighbors") == 0) return baseIndex + 7;
     return base ? base->findField(fieldName) : -1;
 }
 
@@ -2036,6 +2077,7 @@ const char *Olsrv2TcGroupDescriptor::getFieldTypeString(int field) const
     }
     static const char *fieldTypeStrings[] = {
         "omnetpp::simtime_t",    // FIELD_genTime
+        "omnetpp::simtime_t",    // FIELD_validityTime
         "inet::L3Address",    // FIELD_originators
         "uint16",    // FIELD_ansns
         "uint16",    // FIELD_seqNums
@@ -2043,7 +2085,7 @@ const char *Olsrv2TcGroupDescriptor::getFieldTypeString(int field) const
         "int",    // FIELD_advCounts
         "inet::L3Address",    // FIELD_advertisedNeighbors
     };
-    return (field >= 0 && field < 7) ? fieldTypeStrings[field] : nullptr;
+    return (field >= 0 && field < 8) ? fieldTypeStrings[field] : nullptr;
 }
 
 const char **Olsrv2TcGroupDescriptor::getFieldPropertyNames(int field) const
@@ -2139,6 +2181,7 @@ std::string Olsrv2TcGroupDescriptor::getFieldValueAsString(omnetpp::any_ptr obje
     Olsrv2TcGroup *pp = omnetpp::fromAnyPtr<Olsrv2TcGroup>(object); (void)pp;
     switch (field) {
         case FIELD_genTime: return simtime2string(pp->getGenTime());
+        case FIELD_validityTime: return simtime2string(pp->getValidityTime());
         case FIELD_originators: return pp->getOriginators(i).str();
         case FIELD_ansns: return ulong2string(pp->getAnsns(i));
         case FIELD_seqNums: return ulong2string(pp->getSeqNums(i));
@@ -2162,6 +2205,7 @@ void Olsrv2TcGroupDescriptor::setFieldValueAsString(omnetpp::any_ptr object, int
     Olsrv2TcGroup *pp = omnetpp::fromAnyPtr<Olsrv2TcGroup>(object); (void)pp;
     switch (field) {
         case FIELD_genTime: pp->setGenTime(string2simtime(value)); break;
+        case FIELD_validityTime: pp->setValidityTime(string2simtime(value)); break;
         case FIELD_ansns: pp->setAnsns(i,string2ulong(value)); break;
         case FIELD_seqNums: pp->setSeqNums(i,string2ulong(value)); break;
         case FIELD_hopCounts: pp->setHopCounts(i,string2ulong(value)); break;
@@ -2181,6 +2225,7 @@ omnetpp::cValue Olsrv2TcGroupDescriptor::getFieldValue(omnetpp::any_ptr object, 
     Olsrv2TcGroup *pp = omnetpp::fromAnyPtr<Olsrv2TcGroup>(object); (void)pp;
     switch (field) {
         case FIELD_genTime: return pp->getGenTime().dbl();
+        case FIELD_validityTime: return pp->getValidityTime().dbl();
         case FIELD_originators: return omnetpp::toAnyPtr(&pp->getOriginators(i)); break;
         case FIELD_ansns: return (omnetpp::intval_t)(pp->getAnsns(i));
         case FIELD_seqNums: return (omnetpp::intval_t)(pp->getSeqNums(i));
@@ -2204,6 +2249,7 @@ void Olsrv2TcGroupDescriptor::setFieldValue(omnetpp::any_ptr object, int field, 
     Olsrv2TcGroup *pp = omnetpp::fromAnyPtr<Olsrv2TcGroup>(object); (void)pp;
     switch (field) {
         case FIELD_genTime: pp->setGenTime(value.doubleValue()); break;
+        case FIELD_validityTime: pp->setValidityTime(value.doubleValue()); break;
         case FIELD_ansns: pp->setAnsns(i,omnetpp::checked_int_cast<uint16_t>(value.intValue())); break;
         case FIELD_seqNums: pp->setSeqNums(i,omnetpp::checked_int_cast<uint16_t>(value.intValue())); break;
         case FIELD_hopCounts: pp->setHopCounts(i,omnetpp::checked_int_cast<uint8_t>(value.intValue())); break;
@@ -2254,386 +2300,6 @@ void Olsrv2TcGroupDescriptor::setFieldStructValuePointer(omnetpp::any_ptr object
     Olsrv2TcGroup *pp = omnetpp::fromAnyPtr<Olsrv2TcGroup>(object); (void)pp;
     switch (field) {
         default: throw omnetpp::cRuntimeError("Cannot set field %d of class 'Olsrv2TcGroup'", field);
-    }
-}
-
-Register_Class(Olsrv2PacketHolderMessage)
-
-Olsrv2PacketHolderMessage::Olsrv2PacketHolderMessage(const char *name, short kind) : ::omnetpp::cMessage(name, kind)
-{
-    if (this->ownedPacket != nullptr) take(this->ownedPacket);
-}
-
-Olsrv2PacketHolderMessage::Olsrv2PacketHolderMessage(const Olsrv2PacketHolderMessage& other) : ::omnetpp::cMessage(other)
-{
-    copy(other);
-}
-
-Olsrv2PacketHolderMessage::~Olsrv2PacketHolderMessage()
-{
-    dropAndDelete(this->ownedPacket);
-}
-
-Olsrv2PacketHolderMessage& Olsrv2PacketHolderMessage::operator=(const Olsrv2PacketHolderMessage& other)
-{
-    if (this == &other) return *this;
-    ::omnetpp::cMessage::operator=(other);
-    copy(other);
-    return *this;
-}
-
-void Olsrv2PacketHolderMessage::copy(const Olsrv2PacketHolderMessage& other)
-{
-    dropAndDelete(this->ownedPacket);
-    this->ownedPacket = other.ownedPacket;
-    if (this->ownedPacket != nullptr) {
-        this->ownedPacket = this->ownedPacket->dup();
-        take(this->ownedPacket);
-        this->ownedPacket->setName(other.ownedPacket->getName());
-    }
-}
-
-void Olsrv2PacketHolderMessage::parsimPack(omnetpp::cCommBuffer *b) const
-{
-    ::omnetpp::cMessage::parsimPack(b);
-    doParsimPacking(b,this->ownedPacket);
-}
-
-void Olsrv2PacketHolderMessage::parsimUnpack(omnetpp::cCommBuffer *b)
-{
-    ::omnetpp::cMessage::parsimUnpack(b);
-    doParsimUnpacking(b,this->ownedPacket);
-}
-
-const Packet * Olsrv2PacketHolderMessage::getOwnedPacket() const
-{
-    return this->ownedPacket;
-}
-
-void Olsrv2PacketHolderMessage::setOwnedPacket(Packet * ownedPacket)
-{
-    if (this->ownedPacket != nullptr) throw omnetpp::cRuntimeError("setOwnedPacket(): a value is already set, remove it first with removeOwnedPacket()");
-    this->ownedPacket = ownedPacket;
-    if (this->ownedPacket != nullptr) take(this->ownedPacket);
-}
-
-Packet * Olsrv2PacketHolderMessage::removeOwnedPacket()
-{
-    Packet * retval = this->ownedPacket;
-    if (retval != nullptr) drop(retval);
-    this->ownedPacket = nullptr;
-    return retval;
-}
-
-class Olsrv2PacketHolderMessageDescriptor : public omnetpp::cClassDescriptor
-{
-  private:
-    mutable const char **propertyNames;
-    enum FieldConstants {
-        FIELD_ownedPacket,
-    };
-  public:
-    Olsrv2PacketHolderMessageDescriptor();
-    virtual ~Olsrv2PacketHolderMessageDescriptor();
-
-    virtual bool doesSupport(omnetpp::cObject *obj) const override;
-    virtual const char **getPropertyNames() const override;
-    virtual const char *getProperty(const char *propertyName) const override;
-    virtual int getFieldCount() const override;
-    virtual const char *getFieldName(int field) const override;
-    virtual int findField(const char *fieldName) const override;
-    virtual unsigned int getFieldTypeFlags(int field) const override;
-    virtual const char *getFieldTypeString(int field) const override;
-    virtual const char **getFieldPropertyNames(int field) const override;
-    virtual const char *getFieldProperty(int field, const char *propertyName) const override;
-    virtual int getFieldArraySize(omnetpp::any_ptr object, int field) const override;
-    virtual void setFieldArraySize(omnetpp::any_ptr object, int field, int size) const override;
-
-    virtual const char *getFieldDynamicTypeString(omnetpp::any_ptr object, int field, int i) const override;
-    virtual std::string getFieldValueAsString(omnetpp::any_ptr object, int field, int i) const override;
-    virtual void setFieldValueAsString(omnetpp::any_ptr object, int field, int i, const char *value) const override;
-    virtual omnetpp::cValue getFieldValue(omnetpp::any_ptr object, int field, int i) const override;
-    virtual void setFieldValue(omnetpp::any_ptr object, int field, int i, const omnetpp::cValue& value) const override;
-
-    virtual const char *getFieldStructName(int field) const override;
-    virtual omnetpp::any_ptr getFieldStructValuePointer(omnetpp::any_ptr object, int field, int i) const override;
-    virtual void setFieldStructValuePointer(omnetpp::any_ptr object, int field, int i, omnetpp::any_ptr ptr) const override;
-};
-
-Register_ClassDescriptor(Olsrv2PacketHolderMessageDescriptor)
-
-Olsrv2PacketHolderMessageDescriptor::Olsrv2PacketHolderMessageDescriptor() : omnetpp::cClassDescriptor(omnetpp::opp_typename(typeid(inet::Olsrv2PacketHolderMessage)), "omnetpp::cMessage")
-{
-    propertyNames = nullptr;
-}
-
-Olsrv2PacketHolderMessageDescriptor::~Olsrv2PacketHolderMessageDescriptor()
-{
-    delete[] propertyNames;
-}
-
-bool Olsrv2PacketHolderMessageDescriptor::doesSupport(omnetpp::cObject *obj) const
-{
-    return dynamic_cast<Olsrv2PacketHolderMessage *>(obj)!=nullptr;
-}
-
-const char **Olsrv2PacketHolderMessageDescriptor::getPropertyNames() const
-{
-    if (!propertyNames) {
-        static const char *names[] = {  nullptr };
-        omnetpp::cClassDescriptor *base = getBaseClassDescriptor();
-        const char **baseNames = base ? base->getPropertyNames() : nullptr;
-        propertyNames = mergeLists(baseNames, names);
-    }
-    return propertyNames;
-}
-
-const char *Olsrv2PacketHolderMessageDescriptor::getProperty(const char *propertyName) const
-{
-    omnetpp::cClassDescriptor *base = getBaseClassDescriptor();
-    return base ? base->getProperty(propertyName) : nullptr;
-}
-
-int Olsrv2PacketHolderMessageDescriptor::getFieldCount() const
-{
-    omnetpp::cClassDescriptor *base = getBaseClassDescriptor();
-    return base ? 1+base->getFieldCount() : 1;
-}
-
-unsigned int Olsrv2PacketHolderMessageDescriptor::getFieldTypeFlags(int field) const
-{
-    omnetpp::cClassDescriptor *base = getBaseClassDescriptor();
-    if (base) {
-        if (field < base->getFieldCount())
-            return base->getFieldTypeFlags(field);
-        field -= base->getFieldCount();
-    }
-    static unsigned int fieldTypeFlags[] = {
-        FD_ISCOMPOUND | FD_ISPOINTER | FD_ISCOBJECT | FD_ISCOWNEDOBJECT | FD_ISREPLACEABLE,    // FIELD_ownedPacket
-    };
-    return (field >= 0 && field < 1) ? fieldTypeFlags[field] : 0;
-}
-
-const char *Olsrv2PacketHolderMessageDescriptor::getFieldName(int field) const
-{
-    omnetpp::cClassDescriptor *base = getBaseClassDescriptor();
-    if (base) {
-        if (field < base->getFieldCount())
-            return base->getFieldName(field);
-        field -= base->getFieldCount();
-    }
-    static const char *fieldNames[] = {
-        "ownedPacket",
-    };
-    return (field >= 0 && field < 1) ? fieldNames[field] : nullptr;
-}
-
-int Olsrv2PacketHolderMessageDescriptor::findField(const char *fieldName) const
-{
-    omnetpp::cClassDescriptor *base = getBaseClassDescriptor();
-    int baseIndex = base ? base->getFieldCount() : 0;
-    if (strcmp(fieldName, "ownedPacket") == 0) return baseIndex + 0;
-    return base ? base->findField(fieldName) : -1;
-}
-
-const char *Olsrv2PacketHolderMessageDescriptor::getFieldTypeString(int field) const
-{
-    omnetpp::cClassDescriptor *base = getBaseClassDescriptor();
-    if (base) {
-        if (field < base->getFieldCount())
-            return base->getFieldTypeString(field);
-        field -= base->getFieldCount();
-    }
-    static const char *fieldTypeStrings[] = {
-        "inet::Packet",    // FIELD_ownedPacket
-    };
-    return (field >= 0 && field < 1) ? fieldTypeStrings[field] : nullptr;
-}
-
-const char **Olsrv2PacketHolderMessageDescriptor::getFieldPropertyNames(int field) const
-{
-    omnetpp::cClassDescriptor *base = getBaseClassDescriptor();
-    if (base) {
-        if (field < base->getFieldCount())
-            return base->getFieldPropertyNames(field);
-        field -= base->getFieldCount();
-    }
-    switch (field) {
-        case FIELD_ownedPacket: {
-            static const char *names[] = { "owned",  nullptr };
-            return names;
-        }
-        default: return nullptr;
-    }
-}
-
-const char *Olsrv2PacketHolderMessageDescriptor::getFieldProperty(int field, const char *propertyName) const
-{
-    omnetpp::cClassDescriptor *base = getBaseClassDescriptor();
-    if (base) {
-        if (field < base->getFieldCount())
-            return base->getFieldProperty(field, propertyName);
-        field -= base->getFieldCount();
-    }
-    switch (field) {
-        case FIELD_ownedPacket:
-            if (!strcmp(propertyName, "owned")) return "";
-            return nullptr;
-        default: return nullptr;
-    }
-}
-
-int Olsrv2PacketHolderMessageDescriptor::getFieldArraySize(omnetpp::any_ptr object, int field) const
-{
-    omnetpp::cClassDescriptor *base = getBaseClassDescriptor();
-    if (base) {
-        if (field < base->getFieldCount())
-            return base->getFieldArraySize(object, field);
-        field -= base->getFieldCount();
-    }
-    Olsrv2PacketHolderMessage *pp = omnetpp::fromAnyPtr<Olsrv2PacketHolderMessage>(object); (void)pp;
-    switch (field) {
-        default: return 0;
-    }
-}
-
-void Olsrv2PacketHolderMessageDescriptor::setFieldArraySize(omnetpp::any_ptr object, int field, int size) const
-{
-    omnetpp::cClassDescriptor *base = getBaseClassDescriptor();
-    if (base) {
-        if (field < base->getFieldCount()){
-            base->setFieldArraySize(object, field, size);
-            return;
-        }
-        field -= base->getFieldCount();
-    }
-    Olsrv2PacketHolderMessage *pp = omnetpp::fromAnyPtr<Olsrv2PacketHolderMessage>(object); (void)pp;
-    switch (field) {
-        default: throw omnetpp::cRuntimeError("Cannot set array size of field %d of class 'Olsrv2PacketHolderMessage'", field);
-    }
-}
-
-const char *Olsrv2PacketHolderMessageDescriptor::getFieldDynamicTypeString(omnetpp::any_ptr object, int field, int i) const
-{
-    omnetpp::cClassDescriptor *base = getBaseClassDescriptor();
-    if (base) {
-        if (field < base->getFieldCount())
-            return base->getFieldDynamicTypeString(object,field,i);
-        field -= base->getFieldCount();
-    }
-    Olsrv2PacketHolderMessage *pp = omnetpp::fromAnyPtr<Olsrv2PacketHolderMessage>(object); (void)pp;
-    switch (field) {
-        case FIELD_ownedPacket: { const Packet * value = pp->getOwnedPacket(); return omnetpp::opp_typename(typeid(*value)); }
-        default: return nullptr;
-    }
-}
-
-std::string Olsrv2PacketHolderMessageDescriptor::getFieldValueAsString(omnetpp::any_ptr object, int field, int i) const
-{
-    omnetpp::cClassDescriptor *base = getBaseClassDescriptor();
-    if (base) {
-        if (field < base->getFieldCount())
-            return base->getFieldValueAsString(object,field,i);
-        field -= base->getFieldCount();
-    }
-    Olsrv2PacketHolderMessage *pp = omnetpp::fromAnyPtr<Olsrv2PacketHolderMessage>(object); (void)pp;
-    switch (field) {
-        case FIELD_ownedPacket: { auto obj = pp->getOwnedPacket(); return obj == nullptr ? "" : obj->str(); }
-        default: return "";
-    }
-}
-
-void Olsrv2PacketHolderMessageDescriptor::setFieldValueAsString(omnetpp::any_ptr object, int field, int i, const char *value) const
-{
-    omnetpp::cClassDescriptor *base = getBaseClassDescriptor();
-    if (base) {
-        if (field < base->getFieldCount()){
-            base->setFieldValueAsString(object, field, i, value);
-            return;
-        }
-        field -= base->getFieldCount();
-    }
-    Olsrv2PacketHolderMessage *pp = omnetpp::fromAnyPtr<Olsrv2PacketHolderMessage>(object); (void)pp;
-    switch (field) {
-        default: throw omnetpp::cRuntimeError("Cannot set field %d of class 'Olsrv2PacketHolderMessage'", field);
-    }
-}
-
-omnetpp::cValue Olsrv2PacketHolderMessageDescriptor::getFieldValue(omnetpp::any_ptr object, int field, int i) const
-{
-    omnetpp::cClassDescriptor *base = getBaseClassDescriptor();
-    if (base) {
-        if (field < base->getFieldCount())
-            return base->getFieldValue(object,field,i);
-        field -= base->getFieldCount();
-    }
-    Olsrv2PacketHolderMessage *pp = omnetpp::fromAnyPtr<Olsrv2PacketHolderMessage>(object); (void)pp;
-    switch (field) {
-        case FIELD_ownedPacket: return omnetpp::toAnyPtr(pp->getOwnedPacket()); break;
-        default: throw omnetpp::cRuntimeError("Cannot return field %d of class 'Olsrv2PacketHolderMessage' as cValue -- field index out of range?", field);
-    }
-}
-
-void Olsrv2PacketHolderMessageDescriptor::setFieldValue(omnetpp::any_ptr object, int field, int i, const omnetpp::cValue& value) const
-{
-    omnetpp::cClassDescriptor *base = getBaseClassDescriptor();
-    if (base) {
-        if (field < base->getFieldCount()){
-            base->setFieldValue(object, field, i, value);
-            return;
-        }
-        field -= base->getFieldCount();
-    }
-    Olsrv2PacketHolderMessage *pp = omnetpp::fromAnyPtr<Olsrv2PacketHolderMessage>(object); (void)pp;
-    switch (field) {
-        case FIELD_ownedPacket: pp->setOwnedPacket(omnetpp::fromAnyPtr<Packet>(value.pointerValue())); break;
-        default: throw omnetpp::cRuntimeError("Cannot set field %d of class 'Olsrv2PacketHolderMessage'", field);
-    }
-}
-
-const char *Olsrv2PacketHolderMessageDescriptor::getFieldStructName(int field) const
-{
-    omnetpp::cClassDescriptor *base = getBaseClassDescriptor();
-    if (base) {
-        if (field < base->getFieldCount())
-            return base->getFieldStructName(field);
-        field -= base->getFieldCount();
-    }
-    switch (field) {
-        case FIELD_ownedPacket: return omnetpp::opp_typename(typeid(Packet));
-        default: return nullptr;
-    };
-}
-
-omnetpp::any_ptr Olsrv2PacketHolderMessageDescriptor::getFieldStructValuePointer(omnetpp::any_ptr object, int field, int i) const
-{
-    omnetpp::cClassDescriptor *base = getBaseClassDescriptor();
-    if (base) {
-        if (field < base->getFieldCount())
-            return base->getFieldStructValuePointer(object, field, i);
-        field -= base->getFieldCount();
-    }
-    Olsrv2PacketHolderMessage *pp = omnetpp::fromAnyPtr<Olsrv2PacketHolderMessage>(object); (void)pp;
-    switch (field) {
-        case FIELD_ownedPacket: return omnetpp::toAnyPtr(pp->getOwnedPacket()); break;
-        default: return omnetpp::any_ptr(nullptr);
-    }
-}
-
-void Olsrv2PacketHolderMessageDescriptor::setFieldStructValuePointer(omnetpp::any_ptr object, int field, int i, omnetpp::any_ptr ptr) const
-{
-    omnetpp::cClassDescriptor *base = getBaseClassDescriptor();
-    if (base) {
-        if (field < base->getFieldCount()){
-            base->setFieldStructValuePointer(object, field, i, ptr);
-            return;
-        }
-        field -= base->getFieldCount();
-    }
-    Olsrv2PacketHolderMessage *pp = omnetpp::fromAnyPtr<Olsrv2PacketHolderMessage>(object); (void)pp;
-    switch (field) {
-        case FIELD_ownedPacket: pp->setOwnedPacket(omnetpp::fromAnyPtr<Packet>(ptr)); break;
-        default: throw omnetpp::cRuntimeError("Cannot set field %d of class 'Olsrv2PacketHolderMessage'", field);
     }
 }
 

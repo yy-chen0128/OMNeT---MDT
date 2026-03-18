@@ -22,6 +22,7 @@ void Olsrv2ControlPacketsSerializer::serialize(MemoryOutputStream& stream, const
             stream.writeByte(static_cast<uint8_t>(hello->getPacketType()));
             stream.writeIpv4Address(hello->getOriginator().toIpv4());
             stream.writeUint64Be(static_cast<uint64_t>(hello->getHTime().inUnit(SIMTIME_MS)));
+            stream.writeUint64Be(static_cast<uint64_t>(hello->getValidityTime().inUnit(SIMTIME_MS)));
             stream.writeByte(hello->getWillingness());
             stream.writeUint16Be(hello->getMsgSeq());
 
@@ -42,6 +43,7 @@ void Olsrv2ControlPacketsSerializer::serialize(MemoryOutputStream& stream, const
 
             stream.writeByte(static_cast<uint8_t>(tc->getPacketType()));
             stream.writeUint64Be(static_cast<uint64_t>(tc->getGenTime().inUnit(SIMTIME_MS)));
+            stream.writeUint64Be(static_cast<uint64_t>(tc->getValidityTime().inUnit(SIMTIME_MS)));
 
             const auto m = static_cast<uint16_t>(tc->getOriginatorsArraySize());
             stream.writeUint16Be(m);
@@ -77,6 +79,7 @@ const Ptr<Chunk> Olsrv2ControlPacketsSerializer::deserialize(MemoryInputStream& 
             hello->setPacketType(Olsrv2Hello);
             hello->setOriginator(L3Address(stream.readIpv4Address()));
             hello->setHTime(SimTime(stream.readUint64Be(), SIMTIME_MS));
+            hello->setValidityTime(SimTime(stream.readUint64Be(), SIMTIME_MS));
             hello->setWillingness(stream.readByte());
             hello->setMsgSeq(stream.readUint16Be());
 
@@ -100,6 +103,7 @@ const Ptr<Chunk> Olsrv2ControlPacketsSerializer::deserialize(MemoryInputStream& 
             auto tc = makeShared<Olsrv2TcGroup>();
             tc->setPacketType(Olsrv2Tc);
             tc->setGenTime(SimTime(stream.readUint64Be(), SIMTIME_MS));
+            tc->setValidityTime(SimTime(stream.readUint64Be(), SIMTIME_MS));
 
             uint16_t m = stream.readUint16Be();
             tc->setOriginatorsArraySize(m);
